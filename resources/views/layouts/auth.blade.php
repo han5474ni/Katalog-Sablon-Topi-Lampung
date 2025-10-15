@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/auth/forgot-password.css', 'resources/js/app.js'])
 
         <!-- Inline styles for LGI login page to ensure UI without Vite build -->
         <style>
@@ -56,6 +56,12 @@
         .lgi-login .password-toggle{position:relative}
         .lgi-login .password-toggle input{padding-right:50px}
         .lgi-login .toggle-icon{position:absolute;right:18px;top:50%;transform:translateY(-50%);cursor:pointer;color:#999;font-size:18px}
+        .lgi-login .alert{padding:15px 20px;border-radius:10px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;animation:slideDown .3s ease-out}
+        .lgi-login .alert-success{background-color:#d4edda;color:#155724;border:1px solid #c3e6cb}
+        .lgi-login .alert-success i{color:#28a745}
+        .lgi-login .alert-error{background-color:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+        .lgi-login .alert-error i{color:#dc3545}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         @media (max-width:768px){.lgi-login .login-card{padding:40px 30px}.lgi-login .logo-text{font-size:32px}}
         </style>
     </head>
@@ -64,10 +70,14 @@
 
         <!-- Inline behavior for password visibility toggle (safe no-op on other pages) -->
         <script>
-        window.addEventListener('DOMContentLoaded', function () {
+        function initPasswordToggle() {
             var togglePassword = document.getElementById('togglePassword');
             var passwordInput = document.getElementById('password');
             if (togglePassword && passwordInput) {
+                // Remove existing listener to prevent duplicates
+                togglePassword.replaceWith(togglePassword.cloneNode(true));
+                togglePassword = document.getElementById('togglePassword');
+                
                 togglePassword.addEventListener('click', function () {
                     var type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passwordInput.setAttribute('type', type);
@@ -75,6 +85,34 @@
                     this.classList.toggle('fa-eye-slash');
                 });
             }
+        }
+
+        function initAlertAutoHide() {
+            // Auto-hide alerts after 5 seconds
+            var alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                alerts.forEach(function(alert) {
+                    setTimeout(function() {
+                        alert.style.transition = 'opacity 0.5s ease-out';
+                        alert.style.opacity = '0';
+                        setTimeout(function() {
+                            alert.style.display = 'none';
+                        }, 500);
+                    }, 5000);
+                });
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function () {
+            initPasswordToggle();
+            initAlertAutoHide();
+        });
+
+        // Re-initialize after Livewire navigation (for SPA-like behavior)
+        document.addEventListener('livewire:navigated', function () {
+            initPasswordToggle();
+            initAlertAutoHide();
         });
         </script>
     </body>

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Admin Dashboard - LGI STORE</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,10 +30,13 @@
                 <li><a href="#" class="sidebar__link"><i class="fa-solid fa-wallet"></i><span>Finance and Wallet</span></a></li>
             </ul>
             <div class="sidebar__footer">
-                <a href="/logout" class="sidebar__link">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Log Out</span>
-                </a>
+                <form method="POST" action="{{ route('admin.logout') }}" style="display: inline;">
+                @csrf
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
             </div>
         </nav>
 
@@ -43,11 +46,11 @@
                 <div class="header__actions">
                     <div class="date-range">
                         <i class="fa-solid fa-calendar-days"></i>
-                        <span>Oktober 16,2025 - November 11,2025</span>
+                        <span>{{ now()->format('F d, Y') }} - {{ now()->addDays(25)->format('F d, Y') }}</span>
                     </div>
                     <div class="user-dropdown">
                         <button class="user-dropdown__button">
-                            Admin <i class="fa-solid fa-chevron-down"></i>
+                            {{ Auth::user()->name ?? 'Admin' }} <i class="fa-solid fa-chevron-down"></i>
                         </button>
                     </div>
                 </div>
@@ -185,6 +188,6 @@
             </div>
         </main>
     </div>
-    <script src="script.js"></script>
+    <script src="{{ asset('dashboard/script.js') }}"></script>
 </body>
 </html>

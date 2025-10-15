@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -26,15 +25,23 @@ rules([
 ]);
 
 $register = function () {
-    $validated = $this->validate();
+    try {
+        $validated = $this->validate();
 
-    $validated['password'] = Hash::make($validated['password']);
+        $validated['password'] = Hash::make($validated['password']);
 
-    event(new Registered($user = User::create($validated)));
+        event(new Registered($user = User::create($validated)));
 
-    Auth::login($user);
-
-    $this->redirect(route('dashboard', absolute: false), navigate: true);
+        // Redirect ke login dengan pesan sukses
+        session()->flash('success', 'Akun berhasil dibuat! Silakan login untuk melanjutkan.');
+        
+        $this->redirect(route('login', absolute: false), navigate: true);
+    } catch (\Exception $e) {
+        // Jika terjadi error
+        session()->flash('error', 'Gagal membuat akun. Silakan coba lagi.');
+        
+        $this->redirect(route('register', absolute: false), navigate: true);
+    }
 };
 
 ?>
@@ -61,6 +68,14 @@ $register = function () {
         <div class="bg-gradient-to-b from-gray-800 to-gray-900 p-8 rounded-b-2xl shadow-2xl border-x border-b border-gray-700">
             <h2 class="text-2xl font-bold text-white text-center mb-8 tracking-wide">BUAT AKUN BARU</h2>
             
+            <!-- Error Notification -->
+            @if (session('error'))
+                <div class="mb-6 bg-red-500 bg-opacity-20 border border-red-500 text-red-300 px-4 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             <form wire:submit="register" class="space-y-6">
                 <!-- Name -->
                 <div>

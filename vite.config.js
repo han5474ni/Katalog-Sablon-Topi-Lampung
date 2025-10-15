@@ -4,7 +4,11 @@ import laravel from 'laravel-vite-plugin';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: ['resources/css/app.css', 
+                'resources/css/admin/login.css',
+                'resources/css/homepage/style.css',
+                'resources/css/auth/forgot-password.css',
+                'resources/js/app.js'],
             refresh: true,
         }),
     ],
