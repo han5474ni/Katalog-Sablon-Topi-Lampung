@@ -46,27 +46,28 @@ $register = function () {
 
 ?>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black relative overflow-hidden">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
-    
-    <div class="relative z-10 w-full max-w-md">
-        <!-- Logo Header -->
-        <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-8 rounded-t-2xl shadow-2xl border border-gray-700">
-            <div class="text-center">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full mb-4 shadow-lg">
-                    <svg class="w-8 h-8 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 6a2 2 0 114 0 2 2 0 01-4 0zm8 0a2 2 0 114 0 2 2 0 01-4 0z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <h1 class="text-3xl font-bold text-white tracking-wider">LGI STORE</h1>
-                <p class="text-gray-400 text-sm mt-2 tracking-wide">Katalog Sablon Topi Lampung</p>
+<div style="min-height: 100vh; background-color: #f5f5f5; display: flex; flex-direction: column;">
+    <!-- Top Bar -->
+    <div style="background-color: #1a2942; padding: 12px 40px; display: flex; justify-content: flex-end; align-items: center;">
+        <a href="{{ route('admin.login') }}" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 6px; font-size: 13px; border-left: 2px solid rgba(255, 255, 255, 0.3); padding-left: 16px;">
+            <i class="fas fa-lock"></i>
+            <span>Admin Login</span>
+        </a>
+    </div>
+
+    <!-- Content -->
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 20px;">
+        <!-- Logo Section -->
+        <div style="text-align: center; margin-bottom: 28px;">
+            <div style="width: 64px; height: 64px; background-color: transparent; border-radius: 50%; border: 3px solid #000; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                <i class="fas fa-shopping-bag" style="font-size: 28px; color: #000; font-weight: bold;"></i>
             </div>
+            <div style="font-size: 32px; font-weight: 900; color: #ffc107; letter-spacing: 1.5px;">LGI STORE</div>
+            <div style="font-size: 10px; color: #333; font-weight: 600; margin-top: 4px; letter-spacing: 0.8px;">PEDULI KUALITAS, BUKAN KUANTITAS</div>
         </div>
 
-        <!-- Register Form -->
-        <div class="bg-gradient-to-b from-gray-800 to-gray-900 p-8 rounded-b-2xl shadow-2xl border-x border-b border-gray-700">
-            <h2 class="text-2xl font-bold text-white text-center mb-8 tracking-wide">BUAT AKUN BARU</h2>
+        <!-- Register Card -->
+        <div style="background-color: #fff; border-radius: 16px; padding: 40px 50px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); width: 100%; max-width: 700px;">
             
             <!-- Error Notification -->
             @if (session('error'))
@@ -76,76 +77,80 @@ $register = function () {
                 </div>
             @endif
 
-            <form wire:submit="register" class="space-y-6">
-                <!-- Name -->
-                <div>
-                    <label for="name" class="block text-yellow-400 text-sm font-semibold mb-2 tracking-wide">
-                        <i class="fas fa-user mr-2"></i>Nama Lengkap
-                    </label>
-                    <input wire:model="name" id="name" type="text" name="name" required autofocus autocomplete="name"
-                           class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition duration-200 text-gray-900"
-                           placeholder="Masukkan nama lengkap Anda">
-                    <x-input-error :messages="$errors->get('name')" class="mt-2 text-red-400" />
+            <form wire:submit="register" style="margin: 0;">
+                <!-- Name Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px;">
+                    <div>
+                        <input wire:model="name" type="text" placeholder="Nama Depan" required
+                               style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                        <x-input-error :messages="$errors->get('name')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
+                    </div>
+                    <div>
+                        <input type="text" placeholder="Nama Belakang"
+                               style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                    </div>
                 </div>
 
-                <!-- Email Address -->
-                <div>
-                    <label for="email" class="block text-yellow-400 text-sm font-semibold mb-2 tracking-wide">
-                        <i class="fas fa-envelope mr-2"></i>Email
+                <!-- Gender -->
+                <div style="margin-bottom: 18px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #ffc107; margin-bottom: 10px;">
+                        <span>Jenis Kelamin</span>
+                        <i class="fas fa-question-circle" style="font-size: 12px;"></i>
                     </label>
-                    <input wire:model="email" id="email" type="email" name="email" required autocomplete="username"
-                           class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition duration-200 text-gray-900"
-                           placeholder="Masukkan email Anda">
-                    <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400" />
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <label style="display: flex; align-items: center; justify-content: center; padding: 12px; border: 1px solid #d0d0d0; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            <input type="radio" name="gender" value="male" style="margin-right: 8px;">
+                            <span>Laki - Laki</span>
+                        </label>
+                        <label style="display: flex; align-items: center; justify-content: center; padding: 12px; border: 1px solid #d0d0d0; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                            <input type="radio" name="gender" value="female" style="margin-right: 8px;">
+                            <span>Perempuan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div style="margin-bottom: 18px;">
+                    <label style="display: block; font-size: 14px; font-weight: 400; color: #999; margin-bottom: 10px;">Nomor Seluler</label>
+                    <input type="tel" placeholder="+62"
+                           style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                </div>
+
+                <!-- Email -->
+                <div style="margin-bottom: 18px;">
+                    <input wire:model="email" type="email" placeholder="Email" required
+                           style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                    <x-input-error :messages="$errors->get('email')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
                 </div>
 
                 <!-- Password -->
-                <div>
-                    <label for="password" class="block text-yellow-400 text-sm font-semibold mb-2 tracking-wide">
-                        <i class="fas fa-lock mr-2"></i>Password
-                    </label>
-                    <input wire:model="password" id="password" type="password" name="password" required autocomplete="new-password"
-                           class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition duration-200 text-gray-900"
-                           placeholder="Masukkan password Anda">
-                    <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-400" />
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                    <label for="password_confirmation" class="block text-yellow-400 text-sm font-semibold mb-2 tracking-wide">
-                        <i class="fas fa-lock mr-2"></i>Konfirmasi Password
-                    </label>
-                    <input wire:model="password_confirmation" id="password_confirmation" type="password" name="password_confirmation" required autocomplete="new-password"
-                           class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition duration-200 text-gray-900"
-                           placeholder="Konfirmasi password Anda">
-                    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-400" />
+                <div style="margin-bottom: 20px;">
+                    <input wire:model="password" type="password" placeholder="Password" required
+                           style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                    <x-input-error :messages="$errors->get('password')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
                 </div>
 
                 <!-- Terms -->
-                <div class="text-center">
-                    <p class="text-gray-400 text-xs leading-relaxed">
-                        Dengan membuat akun, Anda setuju dengan 
-                        <a href="#" class="text-yellow-400 hover:text-yellow-300">Ketentuan Layanan</a> dan 
-                        <a href="#" class="text-yellow-400 hover:text-yellow-300">Kebijakan Privasi</a> kami.
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <p style="font-size: 13px; color: #ffc107; line-height: 1.6;">
+                        Dengan menekan tombol Daftar, Anda setuju dengan Ketentuan,<br>
+                        Kebijakan Privasi, serta Kebijakan Cookie yang berlaku di LGI STORE.
                     </p>
                 </div>
 
                 <!-- Register Button -->
                 <button type="submit" 
-                        class="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:-translate-y-1 transition duration-200 shadow-lg hover:shadow-xl tracking-wide">
-                    <i class="fas fa-user-plus mr-2"></i>DAFTAR
+                        style="width: 100%; padding: 14px; background: linear-gradient(to right, #f9a825, #ffc107); border: none; border-radius: 8px; font-size: 16px; font-weight: 600; color: #fff; cursor: pointer; transition: all 0.3s; margin-bottom: 16px;">
+                    DAFTAR
                 </button>
-            </form>
 
-            <!-- Login Link -->
-            <div class="text-center mt-6">
-                <p class="text-gray-400 text-sm">
-                    Sudah punya akun? 
-                    <a href="{{ route('login') }}" wire:navigate class="text-yellow-400 hover:text-yellow-300 font-semibold transition duration-200">
-                        Masuk sekarang
-                    </a>
-                </p>
-            </div>
+                <!-- Login Link -->
+                <div style="text-align: center;">
+                    <p style="font-size: 13px; color: #666;">
+                        Sudah Memiliki Akun ?
+                    </p>
+                </div>
+            </form>
         </div>
     </div>
 </div>

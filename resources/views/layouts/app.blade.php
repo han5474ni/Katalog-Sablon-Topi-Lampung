@@ -13,24 +13,24 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <link rel="stylesheet" href="{{ asset('css/customer/sidebar.css') }}">
+        @stack('styles')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             <livewire:layout.navigation />
 
             <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+
 
             <!-- Page Content -->
-            <main>
+            <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
                 {{ $slot }}
             </main>
         </div>
+
+        <script src="{{ asset('js/customer/sidebar.js') }}"></script>
+        @stack('scripts')
     </body>
 </html>

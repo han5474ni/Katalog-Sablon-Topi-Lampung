@@ -27,9 +27,11 @@ class AdminAuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
+        $validated = $request->validate([
+            'email' => 'required|email|exists:admins,email',
             'password' => 'required|min:6',
+        ], [
+            'email.exists' => 'Email tidak ditemukan.',
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -37,11 +39,18 @@ class AdminAuthController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            
+            // Log login activity
+            \App\Models\Admin::logActivity(
+                'login',
+                'Admin logged in successfully'
+            );
+            
             return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'password' => 'Password salah.',
         ])->onlyInput('email');
     }
 
@@ -50,6 +59,12 @@ class AdminAuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Log logout activity before logging out
+        \App\Models\Admin::logActivity(
+            'logout',
+            'Admin logged out'
+        );
+        
         Auth::guard('admin')->logout();
 
         $request->session()->invalidate();

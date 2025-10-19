@@ -16,7 +16,14 @@
 
     @vite(['resources/css/admin/login.css'])
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Home Button -->
+    <div class="home-button">
+        <a href="{{ route('home') }}">
+            <i class="fas fa-home"></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
     <div class="admin-login-container">
         <div class="admin-header">
             <div class="admin-icon">

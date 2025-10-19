@@ -17,15 +17,23 @@ $login = function () {
 
     Session::regenerate();
 
-    $this->redirectIntended(default: route('homepage', absolute: false), navigate: true);
+    $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
 };
 
 ?>
 
 <!-- Single root wrapper to satisfy Livewire -->
 <div class="lgi-login">
+    <!-- Home Button -->
+    <div class="home-button">
+        <a href="{{ route('home') }}">
+            <i class="fas fa-home"></i>
+            <span>Back to Home</span>
+        </a>
+    </div>
+
     <div class="top-bar">
-        <a href="{{ route('admin.login') }}" class="admin-login">
+        <a href="{{ route('admin.login') }}" class="admin-login" onclick="window.location.href='{{ route('admin.login') }}'; return false;">
             <i class="fas fa-lock"></i>
             <span>Admin Login</span>
         </a>
@@ -36,8 +44,10 @@ $login = function () {
             <div class="logo-circle">
                 <i class="fas fa-glasses"></i>
             </div>
-            <div class="logo-text">LGI STORE</div>
-            <div class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</div>
+            <div class="logo-text-container">
+                <div class="logo-text">LGI STORE</div>
+                <div class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</div>
+            </div>
         </div>
 
         <div class="login-card">

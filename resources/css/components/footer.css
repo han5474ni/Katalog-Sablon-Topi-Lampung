@@ -1,0 +1,138 @@
+/* ===================================
+   FOOTER SECTION
+   =================================== */
+.site-footer {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 60px 40px 40px;
+}
+
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footer-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+}
+
+.footer-stores {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 60px;
+    margin-bottom: 50px;
+}
+
+.store-info {
+    color: #ffffff;
+}
+
+.store-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #ffffff;
+    line-height: 1.5;
+}
+
+.store-address {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.store-hours {
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.store-hours-detail {
+    font-size: 13px;
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.store-maps {
+    display: inline-block;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.store-maps:hover {
+    color: #fbbf24;
+}
+
+.footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 18px;
+}
+
+.social-icon:hover {
+    background-color: #fbbf24;
+    color: #1a2332;
+    transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .site-footer {
+        padding: 40px 20px 30px;
+    }
+
+    .footer-title {
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .footer-stores {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .store-name {
+        font-size: 14px;
+    }
+
+    .store-address,
+    .store-hours,
+    .store-maps {
+        font-size: 13px;
+    }
+
+    .store-hours-detail {
+        font-size: 12px;
+    }
+
+    .social-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}

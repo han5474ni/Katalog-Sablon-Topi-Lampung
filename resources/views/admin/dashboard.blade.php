@@ -1,193 +1,243 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Admin Dashboard - LGI STORE</title>
-    <link rel="stylesheet" href="{{ asset('dashboard/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="dashboard-container">
-        <nav class="sidebar">
-            <div class="sidebar__header">
-                <img src="https://placehold.co/150x40/FFFFFF/0A1D37?text=LGI+STORE" alt="Logo LGI Store" class="sidebar__logo">
+<x-admin-layout title="Dashboard">
+    @push('styles')
+    @vite(['resources/css/admin/dashboard.css'])
+    @endpush
+
+    <div class="dashboard-content">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <!-- Product Sales Card -->
+            <div class="stats-card">
+                <div class="flex items-start">
+                    <div class="stat-icon-wrapper stat-icon-blue">
+                        <i class="fas fa-box-open stat-icon"></i>
+                    </div>
+                    <div>
+                        <p class="stat-content">Produk Terjual</p>
+                        <h3 class="stat-value">123.456</h3>
+                        <div class="stat-trend">
+                            <span class="stat-badge-up">
+                                <i class="fas fa-arrow-up"></i> 26.7%
+                            </span>
+                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <ul class="sidebar__menu">
-                <li><a href="#" class="sidebar__link active"><i class="fa-solid fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-box-archive"></i><span>All Products</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-list-ul"></i><span>Order List</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-comments"></i><span>Chatbot</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-users"></i><span>User Management</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-chart-line"></i><span>Analytic Reports</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-clock-rotate-left"></i><span>History</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-cog"></i><span>Product Management</span></a></li>
-                <li><a href="#" class="sidebar__link"><i class="fa-solid fa-wallet"></i><span>Finance and Wallet</span></a></li>
-            </ul>
-            <div class="sidebar__footer">
-                <form method="POST" action="{{ route('admin.logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
+
+            <!-- Revenue Card -->
+            <div class="stats-card">
+                <div class="flex items-start">
+                    <div class="stat-icon-wrapper stat-icon-green">
+                        <i class="fas fa-chart-line stat-icon"></i>
+                    </div>
+                    <div>
+                        <p class="stat-content">Hasil Pendapatan</p>
+                        <h3 class="stat-value">678.908</h3>
+                        <div class="stat-trend">
+                            <span class="stat-badge-up">
+                                <i class="fas fa-arrow-up"></i> 33.7%
+                            </span>
+                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Card -->
+            <div class="stats-card">
+                <div class="flex items-start">
+                    <div class="stat-icon-wrapper stat-icon-purple">
+                        <i class="fas fa-users stat-icon"></i>
+                    </div>
+                    <div>
+                        <p class="stat-content">Pembeli</p>
+                        <h3 class="stat-value">234.654</h3>
+                        <div class="stat-trend">
+                            <span class="stat-badge-up">
+                                <i class="fas fa-arrow-up"></i> 14.7%
+                            </span>
+                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <!-- Sales Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Grafik Penjualan</h2>
+                    <button class="chart-menu-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Produk Terlaris</h2>
+                    <button class="chart-menu-btn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="product-list">
+                    <!-- Product 1 -->
+                    <div class="product-item">
+                        <div class="product-icon-wrapper product-icon-blue">
+                            <i class="fas fa-shirt product-icon icon-blue"></i>
+                        </div>
+                        <div class="product-info">
+                            <p class="product-name">Jersey</p>
+                            <p class="product-sales">999 pembelian</p>
+                        </div>
+                        <p class="product-price">Rp 123.456</p>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-item">
+                        <div class="product-icon-wrapper product-icon-green">
+                            <i class="fas fa-shirt product-icon icon-green"></i>
+                        </div>
+                        <div class="product-info">
+                            <p class="product-name">Kaos</p>
+                            <p class="product-sales">999 pembelian</p>
+                        </div>
+                        <p class="product-price">Rp 234.567</p>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="product-item">
+                        <div class="product-icon-wrapper product-icon-yellow">
+                            <i class="fas fa-hat-cowboy product-icon" style="color: #b45309;"></i>
+                        </div>
+                        <div class="product-info">
+                            <p class="product-name">Topi</p>
+                            <p class="product-sales">999 pembelian</p>
+                        </div>
+                        <p class="product-price">Rp 231.321</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders Table -->
+        <div class="table-card">
+            <div class="table-header">
+                <h2 class="chart-title">Pesanan Terbaru</h2>
+                <button class="chart-menu-btn">
+                    <i class="fas fa-ellipsis-v"></i>
                 </button>
-            </form>
             </div>
-        </nav>
 
-        <main class="main-content">
-            <header class="header">
-                <h1 class="header__title">Dashboard</h1>
-                <div class="header__actions">
-                    <div class="date-range">
-                        <i class="fa-solid fa-calendar-days"></i>
-                        <span>{{ now()->format('F d, Y') }} - {{ now()->addDays(25)->format('F d, Y') }}</span>
-                    </div>
-                    <div class="user-dropdown">
-                        <button class="user-dropdown__button">
-                            {{ Auth::user()->name ?? 'Admin' }} <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <div class="content-body">
-                <div class="stats-grid">
-                    <div class="card stat-card">
-                        <div class="stat-card__icon"><i class="fa-solid fa-box"></i></div>
-                        <div class="stat-card__info">
-                            <span class="stat-card__title">Produk Terjual</span>
-                            <span class="stat-card__value">123.456</span>
-                            <span class="stat-card__growth increase"><i class="fa-solid fa-arrow-up"></i> 26.7%</span>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-card__icon"><i class="fa-solid fa-wallet"></i></div>
-                        <div class="stat-card__info">
-                            <span class="stat-card__title">Hasil Pendapatan</span>
-                            <span class="stat-card__value">678.908</span>
-                            <span class="stat-card__growth increase"><i class="fa-solid fa-arrow-up"></i> 33.7%</span>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="stat-card__icon"><i class="fa-solid fa-users"></i></div>
-                        <div class="stat-card__info">
-                            <span class="stat-card__title">Pembeli</span>
-                            <span class="stat-card__value">234.654</span>
-                            <span class="stat-card__growth increase"><i class="fa-solid fa-arrow-up"></i> 14.7%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="main-grid">
-                    <div class="card chart-card">
-                        <div class="card__header">
-                            <h3>Grafik Penjualan</h3>
-                            <button class="card__options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                        </div>
-                        <div class="chart-container">
-                            <img src="https://placehold.co/600x250/FFFFFF/E0E0E0?text=Chart.js+Goes+Here" alt="Sales Chart Placeholder">
-                        </div>
-                    </div>
-                    <div class="card top-products-card">
-                         <div class="card__header">
-                            <h3>Terlaris</h3>
-                            <button class="card__options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                        </div>
-                        <ul class="top-products-list">
-                            <li>
-                                <img src="https://placehold.co/40x40/EFEFEF/333?text=J" alt="Jersey">
-                                <div class="product-info">
-                                    <span>Jersey</span>
-                                    <small>999 pembelian</small>
-                                </div>
-                                <span class="product-sales">Rp 123.456</span>
-                            </li>
-                            <li>
-                                <img src="https://placehold.co/40x40/EFEFEF/333?text=K" alt="Kaos">
-                                <div class="product-info">
-                                    <span>Kaos</span>
-                                    <small>999 pembelian</small>
-                                </div>
-                                <span class="product-sales">Rp 234.567</span>
-                            </li>
-                             <li>
-                                <img src="https://placehold.co/40x40/EFEFEF/333?text=T" alt="Topi">
-                                <div class="product-info">
-                                    <span>Topi</span>
-                                    <small>999 pembelian</small>
-                                </div>
-                                <span class="product-sales">Rp 231.321</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="card recent-orders-card">
-                    <div class="card__header">
-                        <h3>Pesanan Terbaru</h3>
-                        <button class="card__options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                    </div>
-                    <table class="orders-table">
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox"></th>
-                                <th>Produk</th>
-                                <th>ID Pesanan</th>
-                                <th>Tanggal</th>
-                                <th>Nama Pelanggan</th>
-                                <th>Status</th>
-                                <th>Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>Baju</td>
-                                <td>#23456</td>
-                                <td>Nov 8th, 2023</td>
-                                <td>Hakiki</td>
-                                <td><span class="status status--pengiriman">Pengiriman</span></td>
-                                <td>Rp.99.999</td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>Kaos</td>
-                                <td>#34567</td>
-                                <td>Nov 7th, 2023</td>
-                                <td>Blodot</td>
-                                <td><span class="status status--dibatalkan">Dibatalkan</span></td>
-                                <td>Rp.99.999</td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>Topi</td>
-                                <td>#23457</td>
-                                <td>Nov 6th, 2023</td>
-                                <td>Kaisar</td>
-                                <td><span class="status status--pengiriman">Pengiriman</span></td>
-                                <td>Rp.99.999</td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td>Kaos</td>
-                                <td>#43214</td>
-                                <td>Nov 4th, 2023</td>
-                                <td>Anyak</td>
-                                <td><span class="status status--pengiriman">Pengiriman</span></td>
-                                <td>Rp.99.999</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div style="overflow-x: auto;">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th class="table-checkbox-cell">
+                                <input type="checkbox">
+                            </th>
+                            <th class="table-th">Produk</th>
+                            <th class="table-th">ID Pesanan</th>
+                            <th class="table-th">Tanggal</th>
+                            <th class="table-th">Nama Pelanggan</th>
+                            <th class="table-th">Status</th>
+                            <th class="table-th">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Baju</td>
+                            <td class="table-td table-td-text">#23456</td>
+                            <td class="table-td table-td-text">Nov 8th, 2023</td>
+                            <td class="table-td table-td-customer">Hakiki</td>
+                            <td class="table-td">
+                                <span class="status-badge status-pending">Pengiriman</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Kaos</td>
+                            <td class="table-td table-td-text">#34567</td>
+                            <td class="table-td table-td-text">Nov 7th, 2023</td>
+                            <td class="table-td table-td-customer">Blodot</td>
+                            <td class="table-td">
+                                <span class="status-badge status-cancelled">Dibatalkan</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Topi</td>
+                            <td class="table-td table-td-text">#23457</td>
+                            <td class="table-td table-td-text">Nov 6th, 2023</td>
+                            <td class="table-td table-td-customer">Kaisar</td>
+                            <td class="table-td">
+                                <span class="status-badge status-pending">Pengiriman</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Kaos</td>
+                            <td class="table-td table-td-text">#43214</td>
+                            <td class="table-td table-td-text">Nov 4th, 2023</td>
+                            <td class="table-td table-td-customer">Anyak</td>
+                            <td class="table-td">
+                                <span class="status-badge status-completed">Selesai</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Jersey</td>
+                            <td class="table-td table-td-text">#23345</td>
+                            <td class="table-td table-td-text">Nov 2nd, 2023</td>
+                            <td class="table-td table-td-customer">Elisa Novia</td>
+                            <td class="table-td">
+                                <span class="status-badge status-pending">Pengiriman</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                        <tr class="table-row">
+                            <td class="table-td">
+                                <input type="checkbox">
+                            </td>
+                            <td class="table-td table-td-product">Kaos</td>
+                            <td class="table-td table-td-text">#23567</td>
+                            <td class="table-td table-td-text">Nov 1st, 2023</td>
+                            <td class="table-td table-td-customer">Kaisar</td>
+                            <td class="table-td">
+                                <span class="status-badge status-completed">Selesai</span>
+                            </td>
+                            <td class="table-td table-td-amount">Rp.99.999</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </main>
+        </div>
     </div>
-    <script src="{{ asset('dashboard/script.js') }}"></script>
-</body>
-</html>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @vite('resources/js/admin/dashboard-charts.js')
+    @endpush
+</x-admin-layout>
