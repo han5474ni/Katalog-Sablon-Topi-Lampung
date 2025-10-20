@@ -4,7 +4,9 @@
 .site-footer {
     background-color: #1a1a1a;
     color: white;
-    padding: 60px 40px 40px;
+    padding: 60px 24px 40px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .footer-content {
@@ -100,9 +102,15 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .site-footer {
+        padding: 60px 20px 40px;
+    }
+}
+
 @media (max-width: 768px) {
     .site-footer {
-        padding: 40px 20px 30px;
+        padding: 40px 16px 30px;
     }
 
     .footer-title {

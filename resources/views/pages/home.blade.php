@@ -17,7 +17,9 @@
     <!-- Header -->
     <header>
         <a href="{{ route('home') }}" class="logo" style="text-decoration: none;">
-            <div class="logo-circle"></div>
+            <div class="logo-circle">
+                <i class="fas fa-glasses"></i>
+            </div>
             <div class="logo-text-container">
                 <span class="logo-text">LGI STORE</span>
                 <span class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</span>
@@ -25,6 +27,7 @@
         </a>
         
         <nav class="main-nav">
+            <a href="{{ route('home') }}">Semua Produk</a>
             <a href="{{ route('catalog', 'topi') }}">Topi</a>
             <a href="{{ route('catalog', 'kaos') }}">Kaos</a>
             <a href="{{ route('catalog', 'sablon') }}">Sablon</a>
@@ -153,7 +156,7 @@
         </div>
 
         <div class="hero-image">
-            <img src="https://i.pinimg.com/originals/e9/04/53/e904533ed00df550bb4fc87064217f18.png" alt="Minimalist Jersey" style="width: 400px; height: auto; display: block; margin: 0 auto;">
+            <img src="https://i.pinimg.com/originals/e9/04/53/e904533ed00df550bb4fc87064217f18.png" alt="Minimalist Jersey" class="hero-img">
         </div>
     </section>
 

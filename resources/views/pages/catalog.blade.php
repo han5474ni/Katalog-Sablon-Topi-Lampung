@@ -19,6 +19,7 @@
         </a>
         
         <nav class="main-nav">
+            <a href="{{ route('home') }}">Semua Produk</a>
             <a href="{{ route('catalog', 'topi') }}" class="{{ $category === 'topi' ? 'active' : '' }}">Topi</a>
             <a href="{{ route('catalog', 'kaos') }}" class="{{ $category === 'kaos' ? 'active' : '' }}">Kaos</a>
             <a href="{{ route('catalog', 'sablon') }}" class="{{ $category === 'sablon' ? 'active' : '' }}">Sablon</a>
