@@ -17,9 +17,7 @@
     <!-- Header -->
     <header>
         <a href="{{ route('home') }}" class="logo" style="text-decoration: none;">
-            <div class="logo-circle">
-                <i class="fas fa-glasses"></i>
-            </div>
+            <div class="logo-circle"></div>
             <div class="logo-text-container">
                 <span class="logo-text">LGI STORE</span>
                 <span class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</span>
@@ -27,7 +25,7 @@
         </a>
         
         <nav class="main-nav">
-            <a href="{{ route('home') }}">Semua Produk</a>
+            <a href="{{ route('all-products') }}">Semua Produk</a>
             <a href="{{ route('catalog', 'topi') }}">Topi</a>
             <a href="{{ route('catalog', 'kaos') }}">Kaos</a>
             <a href="{{ route('catalog', 'sablon') }}">Sablon</a>

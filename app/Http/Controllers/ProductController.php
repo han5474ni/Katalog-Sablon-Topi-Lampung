@@ -7,6 +7,12 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
+    public function allProducts()
+    {
+        $products = Product::paginate(12);
+        return view('customer.all-product', compact('products'));
+    }
+
     public function detail(Request $request)
     {
         // Try to get product from database first

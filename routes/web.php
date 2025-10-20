@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/all-products', [ProductController::class, 'allProducts'])->name('all-products');
+
 Route::get('/public/detail', [ProductController::class, 'detail'])->name('product.detail');
 
 // Catalog routes
