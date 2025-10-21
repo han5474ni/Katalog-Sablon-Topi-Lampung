@@ -8,7 +8,6 @@
     @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css', 'resources/js/guest/catalog.js'])
 </head>
 <body>
-    <!-- Navbar Component -->
     <x-navbar />
 
     <!-- Breadcrumb -->

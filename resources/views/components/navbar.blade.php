@@ -27,12 +27,14 @@
         @endphp
         <nav class="main-nav">
             <a href="{{ route('all-products') }}" class="{{ $currentRoute === 'all-products' ? 'active' : '' }}">Semua Produk</a>
+            <a href="{{ route('catalog', 'jersey') }}" class="{{ $currentCategory === 'jersey' ? 'active' : '' }}">Jersey</a>
             <a href="{{ route('catalog', 'topi') }}" class="{{ $currentCategory === 'topi' ? 'active' : '' }}">Topi</a>
             <a href="{{ route('catalog', 'kaos') }}" class="{{ $currentCategory === 'kaos' ? 'active' : '' }}">Kaos</a>
-            <a href="{{ route('catalog', 'sablon') }}" class="{{ $currentCategory === 'sablon' ? 'active' : '' }}">Sablon</a>
+            <a href="{{ route('catalog', 'celana') }}" class="{{ $currentCategory === 'celana' ? 'active' : '' }}">Celana</a>
             <a href="{{ route('catalog', 'jaket') }}" class="{{ $currentCategory === 'jaket' ? 'active' : '' }}">Jaket</a>
-            <a href="{{ route('catalog', 'jersey') }}" class="{{ $currentCategory === 'jersey' ? 'active' : '' }}">Jersey</a>
-            <a href="{{ route('catalog', 'tas') }}" class="{{ $currentCategory === 'tas' ? 'active' : '' }}">Tas</a>
+            <a href="{{ route('catalog', 'polo') }}" class="{{ $currentCategory === 'polo' ? 'active' : '' }}">Polo</a>
+            <a href="#contact-info">Contact Info</a>
+            <a href="#about">About</a>
         </nav>
 
         <!-- Search Container -->
@@ -69,233 +71,203 @@
             @endif
         </div>
     </header>
-
-    <!-- Profile Popup -->
-    @php
-        $authenticatedUser = auth()->user() ?? auth('admin')->user();
-        $userInitial = $authenticatedUser ? mb_strtoupper(mb_substr($authenticatedUser->name, 0, 1)) : 'U';
-        $userAvatar = $authenticatedUser?->avatar ? Storage::url($authenticatedUser->avatar) : null;
-    @endphp
-    <div id="profile-popup" class="profile-popup" data-auth="{{ $authenticatedUser ? 'true' : 'false' }}" data-login-url="{{ route('login') }}">
-        <div class="profile-popup-content">
-            <div class="profile-header">
-                @if($userAvatar)
-                    <img src="{{ $userAvatar }}" alt="{{ $authenticatedUser->name }}" class="profile-avatar-img">
-                @else
-                    <div class="profile-avatar">{{ $userInitial }}</div>
-                @endif
-                <div class="profile-info">
-                    <div class="profile-name">{{ $authenticatedUser?->name ?? 'Tamu' }}</div>
-                    <div class="profile-email">{{ $authenticatedUser?->email ?? 'Masuk untuk melihat detail profil' }}</div>
-                </div>
-            </div>
-            <div class="profile-menu">
-                @if ($authenticatedUser)
-                    @if(auth()->check())
-                        <a href="{{ route('profile') }}" class="profile-menu-item">
-                            <i class="fas fa-user"></i>
-                            <span>Profil Saya</span>
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}" class="profile-logout-form">
-                            @csrf
-                            <button type="submit" class="profile-menu-item">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Keluar</span>
-                            </button>
-                        </form>
-                    @elseif(auth('admin')->check())
-                        <a href="{{ route('admin.profile') }}" class="profile-menu-item">
-                            <i class="fas fa-user-shield"></i>
-                            <span>Admin Profile</span>
-                        </a>
-                        <a href="{{ route('admin.dashboard') }}" class="profile-menu-item">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <form method="POST" action="{{ route('admin.logout') }}" class="profile-logout-form">
-                            @csrf
-                            <button type="submit" class="profile-menu-item">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Logout</span>
-                            </button>
-                        </form>
-                    @endif
-                @else
-                    <a href="{{ route('login') }}" class="profile-menu-item">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Masuk</span>
-                    </a>
-                @endif
-            </div>
-        </div>
-    </div>
 </div>
 
 <style>
     /* Top Banner */
-    .top-banner {
-        background-color: #1a2942;
-        padding: 12px 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-
-    .top-banner a {
-        color: #ffa500;
-        text-decoration: none;
-        font-weight: 600;
+    .navbar-wrapper .top-banner {
+        background: #1a2947;
+        color: #ffffff;
+        padding: 10px 24px;
+        text-align: center;
         font-size: 14px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .close-btn {
+    .navbar-wrapper .top-banner a {
+        color: #fbbf24;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    .navbar-wrapper .top-banner .close-btn {
         position: absolute;
-        right: 40px;
+        right: 24px;
         cursor: pointer;
-        color: #fff;
         font-size: 18px;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+        color: #ffffff;
+    }
+
+    .navbar-wrapper .top-banner .close-btn:hover {
+        opacity: 1;
     }
 
     /* Header Styles */
-    header {
-        background-color: #152238;
-        padding: 15px 40px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    .navbar-wrapper header {
+        background: #1a2947;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         position: sticky;
         top: 0;
         z-index: 100;
-    }
-
-    .logo {
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: space-between;
+        width: 100%;
+        margin: 0;
+        padding: 12px 24px;
+        box-sizing: border-box;
+    }
+
+    .navbar-wrapper .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
         text-decoration: none;
     }
 
-    .logo-circle {
+    .navbar-wrapper .logo-circle {
         width: 45px;
         height: 45px;
-        background-color: #fff;
+        background: #ffffff;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
-        color: #0a1628;
-        font-size: 16px;
+        color: #1a2947;
+        flex-shrink: 0;
     }
 
-    .logo-text-container {
+    .navbar-wrapper .logo-text-container {
         display: flex;
         flex-direction: column;
     }
 
-    .logo-text {
-        color: #fff;
-        font-weight: 800;
+    .navbar-wrapper .logo-text {
+        color: #ffffff;
+        font-weight: 700;
         font-size: 16px;
-        letter-spacing: 2px;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
     }
 
-    .logo-tagline {
-        color: #888;
+    .navbar-wrapper .logo-tagline {
+        color: rgba(255, 255, 255, 0.65);
         font-size: 8px;
         letter-spacing: 1px;
+        text-transform: uppercase;
+        line-height: 1;
     }
 
-    .main-nav {
+    .navbar-wrapper .main-nav {
         display: flex;
-        gap: 30px;
-        flex: 1;
-        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-left: 32px;
     }
 
-    .main-nav a {
-        color: #fff;
+    .navbar-wrapper .main-nav a {
+        color: #ffffff;
         text-decoration: none;
         font-size: 14px;
         font-weight: 500;
-        transition: color 0.3s;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .navbar-wrapper .main-nav a:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar-wrapper .main-nav a.active {
+        background: #fbbf24;
+        color: #1a2947;
+        font-weight: 600;
+    }
+
+    .navbar-wrapper .search-container {
+        flex: 1;
+        max-width: 500px;
         position: relative;
+        margin: 0 24px 0 auto;
     }
 
-    .main-nav a:hover,
-    .main-nav a.active {
-        color: #ffa500;
+    .navbar-wrapper .search-box {
+        width: 100%;
+        padding: 11px 16px 11px 44px;
+        border: none;
+        border-radius: 24px;
+        background: #b3bac4;
+        color: #1f2937;
+        font-size: 14px;
+        transition: background 0.2s ease;
     }
 
-    .main-nav a.active::after {
-        content: '';
-        position: absolute;
-        bottom: -20px;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background-color: #ffa500;
-    }
-
-    .search-container {
-        position: relative;
-        margin-right: 20px;
-    }
-
-    .search-box {
-        background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 25px;
-        padding: 10px 20px 10px 40px;
-        color: #fff;
-        width: 300px;
+    .navbar-wrapper .search-box:focus {
         outline: none;
-        transition: all 0.3s;
+        background: #c4cad1;
     }
 
-    .search-box:focus {
-        background-color: rgba(255, 255, 255, 0.15);
-        border-color: #ffa500;
+    .navbar-wrapper .search-box::placeholder {
+        color: #6b7280;
     }
 
-    .search-box::placeholder {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .search-icon {
+    .navbar-wrapper .search-icon {
         position: absolute;
-        left: 15px;
+        left: 16px;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.5);
+        color: #6b7280;
+        font-size: 14px;
+        pointer-events: none;
     }
 
-    .header-actions {
+    .navbar-wrapper .header-actions {
         display: flex;
-        gap: 25px;
         align-items: center;
+        gap: 20px;
+        margin-left: 16px;
     }
 
-    .header-actions i,
-    .header-actions img {
-        color: #fff;
-        font-size: 22px;
+    .navbar-wrapper .header-actions i,
+    .navbar-wrapper .header-actions a,
+    .navbar-wrapper .header-actions img {
+        color: #ffffff;
+        font-size: 20px;
         cursor: pointer;
-        transition: color 0.3s;
+        transition: all 0.2s ease;
+        text-decoration: none;
     }
 
-    .header-actions i:hover {
-        color: #ffa500;
+    .navbar-wrapper .header-actions i:hover,
+    .navbar-wrapper .header-actions a:hover {
+        color: #fbbf24;
+        transform: scale(1.05);
     }
 
-    .profile-avatar-header {
-        width: 40px;
-        height: 40px;
+    .navbar-wrapper .profile-avatar-header {
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         object-fit: cover;
         cursor: pointer;
+        border: 2px solid #ffffff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .navbar-wrapper .profile-avatar-header:hover {
+        border-color: #fbbf24;
+        box-shadow: 0 0 12px rgba(255, 193, 7, 0.6);
     }
 
     /* Profile Popup */
