@@ -1,287 +1,449 @@
 <!-- Navbar Component -->
+@php
+    use Illuminate\Support\Facades\Route;
+    use Illuminate\Support\Facades\Storage;
+
+    $currentRoute = Route::currentRouteName();
+    $currentCategory = $currentRoute === 'catalog' ? Route::current()->parameter('category') : null;
+    $currentUser = auth()->user() ?? auth('admin')->user();
+    $userAvatar = $currentUser?->avatar ? Storage::url($currentUser->avatar) : null;
+    $isAdmin = auth('admin')->check();
+@endphp
+
 <div class="navbar-wrapper">
-    <!-- Top Banner -->
-    <div class="top-banner">
-        <a href="#">🎉 Dapatkan diskon hingga 50% untuk produk pilihan!</a>
-        <span class="close-btn" onclick="this.parentElement.style.display='none';">×</span>
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <div class="top-bar-message">
+                Lebih banyak item + promo user baru ➜
+            </div>
+            <div class="top-bar-actions">
+                <a href="#" class="top-link">Tentang LGI</a>
+                <a href="#" class="top-link">Bantuan</a>
+                <a href="#" class="top-link notification-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifikasi</span>
+                </a>
+                @if($currentUser)
+                    <span class="top-user">Hi, {{ \Illuminate\Support\Str::limit($currentUser->name, 18) }}</span>
+                    <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="top-btn top-btn-outline">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="top-btn top-btn-outline">Masuk</a>
+                    <a href="{{ route('register') }}" class="top-btn top-btn-filled">Daftar</a>
+                @endif
+            </div>
+        </div>
     </div>
 
-    <!-- Header -->
-    <header>
-        <a href="{{ route('home') }}" class="logo" style="text-decoration: none;">
-            <div class="logo-circle">L</div>
-            <div class="logo-text-container">
-                <span class="logo-text">LGI STORE</span>
-                <span class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</span>
-            </div>
-        </a>
-        
-        <!-- Main Navigation -->
-        @php
-            use Illuminate\Support\Facades\Route;
-            $currentRoute = Route::currentRouteName();
-            $currentCategory = null;
-            if ($currentRoute === 'catalog') {
-                $currentCategory = Route::current()->parameter('category');
-            }
-        @endphp
-        <nav class="main-nav">
-            <a href="{{ route('all-products') }}" class="{{ $currentRoute === 'all-products' ? 'active' : '' }}">Semua Produk</a>
-            <a href="{{ route('catalog', 'jersey') }}" class="{{ $currentCategory === 'jersey' ? 'active' : '' }}">Jersey</a>
-            <a href="{{ route('catalog', 'topi') }}" class="{{ $currentCategory === 'topi' ? 'active' : '' }}">Topi</a>
-            <a href="{{ route('catalog', 'kaos') }}" class="{{ $currentCategory === 'kaos' ? 'active' : '' }}">Kaos</a>
-            <a href="{{ route('catalog', 'celana') }}" class="{{ $currentCategory === 'celana' ? 'active' : '' }}">Celana</a>
-            <a href="{{ route('catalog', 'jaket') }}" class="{{ $currentCategory === 'jaket' ? 'active' : '' }}">Jaket</a>
-            <a href="{{ route('catalog', 'polo') }}" class="{{ $currentCategory === 'polo' ? 'active' : '' }}">Polo</a>
-            <a href="#contact-info">Contact Info</a>
-            <a href="#about">About</a>
-        </nav>
-
-        <!-- Search Container -->
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-box" id="search-input" placeholder="Cari produk..." value="{{ request('search') }}">
-        </div>
-        
-        <!-- Header Actions -->
-        <div class="header-actions">
-            @php
-                $currentUser = auth()->user() ?? auth('admin')->user();
-                $userAvatar = $currentUser?->avatar ? Storage::url($currentUser->avatar) : null;
-                $isAdmin = auth('admin')->check();
-            @endphp
-            
-            <!-- Notification Bell -->
-            <a href="#" aria-label="Notifikasi" class="notification-link">
-                <i class="fas fa-bell notification-icon"></i>
+    <header class="main-navbar">
+        <div class="main-navbar-inner">
+            <a href="{{ route('home') }}" class="brand" aria-label="LGI Store">
+                <div class="brand-logo">L</div>
+                <div class="brand-text">
+                    <span class="brand-name">LGI STORE</span>
+                    <span class="brand-tagline">Peduli Kualitas, Bukan Kuantitas</span>
+                </div>
             </a>
-            
-            <!-- Cart (Customer only) -->
-            @if(!$isAdmin && auth()->check())
-                <a href="{{ route('keranjang') }}" aria-label="Buka Keranjang" class="cart-link">
-                    <i class="fas fa-shopping-cart cart-icon"></i>
+
+            <div class="navbar-center">
+                <div class="search-area">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-bar" id="search-input" placeholder="Cari produk..." value="{{ request('search') }}">
+                </div>
+                <div class="category-strip">
+                    <nav class="category-nav" aria-label="Kategori Produk">
+                        <a href="{{ route('all-products') }}" class="nav-link {{ $currentRoute === 'all-products' ? 'active' : '' }}">Semua Produk</a>
+                        <a href="{{ route('catalog', 'jersey') }}" class="nav-link {{ $currentCategory === 'jersey' ? 'active' : '' }}">Jersey</a>
+                        <a href="{{ route('catalog', 'topi') }}" class="nav-link {{ $currentCategory === 'topi' ? 'active' : '' }}">Topi</a>
+                        <a href="{{ route('catalog', 'kaos') }}" class="nav-link {{ $currentCategory === 'kaos' ? 'active' : '' }}">Kaos</a>
+                        <a href="{{ route('catalog', 'polo') }}" class="nav-link {{ $currentCategory === 'polo' ? 'active' : '' }}">Polo</a>
+                        <a href="{{ route('catalog', 'celana') }}" class="nav-link {{ $currentCategory === 'celana' ? 'active' : '' }}">Celana</a>
+                        <a href="{{ route('catalog', 'jaket') }}" class="nav-link {{ $currentCategory === 'jaket' ? 'active' : '' }}">Jaket</a>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                @if(!$isAdmin && auth()->check())
+                    <a href="{{ route('keranjang') }}" aria-label="Buka Keranjang" class="action-button">
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                @endif
+
+                <a href="#" aria-label="Notifikasi" class="action-button notification-link">
+                    <i class="fas fa-bell"></i>
                 </a>
-            @endif
-            
-            <!-- Profile Icon -->
-            @if($userAvatar)
-                <img src="{{ $userAvatar }}" alt="Profile" id="profile-icon" class="profile-avatar-header">
-            @else
-                <i id="profile-icon" class="fas fa-user-circle profile-icon-btn"></i>
-            @endif
+
+                @if($userAvatar)
+                    <img src="{{ $userAvatar }}" alt="Profil" id="profile-icon" class="profile-avatar-header">
+                @else
+                    <i id="profile-icon" class="fas fa-user-circle profile-icon-btn"></i>
+                @endif
+            </div>
         </div>
     </header>
+
+    @if($currentUser)
+        <div class="profile-popup" id="profile-popup">
+            <div class="profile-popup-content">
+                <div class="profile-header">
+                    @if($userAvatar)
+                        <img src="{{ $userAvatar }}" alt="Avatar" class="profile-avatar-img">
+                    @else
+                        <div class="profile-avatar">{{ strtoupper(mb_substr($currentUser->name, 0, 1)) }}</div>
+                    @endif
+                    <div class="profile-info">
+                        <span class="profile-name">{{ $currentUser->name }}</span>
+                        <span class="profile-email">{{ $currentUser->email }}</span>
+                    </div>
+                </div>
+                <div class="profile-menu">
+                    @if($isAdmin)
+                        <a href="{{ route('admin.dashboard') }}" class="profile-menu-item">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard Admin</span>
+                        </a>
+                        <form method="POST" action="{{ route('admin.logout') }}" class="profile-logout-form">
+                            @csrf
+                            <button type="submit">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Keluar</span>
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="profile-menu-item">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="{{ route('profile') }}" class="profile-menu-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profil Saya</span>
+                        </a>
+                        <a href="{{ route('order-list') }}" class="profile-menu-item">
+                            <i class="fas fa-box"></i>
+                            <span>Pesanan Saya</span>
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}" class="profile-logout-form">
+                            @csrf
+                            <button type="submit">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Keluar</span>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 <style>
-    /* Top Banner */
-    .navbar-wrapper .top-banner {
-        background: #1a2947;
-        color: #ffffff;
-        padding: 10px 24px;
-        text-align: center;
-        font-size: 14px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .navbar-wrapper .top-banner a {
-        color: #fbbf24;
-        font-weight: 600;
-        text-decoration: underline;
-    }
-
-    .navbar-wrapper .top-banner .close-btn {
-        position: absolute;
-        right: 24px;
-        cursor: pointer;
-        font-size: 18px;
-        opacity: 0.8;
-        transition: opacity 0.3s ease;
-        color: #ffffff;
-    }
-
-    .navbar-wrapper .top-banner .close-btn:hover {
-        opacity: 1;
-    }
-
-    /* Header Styles */
-    .navbar-wrapper header {
-        background: #1a2947;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    .navbar-wrapper {
         position: sticky;
         top: 0;
         z-index: 100;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .top-bar {
+        background-color: #ffc727;
+        color: #061434;
+        font-weight: 500;
+        padding: 10px 24px;
+    }
+
+    .top-bar-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .top-bar-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .top-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .top-link {
+        color: #061434;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .top-link i {
+        margin-right: 6px;
+    }
+
+    .top-link:hover {
+        text-decoration: underline;
+    }
+
+    .top-link-strong {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .top-link-strong:hover {
+        text-decoration: underline;
+    }
+
+    .top-user {
+        font-size: 14px;
+        font-weight: 600;
+        color: #061434;
+    }
+
+    .top-btn {
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .top-btn-outline {
+        border: 1px solid #061434;
+        color: #061434;
+        background: transparent;
+    }
+
+    .top-btn-outline:hover {
+        background: rgba(6, 20, 52, 0.1);
+    }
+
+    .top-btn-filled {
+        background: #061434;
+        color: #ffc727;
+        border: 1px solid #061434;
+    }
+
+    .top-btn-filled:hover {
+        background: #0a1d42;
+    }
+
+    .main-navbar {
+        background-color: #061434;
+        color: #ffffff;
+        padding: 16px 24px;
+    }
+
+    .main-navbar-inner {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 32px;
+        flex-wrap: wrap;
         width: 100%;
-        margin: 0;
-        padding: 12px 24px;
-        box-sizing: border-box;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-left: 0;
     }
 
-    .navbar-wrapper .logo {
+    .navbar-center {
+        flex: 1 1 720px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        min-width: 360px;
+    }
+
+    .brand {
         display: flex;
         align-items: center;
         gap: 12px;
         text-decoration: none;
+        margin-right: auto;
+        margin-left: -96px;
     }
 
-    .navbar-wrapper .logo-circle {
-        width: 45px;
-        height: 45px;
-        background: #ffffff;
+    .brand-logo {
+        width: 50px;
+        height: 50px;
+        background-color: #ffffff;
+        color: #061434;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        color: #1a2947;
-        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 20px;
     }
 
-    .navbar-wrapper .logo-text-container {
+    .brand-text {
         display: flex;
         flex-direction: column;
+        gap: 4px;
     }
 
-    .navbar-wrapper .logo-text {
-        color: #ffffff;
+    .brand-name {
+        color: #ffc727;
+        font-size: 18px;
         font-weight: 700;
-        font-size: 16px;
-        letter-spacing: 0.5px;
-        line-height: 1.2;
     }
 
-    .navbar-wrapper .logo-tagline {
-        color: rgba(255, 255, 255, 0.65);
-        font-size: 8px;
+    .brand-tagline {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 10px;
         letter-spacing: 1px;
         text-transform: uppercase;
-        line-height: 1;
     }
 
-    .navbar-wrapper .main-nav {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-left: 32px;
-    }
-
-    .navbar-wrapper .main-nav a {
-        color: #ffffff;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .navbar-wrapper .main-nav a:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-
-    .navbar-wrapper .main-nav a.active {
-        background: #fbbf24;
-        color: #1a2947;
-        font-weight: 600;
-    }
-
-    .navbar-wrapper .search-container {
-        flex: 1;
-        max-width: 500px;
+    .search-area {
         position: relative;
-        margin: 0 24px 0 auto;
-    }
-
-    .navbar-wrapper .search-box {
         width: 100%;
-        padding: 11px 16px 11px 44px;
+        max-width: 760px;
+        min-width: 320px;
+    }
+
+    .search-bar {
+        width: 100%;
+        background-color: #f5f5f5;
+        border-radius: 999px;
         border: none;
-        border-radius: 24px;
-        background: #b3bac4;
-        color: #1f2937;
+        padding: 10px 18px 10px 42px;
+        color: #061434;
         font-size: 14px;
-        transition: background 0.2s ease;
     }
 
-    .navbar-wrapper .search-box:focus {
+    .search-bar:focus {
         outline: none;
-        background: #c4cad1;
+        box-shadow: 0 0 0 3px rgba(255, 199, 39, 0.35);
     }
 
-    .navbar-wrapper .search-box::placeholder {
-        color: #6b7280;
-    }
-
-    .navbar-wrapper .search-icon {
+    .search-icon {
         position: absolute;
         left: 16px;
         top: 50%;
         transform: translateY(-50%);
-        color: #6b7280;
+        color: #8a8a8a;
         font-size: 14px;
-        pointer-events: none;
     }
 
-    .navbar-wrapper .header-actions {
+    .header-actions {
         display: flex;
         align-items: center;
-        gap: 20px;
-        margin-left: 16px;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding-right: 0;
+        height: 40px;
     }
 
-    .navbar-wrapper .header-actions i,
-    .navbar-wrapper .header-actions a,
-    .navbar-wrapper .header-actions img {
+    .action-button {
         color: #ffffff;
-        font-size: 20px;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        font-size: 18px;
         text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.08);
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
     }
 
-    .navbar-wrapper .header-actions i:hover,
-    .navbar-wrapper .header-actions a:hover {
-        color: #fbbf24;
-        transform: scale(1.05);
+    .action-button:hover {
+        color: #ffc727;
+        background-color: rgba(255, 199, 39, 0.15);
+        transform: translateY(-2px);
     }
 
-    .navbar-wrapper .profile-avatar-header {
-        width: 36px;
-        height: 36px;
+    .profile-icon-btn {
+        font-size: 22px;
+        color: #ffffff;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .profile-icon-btn:hover {
+        color: #ffc727;
+        background-color: rgba(255, 199, 39, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .profile-avatar-header {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         object-fit: cover;
+        border: 2px solid #ffc727;
         cursor: pointer;
-        border: 2px solid #ffffff;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        background-color: rgba(255, 255, 255, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .navbar-wrapper .profile-avatar-header:hover {
-        border-color: #fbbf24;
-        box-shadow: 0 0 12px rgba(255, 193, 7, 0.6);
+    .profile-avatar-header:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
     }
 
-    /* Profile Popup */
+    .category-strip {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding-top: 8px;
+    }
+
+    .category-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .category-nav .nav-link {
+        color: #dcdcdc;
+        font-weight: 500;
+        font-size: 14px;
+        text-decoration: none;
+        padding: 6px 0;
+        transition: color 0.2s ease;
+    }
+
+    .category-nav .nav-link:hover,
+    .category-nav .nav-link.active {
+        color: #ffc727 !important;
+    }
+
     .profile-popup {
         position: fixed;
-        top: 70px;
-        right: 40px;
-        background-color: #152238;
+        top: 110px;
+        right: 24px;
+        background-color: #0f1f46;
+        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        min-width: 300px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        min-width: 280px;
         display: none;
-        z-index: 1000;
+        z-index: 120;
     }
 
     .profile-popup.show {
@@ -294,54 +456,52 @@
 
     .profile-header {
         display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
+        gap: 12px;
+        padding-bottom: 16px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .profile-avatar {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        background-color: #ffa500;
+        background-color: #ffc727;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
         font-size: 18px;
-        color: #fff;
-        flex-shrink: 0;
+        color: #061434;
     }
 
     .profile-avatar-img {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         object-fit: cover;
-        flex-shrink: 0;
     }
 
     .profile-info {
-        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .profile-name {
-        color: #fff;
+        color: #ffffff;
         font-weight: 600;
         font-size: 14px;
-        margin-bottom: 5px;
     }
 
     .profile-email {
-        color: #888;
+        color: rgba(255, 255, 255, 0.65);
         font-size: 12px;
     }
 
     .profile-menu {
+        padding-top: 12px;
         display: flex;
         flex-direction: column;
-        gap: 0;
     }
 
     .profile-menu-item,
@@ -349,39 +509,73 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 12px 15px;
-        color: #ccc;
+        padding: 10px 12px;
+        color: #dcdcdc;
         text-decoration: none;
         font-size: 13px;
         border: none;
-        background: none;
+        background: transparent;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: background 0.2s ease, color 0.2s ease;
         width: 100%;
         text-align: left;
-        font-family: 'Inter', sans-serif;
+    }
+
+    .profile-menu-item i,
+    .profile-logout-form button i {
+        width: 18px;
     }
 
     .profile-menu-item:hover,
     .profile-logout-form button:hover {
-        color: #ffa500;
-        background-color: rgba(255, 165, 0, 0.1);
+        background-color: rgba(255, 199, 39, 0.1);
+        color: #ffc727;
     }
 
     .profile-logout-form {
+        margin: 0;
         width: 100%;
+    }
+
+    @media (max-width: 992px) {
+        .top-bar-actions {
+            justify-content: flex-start;
+        }
+
+        .main-navbar-inner {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-actions {
+            justify-content: flex-end;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .top-bar {
+            padding: 10px 16px;
+        }
+
+        .main-navbar {
+            padding: 16px;
+        }
+
+        .category-bar {
+            padding: 8px 16px;
+        }
     }
 </style>
 
 <script>
-    // Profile popup toggle
     document.getElementById('profile-icon')?.addEventListener('click', function(e) {
         e.stopPropagation();
         const popup = document.getElementById('profile-popup');
-        popup.classList.toggle('show');
+        if (popup) {
+            popup.classList.toggle('show');
+        }
     });
 
-    // Close popup when clicking outside
     document.addEventListener('click', function() {
         const popup = document.getElementById('profile-popup');
         if (popup && popup.classList.contains('show')) {
@@ -389,16 +583,16 @@
         }
     });
 
-    // Search functionality
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const query = this.value.trim();
+                const targetUrl = new URL('{{ route('all-products') }}', window.location.origin);
                 if (query) {
-                    // Redirect to all-products with search parameter
-                    window.location.href = '{{ route("all-products") }}?search=' + encodeURIComponent(query);
+                    targetUrl.searchParams.set('search', query);
                 }
+                window.location.href = targetUrl.toString();
             }
         });
     }
