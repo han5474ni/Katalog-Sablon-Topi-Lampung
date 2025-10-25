@@ -47,6 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chatbot', [CustomerController::class, 'chatbot'])
         ->name('chatbot');
 
+    Route::get('/custom-design', [CustomerController::class, 'customDesign'])
+        ->name('custom-design');
+
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();

@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Apply filter button with AJAX
-    const applyFilterBtn = document.querySelector('.apply-filter-btn');
+    const applyFilterBtn = document.querySelector('.apply-filter');
     if (applyFilterBtn) {
         applyFilterBtn.addEventListener('click', function() {
             applyFilters();
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             grid.innerHTML = `
                 <div class="no-products">
                     <i class="fas fa-inbox"></i>
-                    <p>No products found with current filters</p>
+                    <p>Tidak ada produk dengan filter ini</p>
                 </div>
             `;
             return;
@@ -150,18 +150,19 @@ document.addEventListener('DOMContentLoaded', function() {
         grid.innerHTML = products.map(product => {
             const imageUrl = product.image ? `/storage/${product.image}` : 'https://via.placeholder.com/300x300?text=No+Image';
             return `
-                <div class="product-card" 
-                     data-product-id="${product.id}" 
-                     data-product-name="${product.name}" 
-                     data-product-price="${product.formatted_price}" 
+                <div class="product-card"
+                     data-product-id="${product.id}"
+                     data-product-name="${product.name}"
+                     data-product-price="${product.formatted_price}"
                      data-product-image="${imageUrl}">
-                    <div class="product-image">
-                        <img src="${imageUrl}" 
-                             alt="${product.name}"
-                             onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                    <div class="product-image-container">
+                        <img class="product-image" src="${imageUrl}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                        <button class="wishlist-btn" type="button" aria-label="Tambah ke favorit">
+                            <i class="fas fa-heart"></i>
+                        </button>
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
+                        <h3 class="product-title">${product.name}</h3>
                         <p class="product-price">Rp ${product.formatted_price}</p>
                     </div>
                 </div>
@@ -185,12 +186,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Previous button
         if (pagination.current_page > 1) {
-            paginationHTML += `<a href="#" class="pagination-btn prev pagination-link" data-page="${pagination.current_page - 1}">
-                <i class="fas fa-chevron-left"></i> Previous
+            paginationHTML += `<a href="#" class="pagination-btn pagination-link" data-page="${pagination.current_page - 1}">
+                <i class="fas fa-chevron-left"></i>
+                Sebelumnya
             </a>`;
         } else {
-            paginationHTML += `<button class="pagination-btn prev" disabled>
-                <i class="fas fa-chevron-left"></i> Previous
+            paginationHTML += `<button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+                Sebelumnya
             </button>`;
         }
         
@@ -198,21 +201,23 @@ document.addEventListener('DOMContentLoaded', function() {
         paginationHTML += '<div class="pagination-numbers">';
         for (let i = 1; i <= pagination.last_page; i++) {
             if (i === pagination.current_page) {
-                paginationHTML += `<button class="page-number active">${i}</button>`;
+                paginationHTML += `<button class="pagination-number active">${i}</button>`;
             } else {
-                paginationHTML += `<a href="#" class="page-number pagination-link" data-page="${i}">${i}</a>`;
+                paginationHTML += `<a href="#" class="pagination-number pagination-link" data-page="${i}">${i}</a>`;
             }
         }
         paginationHTML += '</div>';
         
         // Next button
         if (pagination.current_page < pagination.last_page) {
-            paginationHTML += `<a href="#" class="pagination-btn next pagination-link" data-page="${pagination.current_page + 1}">
-                Next <i class="fas fa-chevron-right"></i>
+            paginationHTML += `<a href="#" class="pagination-btn pagination-link" data-page="${pagination.current_page + 1}">
+                Selanjutnya
+                <i class="fas fa-chevron-right"></i>
             </a>`;
         } else {
-            paginationHTML += `<button class="pagination-btn next" disabled>
-                Next <i class="fas fa-chevron-right"></i>
+            paginationHTML += `<button class="pagination-btn" disabled>
+                Selanjutnya
+                <i class="fas fa-chevron-right"></i>
             </button>`;
         }
         
@@ -226,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateProductsCount(pagination) {
         const countElement = document.getElementById('products-count');
         if (countElement) {
-            countElement.textContent = `Showing ${pagination.from || 0}-${pagination.to || 0} of ${pagination.total} Products`;
+            countElement.textContent = `Menampilkan ${pagination.from || 0}-${pagination.to || 0} dari ${pagination.total} Produk`;
         }
     }
 
@@ -260,13 +265,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Pagination click handlers
-    const pageNumbers = document.querySelectorAll('.page-number');
+    const pageNumbers = document.querySelectorAll('.pagination-number');
     pageNumbers.forEach(btn => {
         btn.addEventListener('click', function() {
             pageNumbers.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             
-            // Scroll to top of products
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
@@ -297,27 +301,21 @@ document.addEventListener('DOMContentLoaded', function() {
     attachPaginationHandlers();
 
     // Filter section toggles
-    const filterSections = document.querySelectorAll('.filter-section');
+    const filterSections = document.querySelectorAll('.filter-header');
     filterSections.forEach(section => {
         section.addEventListener('click', function() {
-            console.log('Filter section clicked:', this.querySelector('h4').textContent);
-            // Here you can add subcategory filtering
-        });
-    });
+            const container = this.nextElementSibling;
+            if (!container) return;
 
-    // Filter group toggles
-    const filterGroupHeaders = document.querySelectorAll('.filter-group-header');
-    filterGroupHeaders.forEach(header => {
-        header.addEventListener('click', function() {
             const icon = this.querySelector('i');
-            icon.classList.toggle('fa-chevron-up');
-            icon.classList.toggle('fa-chevron-down');
-            
-            // Toggle content visibility
-            const content = this.nextElementSibling;
-            if (content) {
-                content.style.display = content.style.display === 'none' ? 'flex' : 'none';
+            const isCollapsed = container.classList.toggle('collapsed');
+
+            if (icon) {
+                icon.classList.toggle('fa-chevron-up', !isCollapsed);
+                icon.classList.toggle('fa-chevron-down', isCollapsed);
             }
+
+            container.style.display = isCollapsed ? 'none' : '';
         });
     });
 });

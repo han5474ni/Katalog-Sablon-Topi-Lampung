@@ -10,126 +10,103 @@
 <body>
     <x-navbar />
 
-    <section class="catalog-breadcrumb-section">
-        <div class="catalog-inner-container">
-            <nav aria-label="breadcrumb" class="catalog-breadcrumb-nav">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ route('home') }}">
-                            <i class="fas fa-chevron-left"></i>
-                            Kembali ke beranda
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ $categoryName }}</li>
-                </ol>
+    <section class="catalog-breadcrumb">
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="{{ route('home') }}" class="breadcrumb-back">
+                    <span aria-hidden="true">&lt;</span>
+                    Kembali ke beranda
+                </a>
+                <span class="breadcrumb-current">{{ $categoryName }}</span>
             </nav>
         </div>
     </section>
 
-    <section class="catalog-content-section">
-        <div class="catalog-inner-container">
-            <div class="catalog-layout">
+    <section class="catalog-section">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">{{ $categoryName }}</h1>
+                <div class="sort-info">
+                    <span id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $totalProducts }} Produk</span>
+                    <span>Urut berdasarkan:</span>
+                    <select class="sort-select" id="sort-select">
+                        <option value="most_popular" {{ request('sort') == 'most_popular' ? 'selected' : '' }}>Terkait</option>
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga: Rendah ke Tinggi</option>
+                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga: Tinggi ke Rendah</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="content-wrapper">
                 <aside class="sidebar">
-                    <div class="filters-card filters-section">
+                    <div class="filter-section">
                         <div class="filter-header">
-                            <h5>Filters</h5>
+                            <span class="filter-title">Filters</span>
                             <i class="fas fa-sliders-h"></i>
                         </div>
-
-                        <div class="filter-section">
-                            <h4>{{ $categoryName }} anak</h4>
-                            <i class="fas fa-chevron-right"></i>
+                        <div class="filter-links">
+                            <button class="filter-link" type="button">{{ $categoryName }} Anak</button>
+                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Panjang</button>
+                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Pendek</button>
                         </div>
-
-                        <div class="filter-section">
-                            <h4>{{ $categoryName }} lengan panjang</h4>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-
-                        <div class="filter-section">
-                            <h4>{{ $categoryName }} lengan pendek</h4>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-
-                        <div class="filter-group">
-                            <div class="filter-group-header">
-                                <h4>Colors</h4>
-                                <i class="fas fa-chevron-up"></i>
-                            </div>
-                            <div class="color-options">
-                                <div class="color-option" style="background-color: #00ff00;" data-color="green"></div>
-                                <div class="color-option" style="background-color: #ff0000;" data-color="red"></div>
-                                <div class="color-option" style="background-color: #ffff00;" data-color="yellow"></div>
-                                <div class="color-option" style="background-color: #ff8800;" data-color="orange"></div>
-                                <div class="color-option" style="background-color: #00bfff;" data-color="cyan"></div>
-                                <div class="color-option" style="background-color: #0000ff;" data-color="blue"></div>
-                                <div class="color-option" style="background-color: #8800ff;" data-color="purple"></div>
-                                <div class="color-option" style="background-color: #ff00ff;" data-color="pink"></div>
-                                <div class="color-option" style="background-color: #ffffff; border: 1px solid #ddd;" data-color="white"></div>
-                                <div class="color-option" style="background-color: #000000;" data-color="black"></div>
-                            </div>
-                        </div>
-
-                        <div class="filter-group">
-                            <div class="filter-group-header">
-                                <h4>Size</h4>
-                                <i class="fas fa-chevron-up"></i>
-                            </div>
-                            <div class="size-options">
-                                <button class="size-option">XX-Small</button>
-                                <button class="size-option">X-Small</button>
-                                <button class="size-option">Small</button>
-                                <button class="size-option">Medium</button>
-                                <button class="size-option active">Large</button>
-                                <button class="size-option">X-Large</button>
-                                <button class="size-option">2X-Large</button>
-                                <button class="size-option">3X-Large</button>
-                                <button class="size-option">4X-Large</button>
-                            </div>
-                        </div>
-
-                        <button class="apply-filter-btn">Apply Filter</button>
                     </div>
+
+                    <div class="filter-section">
+                        <div class="filter-header">
+                            <span class="filter-title">Warna</span>
+                            <i class="fas fa-chevron-up"></i>
+                        </div>
+                        <div class="color-grid">
+                            <button class="color-option color-green" type="button" aria-label="Hijau" data-color="green"></button>
+                            <button class="color-option color-red" type="button" aria-label="Merah" data-color="red"></button>
+                            <button class="color-option color-yellow" type="button" aria-label="Kuning" data-color="yellow"></button>
+                            <button class="color-option color-orange" type="button" aria-label="Oranye" data-color="orange"></button>
+                            <button class="color-option color-cyan" type="button" aria-label="Cyan" data-color="cyan"></button>
+                            <button class="color-option color-blue" type="button" aria-label="Biru" data-color="blue"></button>
+                            <button class="color-option color-purple" type="button" aria-label="Ungu" data-color="purple"></button>
+                            <button class="color-option color-pink" type="button" aria-label="Pink" data-color="pink"></button>
+                            <button class="color-option color-black" type="button" aria-label="Hitam" data-color="black"></button>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-header">
+                            <span class="filter-title">Ukuran</span>
+                            <i class="fas fa-chevron-up"></i>
+                        </div>
+                        <div class="size-grid">
+                            <button class="size-option" type="button">XX-Small</button>
+                            <button class="size-option" type="button">X-Small</button>
+                            <button class="size-option" type="button">Small</button>
+                            <button class="size-option" type="button">Medium</button>
+                            <button class="size-option" type="button">Large</button>
+                            <button class="size-option" type="button">X-Large</button>
+                            <button class="size-option" type="button">2X-Large</button>
+                            <button class="size-option" type="button">3X-Large</button>
+                        </div>
+                    </div>
+
+                    <button class="apply-filter" type="button">Terapkan Filter</button>
                 </aside>
 
-                <main class="products-main">
-                    <div class="products-header">
-                        <h2>{{ $categoryName }}</h2>
-                        <div class="sort-info">
-                            <small id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $totalProducts }} Produk.</small>
-                            <div class="sort-select">
-                                <span>Urut berdasarkan:</span>
-                                <div class="select-wrapper">
-                                    <select id="sort-select">
-                                        <option value="most_popular" {{ request('sort') == 'most_popular' ? 'selected' : '' }}>Terkait</option>
-                                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga: Rendah ke Tinggi</option>
-                                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga: Tinggi ke Rendah</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <main class="products-section">
                     <div class="products-grid" id="products-grid">
                         @forelse($products as $product)
-                            <div class="product-card" 
-                                 data-product-id="{{ $product->id }}" 
-                                 data-product-name="{{ $product->name }}" 
-                                 data-product-price="{{ $product->formatted_price }}" 
+                            <div class="product-card"
+                                 data-product-id="{{ $product->id }}"
+                                 data-product-name="{{ $product->name }}"
+                                 data-product-price="{{ $product->formatted_price }}"
                                  data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}">
-                                <div class="product-image">
-                                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}" 
-                                         alt="{{ $product->name }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                                <div class="product-image-container">
+                                    <img class="product-image" src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}" alt="{{ $product->name }}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                                    <button class="wishlist-btn" type="button" aria-label="Tambah ke favorit">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
                                 </div>
                                 <div class="product-info">
-                                    <h6 class="product-name">{{ $product->name }}</h6>
-                                    <div class="product-price">Rp {{ $product->formatted_price }}</div>
-                                </div>
-                                <div class="compare-icon">
-                                    <i class="fas fa-arrows-left-right"></i>
+                                    <h3 class="product-title">{{ $product->name }}</h3>
+                                    <p class="product-price">Rp {{ $product->formatted_price }}</p>
                                 </div>
                             </div>
                         @empty
@@ -141,35 +118,41 @@
                     </div>
 
                     @if($products->hasPages())
-                    <div class="pagination" id="pagination-container">
-                        @if ($products->onFirstPage())
-                            <button class="pagination-btn prev" disabled>
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </button>
-                        @else
-                            <a href="{{ $products->previousPageUrl() }}" class="pagination-btn prev pagination-link">
-                                <i class="fas fa-chevron-left"></i> Previous
-                            </a>
-                        @endif
-                        <div class="pagination-numbers">
-                            @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
-                                @if ($page == $products->currentPage())
-                                    <button class="page-number active">{{ $page }}</button>
-                                @else
-                                    <a href="{{ $url }}" class="page-number pagination-link">{{ $page }}</a>
-                                @endif
-                            @endforeach
+                        <div class="pagination" id="pagination-container">
+                            @if ($products->onFirstPage())
+                                <button class="pagination-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </button>
+                            @else
+                                <a href="{{ $products->previousPageUrl() }}" class="pagination-btn pagination-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </a>
+                            @endif
+
+                            <div class="pagination-numbers">
+                                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                    @if ($page == $products->currentPage())
+                                        <button class="pagination-number active">{{ $page }}</button>
+                                    @else
+                                        <a href="{{ $url }}" class="pagination-number pagination-link">{{ $page }}</a>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            @if ($products->hasMorePages())
+                                <a href="{{ $products->nextPageUrl() }}" class="pagination-btn pagination-link">
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            @else
+                                <button class="pagination-btn" disabled>
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            @endif
                         </div>
-                        @if ($products->hasMorePages())
-                            <a href="{{ $products->nextPageUrl() }}" class="pagination-btn next pagination-link">
-                                Next <i class="fas fa-chevron-right"></i>
-                            </a>
-                        @else
-                            <button class="pagination-btn next" disabled>
-                                Next <i class="fas fa-chevron-right"></i>
-                            </button>
-                        @endif
-                    </div>
                     @endif
                 </main>
             </div>

@@ -6,7 +6,7 @@
     $currentRoute = Route::currentRouteName();
     $currentCategory = $currentRoute === 'catalog' ? Route::current()->parameter('category') : null;
     $currentUser = auth()->user() ?? auth('admin')->user();
-    $userAvatar = $currentUser?->avatar ? Storage::url($currentUser->avatar) : null;
+    $userAvatar = null; // Force using icon across all pages
     $isAdmin = auth('admin')->check();
 @endphp
 
@@ -17,12 +17,9 @@
                 Lebih banyak item + promo user baru ➜
             </div>
             <div class="top-bar-actions">
-                <a href="#" class="top-link">Tentang LGI</a>
-                <a href="#" class="top-link">Bantuan</a>
-                <a href="#" class="top-link notification-link">
-                    <i class="fas fa-bell"></i>
-                    <span>Notifikasi</span>
-                </a>
+                <a href="#" class="top-link"><i class="fas fa-info-circle"></i> <span>Tentang LGI</span></a>
+                <a href="#" class="top-link"><i class="fas fa-question-circle"></i> <span>Bantuan</span></a>
+                <a href="#" class="top-link notification-link"><i class="fas fa-bell"></i> <span>Notifikasi</span></a>
                 @if($currentUser)
                     <span class="top-user">Hi, {{ \Illuminate\Support\Str::limit($currentUser->name, 18) }}</span>
                     <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="top-btn top-btn-outline">Dashboard</a>
@@ -73,24 +70,16 @@
                     <i class="fas fa-bell"></i>
                 </a>
 
-                @if($userAvatar)
-                    <img src="{{ $userAvatar }}" alt="Profil" id="profile-icon" class="profile-avatar-header">
-                @else
-                    <i id="profile-icon" class="fas fa-user-circle profile-icon-btn"></i>
-                @endif
+                <i id="profile-icon" class="fas fa-user-circle profile-icon-btn" aria-label="Profil"></i>
             </div>
         </div>
     </header>
 
     @if($currentUser)
-        <div class="profile-popup" id="profile-popup">
+        <div class="profile-popup" id="profile-popup" data-auth="true">
             <div class="profile-popup-content">
                 <div class="profile-header">
-                    @if($userAvatar)
-                        <img src="{{ $userAvatar }}" alt="Avatar" class="profile-avatar-img">
-                    @else
-                        <div class="profile-avatar">{{ strtoupper(mb_substr($currentUser->name, 0, 1)) }}</div>
-                    @endif
+                    <div class="profile-avatar" aria-hidden="true"><i class="fas fa-user"></i></div>
                     <div class="profile-info">
                         <span class="profile-name">{{ $currentUser->name }}</span>
                         <span class="profile-email">{{ $currentUser->email }}</span>

@@ -28,12 +28,14 @@ export default defineConfig({
                 'resources/css/guest/login.css',
                 'resources/css/guest/product-detail.css',
                 'resources/css/guest/catalog.css',
+                'resources/css/guest/custom-design.css',
                 'resources/js/guest/home.js',
                 'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
                 'resources/js/guest/product-slider.js',
                 'resources/js/guest/product-detail.js',
                 'resources/js/guest/catalog.js',
+                'resources/js/guest/custom-design.js',
                 
                 // Components
                 'resources/css/components/footer.css',

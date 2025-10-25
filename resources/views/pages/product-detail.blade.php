@@ -3,153 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $product['name'] }} - LGI Store</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>{{ $product['name'] ?? 'Detail Produk' }} - LGI Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/guest/product-detail.css', 'resources/css/components/footer.css', 'resources/js/guest/product-detail.js'])
 </head>
 <body>
-    <!-- Navbar Component -->
     <x-navbar />
 
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <a href="{{ route('home') }}">Home</a>
-        <span>></span>
-        <a href="#">Kaos</a>
-        <span>></span>
-        <span>{{ $product['name'] }}</span>
-    </div>
+    @php
+        $primaryImage = $product['image'] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop';
+        $gallery = $product['gallery'] ?? [];
+        if (is_string($gallery)) {
+            $decodedGallery = json_decode($gallery, true);
+            if (is_array($decodedGallery)) {
+                $gallery = $decodedGallery;
+            }
+        }
+        $fallbackGallery = [
+            'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500&h=500&fit=crop',
+            'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&h=500&fit=crop',
+        ];
+        $gallery = collect(array_filter(array_merge([$primaryImage], is_array($gallery) ? $gallery : [])))->unique()->values()->all();
+        if (empty($gallery)) {
+            $gallery = $fallbackGallery;
+        }
 
-    <!-- Product Detail Section -->
-    <section class="product-detail">
-        <div class="product-images">
-            <div class="thumbnail-images">
-                <img src="{{ $product['image'] }}" alt="Thumbnail 1" class="thumbnail active" data-image="{{ $product['image'] }}">
-                <img src="https://i.pinimg.com/736x/45/4c/92/454c92dc87e9774bed336c9ea9d132ed.jpg" alt="Thumbnail 2" class="thumbnail" data-image="https://i.pinimg.com/736x/45/4c/92/454c92dc87e9774bed336c9ea9d132ed.jpg">
-                <img src="https://i.pinimg.com/736x/4f/7e/bf/4f7ebfdc234afefe71d5f4a8ec8ba408.jpg" alt="Thumbnail 3" class="thumbnail" data-image="https://i.pinimg.com/736x/4f/7e/bf/4f7ebfdc234afefe71d5f4a8ec8ba408.jpg">
-            </div>
-            <div class="main-image">
-                <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" id="mainImage">
-            </div>
+        $colors = $product['colors'] ?? [];
+        if (is_string($colors)) {
+            $decodedColors = json_decode($colors, true);
+            if (is_array($decodedColors)) {
+                $colors = $decodedColors;
+            }
+        }
+        if (empty($colors)) {
+            $colors = ['#6b6b47', '#4a6b6b', '#2a3a5a'];
+        }
+
+        $sizes = $product['sizes'] ?? [];
+        if (is_string($sizes)) {
+            $decodedSizes = json_decode($sizes, true);
+            if (is_array($decodedSizes)) {
+                $sizes = $decodedSizes;
+            }
+        }
+        if (empty($sizes)) {
+            $sizes = ['Small', 'Medium', 'Large', 'X-Large'];
+        }
+
+        $price = $product['price'] ?? '0';
+        if (is_numeric($price)) {
+            $price = number_format((float) $price, 0, ',', '.');
+        }
+
+        $description = $product['description'] ?? 'Produk ini dibuat dengan material berkualitas tinggi yang nyaman digunakan sepanjang hari.';
+        $category = $product['category'] ?? 'Umum';
+        $stock = $product['stock'] ?? 0;
+
+        $recommendations = [
+            [
+                'id' => 1,
+                'name' => 'Polo with Contrast Trims',
+                'price' => '60.000',
+                'image' => 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=300&fit=crop',
+            ],
+            [
+                'id' => 2,
+                'name' => 'Gradient Graphic T-shirt',
+                'price' => '55.000',
+                'image' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop',
+            ],
+            [
+                'id' => 3,
+                'name' => 'Polo with Tipping Details',
+                'price' => '50.000',
+                'image' => 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&h=300&fit=crop',
+            ],
+            [
+                'id' => 4,
+                'name' => 'Black Striped T-shirt',
+                'price' => '45.000',
+                'image' => 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=300&h=300&fit=crop',
+            ],
+        ];
+    @endphp
+
+    <nav class="breadcrumb">
+        <div class="breadcrumb-inner">
+            <a href="{{ route('home') }}" class="breadcrumb-link">
+                <span aria-hidden="true">&lt;</span>
+                <span>Kembali ke beranda</span>
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">{{ $product['name'] ?? 'Produk' }}</span>
         </div>
+    </nav>
 
-        <div class="product-info">
-            <h1 class="product-title">{{ $product['name'] }}</h1>
-            <div class="product-price">Rp {{ $product['price'] }}</div>
-            <p class="product-description">{{ $product['description'] }}</p>
+    <main class="product-page" data-product-id="{{ $product['id'] ?? '' }}">
+        <section class="product-hero">
+            <div class="product-gallery">
+                <div class="thumbnail-list" role="tablist" aria-label="Galeri produk">
+                    @foreach($gallery as $index => $image)
+                        <button type="button" class="thumbnail{{ $loop->first ? ' active' : '' }}" data-image="{{ $image }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}" aria-label="Gambar {{ $loop->iteration }}">
+                            <img src="{{ $image }}" alt="Thumbnail {{ $loop->iteration }} {{ $product['name'] ?? 'Produk' }}" loading="lazy" decoding="async" width="110" height="110">
+                        </button>
+                    @endforeach
+                </div>
+                <div class="main-image">
+                    <img id="mainImage" src="{{ $gallery[0] }}" alt="{{ $product['name'] ?? 'Produk' }}" loading="lazy" decoding="async">
+                </div>
+            </div>
 
-            <div class="product-options">
+            <div class="product-info">
+                <h1 class="product-title">{{ $product['name'] ?? 'Produk Tanpa Nama' }}</h1>
+                <p class="product-price">Rp {{ $price }}</p>
+                <p class="product-description">{{ $description }}</p>
+
                 <div class="option-group">
-                    <label>Select Colors</label>
-                    <div class="color-options">
-                        @foreach($product['colors'] as $index => $color)
-                            <div class="color-option {{ $index === 0 ? 'active' : '' }}" style="background-color: {{ $color }};" data-color="{{ $color }}"></div>
+                    <h2 class="option-label">Pilih Warna</h2>
+                    <div class="color-options" role="radiogroup" aria-label="Pilihan warna">
+                        @foreach($colors as $index => $color)
+                            @php
+                                $colorValue = is_array($color) ? ($color['value'] ?? $color['hex'] ?? '#000000') : $color;
+                                $colorLabel = is_array($color) ? ($color['label'] ?? $colorValue) : $colorValue;
+                            @endphp
+                            <button type="button" class="color-swatch{{ $loop->first ? ' active' : '' }}" style="--swatch-color: {{ $colorValue }}" data-color="{{ $colorValue }}" aria-label="Warna {{ $colorLabel }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}"></button>
                         @endforeach
                     </div>
                 </div>
 
                 <div class="option-group">
-                    <label>Choose Size</label>
-                    <div class="size-options">
-                        @foreach($product['sizes'] as $index => $size)
-                            <button class="size-option {{ $index === 2 ? 'active' : '' }}" data-size="{{ $size }}">{{ $size }}</button>
+                    <h2 class="option-label">Pilih Ukuran</h2>
+                    <div class="size-options" role="radiogroup" aria-label="Pilihan ukuran">
+                        @foreach($sizes as $size)
+                            <button type="button" class="size-option{{ $loop->first ? ' active' : '' }}" data-size="{{ $size }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}">{{ $size }}</button>
                         @endforeach
                     </div>
                 </div>
 
-                <div class="option-group">
-                    <div class="quantity-selector">
-                        <button class="qty-btn" id="decreaseQty">-</button>
-                        <input type="number" id="quantity" value="1" min="1" max="99" readonly>
-                        <button class="qty-btn" id="increaseQty">+</button>
+                <div class="purchase-actions">
+                    <div class="quantity-selector" aria-label="Pilih kuantitas">
+                        <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah">−</button>
+                        <span class="quantity-value" id="quantityValue" aria-live="polite">1</span>
+                        <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah">+</button>
                     </div>
-                    <button class="add-to-cart-btn">Add to Cart</button>
+                    <button type="button" class="add-to-cart-btn" data-product-name="{{ $product['name'] ?? '' }}">Tambahkan ke Keranjang</button>
+                </div>
+
+                <div class="product-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Kategori</span>
+                        <span class="meta-value">{{ ucfirst($category) }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Stok</span>
+                        <span class="meta-value">{{ $stock > 0 ? $stock . ' pcs tersedia' : 'Stok terbatas' }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Product Details Tab -->
-    <section class="product-details-section">
-        <div class="details-tabs">
-            <button class="tab-btn active" data-tab="details">Detail Produk</button>
-        </div>
-        <div class="tab-content active" id="details">
-            <div class="details-content">
-                <p><strong>Nama Produk:</strong> Jersey Eps Balocc - Edition Dummy</p>
-                <p><strong>Keterangan:</strong> Jersey Eps balocc adalah sebaga kustoman rugun dan bawefashla, direcormg untuk atleticis tas, btilac, dan casual tegas. Tempilan modern dengan pertenaan ergenomilc membuttua gyanu fne tahan 9ra seima aktiftas</p>
-                
-                <p><strong>Rated Produk:</strong></p>
-                <ul>
-                    <li><strong>Bahan:</strong> Polyester microfiler berkualitas (100% polyester) dengan sirkulasi ade dan tapa.</li>
-                    <li><strong>Teknologi fabric:</strong> Dry-fil technology untuk menjaga tubuh tetup kering dan nyaman</li>
-                    <li><strong>Desain:</strong> Modern sleek design dengan kacut & full cutting material yang lebis, dan full nyaman, dtls plus emter fish hayennerals untuk, dtla plus umber tarhan inayamenerals nyaman</li>
-                </ul>
-
-                <p><strong>Ukuran (approx. t0.5 cm):</strong></p>
-                <ul>
-                    <li>M: Dada 98 - 104 cm</li>
-                    <li>L: Dada 104 - 112 cm</li>
-                    <li>XL: Dada 110 - 114 cm</li>
-                    <li>XXL: Dada 116 - 119 cm</li>
-                </ul>
-
-                <p><strong>Hanya tersedia di dummy:</strong> Jersey Eps. Whosgy Etag, Choopy, Stanl, Riding Rat, Formel Stil</p>
-
-                <p><strong>Fitur tambahan:</strong></p>
-                <ul>
-                    <li>Material breathable berbahan Anti-bakteria</li>
-                    <li>Teknologi buatahle quick-drying notodulis</li>
-                    <li>Jersey ruangn disetall dengan jahitan flatlock (Mala riama saja stacia, latue miata sama kuhu), sehin tamto etm be kurser</li>
-                </ul>
-
-                <p><strong>Perawatan:</strong> Cuci secara asan, diringin 0-MCUA0 ringin granas voui dun hlo, petgan distansum dengan yanat hingu, sehins main ester tuto kalo haps, petget</p>
-
-                <p><strong>Konsisten:</strong> (Membagi tangas arathda; tenteng dengen yarmat, d tra plus arbum hittor haysmenerals nyaman)</p>
-
-                <p><strong>Garansi: 14% MONEY BACK</strong> (Harga no refund. If produtts defect & impairment if kesuuadaan-kuritan agiln terr, ober berkat mutor)</p>
-
-                <ul>
-                    <li>Untuk keperlun kacauli, perukaan ordess rugun dan terketahut atau te ulence fuin, uhan terket mutor.</li>
-                    <li>Untuk appentan dan tersedia agre tenteng parint oper & u vonce foun, ather perlor utter.</li>
-                    <li>Wajib Replay &agudarify &atropurist &amurphysins64</li>
-                </ul>
-
-                <p><strong>Garansi : 100%</strong></p>
-
-                <p>Wajib dicatat satu terkering ergany tetr tag</p>
+        <section class="product-details">
+            <div class="tab-controls" role="tablist" aria-label="Informasi produk">
+                <button type="button" class="tab-button active" data-tab="details" aria-selected="true">Detail Produk</button>
+                <a href="{{ route('custom-design', [
+                    'name' => $product['name'] ?? 'One Life Graphic T-shirt',
+                    'price' => $price,
+                    'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+                    'preview_url' => request()->fullUrl(),
+                ]) }}" class="tab-button" data-navigate="{{ route('custom-design', [
+                    'name' => $product['name'] ?? 'One Life Graphic T-shirt',
+                    'price' => $price,
+                    'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+                    'preview_url' => request()->fullUrl(),
+                ]) }}" aria-selected="false">Custom Ini</a>
             </div>
-        </div>
-    </section>
 
-    <!-- You Might Also Like -->
-    <section class="recommendations">
-        <h2 class="section-title">YOU MIGHT ALSO LIKE</h2>
-        <div class="product-grid">
-            <div class="product-card" data-product-id="1" data-product-name="Polo with Contrast Trims" data-product-price="60.000" data-product-image="https://i.pinimg.com/736x/3e/6b/f5/3e6bf5378b6ae4d43263dfb626d37588.jpg">
-                <img src="https://i.pinimg.com/736x/3e/6b/f5/3e6bf5378b6ae4d43263dfb626d37588.jpg" alt="Polo with Contrast Trims">
-                <div class="product-name">Polo with Contrast Trims</div>
-                <div class="product-price">Rp 60.000</div>
+            <div class="tab-panels">
+                <div class="tab-panel active" data-tab-panel="details">
+                    <div class="detail-block">
+                        <h3 class="detail-title">Tentang Produk</h3>
+                        <p class="detail-text">{{ $description }}</p>
+                    </div>
+                    <div class="detail-block">
+                        <h3 class="detail-title">Spesifikasi</h3>
+                        <ul class="detail-list">
+                            <li>Kode produk: {{ $product['id'] ?? 'SKU-0000' }}</li>
+                            <li>Kategori: {{ ucfirst($category) }}</li>
+                            <li>Material: Polyester breathable premium</li>
+                            <li>Teknologi: Quick dry, anti-bau, dan anti-pilling</li>
+                            <li>Rekomendasi aktivitas: Olahraga ringan, kegiatan outdoor, dan pemakaian harian</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-panel" data-tab-panel="care">
+                    <div class="detail-block">
+                        <h3 class="detail-title">Custom Printing</h3>
+                        <p class="detail-text">Hubungi tim kami untuk custom desain dengan minimum order fleksibel. Kami menyediakan layanan cetak sublimasi full-color yang tahan lama.</p>
+                    </div>
+                    <div class="detail-block">
+                        <h3 class="detail-title">Perawatan</h3>
+                        <ul class="detail-list">
+                            <li>Cuci dengan air dingin maksimal 30°C</li>
+                            <li>Jangan gunakan pemutih</li>
+                            <li>Keringkan di tempat teduh</li>
+                            <li>Setrika pada suhu rendah jika diperlukan</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="product-card" data-product-id="2" data-product-name="Gradient Graphic T-shirt" data-product-price="65.000" data-product-image="https://i.pinimg.com/736x/45/4c/92/454c92dc87e9774bed336c9ea9d132ed.jpg">
-                <img src="https://i.pinimg.com/736x/45/4c/92/454c92dc87e9774bed336c9ea9d132ed.jpg" alt="Gradient Graphic T-shirt">
-                <div class="product-name">Gradient Graphic T-shirt</div>
-                <div class="product-price">Rp 65.000</div>
-            </div>
-            <div class="product-card" data-product-id="3" data-product-name="Polo with Tipping Details" data-product-price="50.000" data-product-image="https://i.pinimg.com/736x/4f/7e/bf/4f7ebfdc234afefe71d5f4a8ec8ba408.jpg">
-                <img src="https://i.pinimg.com/736x/4f/7e/bf/4f7ebfdc234afefe71d5f4a8ec8ba408.jpg" alt="Polo with Tipping Details">
-                <div class="product-name">Polo with Tipping Details</div>
-                <div class="product-price">Rp 50.000</div>
-            </div>
-            <div class="product-card" data-product-id="4" data-product-name="Black Striped T-shirt" data-product-price="45.000" data-product-image="https://i.pinimg.com/736x/69/92/5a/69925a28d7d2cbb1caacb62ad74c4206.jpg">
-                <img src="https://i.pinimg.com/736x/69/92/5a/69925a28d7d2cbb1caacb62ad74c4206.jpg" alt="Black Striped T-shirt">
-                <div class="product-name">Black Striped T-shirt</div>
-                <div class="product-price">Rp 45.000</div>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Footer Component -->
+        <section class="recommendations">
+            <h2 class="recommendations-title">Mungkin Kamu Juga Suka</h2>
+            <div class="recommendation-grid">
+                @foreach($recommendations as $item)
+                    <article class="recommendation-card" data-product-id="{{ $item['id'] }}" data-product-name="{{ $item['name'] }}" data-product-price="{{ $item['price'] }}" data-product-image="{{ $item['image'] }}" tabindex="0" role="button" aria-label="Lihat {{ $item['name'] }}">
+                        <div class="recommendation-image">
+                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" decoding="async" width="240" height="240">
+                        </div>
+                        <div class="recommendation-info">
+                            <h3 class="recommendation-name">{{ $item['name'] }}</h3>
+                            <p class="recommendation-price">Rp {{ $item['price'] }}</p>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    </main>
+
     <x-guest-footer />
 </body>
 </html>

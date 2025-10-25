@@ -48,4 +48,12 @@ class CustomerController extends Controller
     {
         return view('customer.chatbot');
     }
+
+    /**
+     * Display custom design page
+     */
+    public function customDesign()
+    {
+        return view('customer.custom-design');
+    }
 }

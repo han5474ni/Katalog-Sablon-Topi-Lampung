@@ -1,7 +1,7 @@
 @props(['active' => 'dashboard'])
 
 <!-- Sidebar -->
-<div class="w-64 bg-navy-900 text-white p-6 flex flex-col">
+<div class="w-64 bg-navy-900 text-white p-6 flex flex-col sticky top-0 h-screen">
     <div class="mb-8">
         <a href="{{ route('home') }}">
             <img src="{{ asset('images/logo.png') }}" alt="LGI STORE" class="h-8">
@@ -19,17 +19,22 @@
             <span class="material-icons mr-3">shopping_cart</span>
             Keranjang
         </a>
-        <a href="{{ route('order-list') }}" 
+        <a href="{{ route('order-list') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'order-list' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">list_alt</span>
             Order List
         </a>
-        <a href="{{ route('chatbot') }}" 
+        <a href="{{ route('custom-design') }}"
+           class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'custom-design' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
+            <span class="material-icons mr-3">palette</span>
+            Custom Design
+        </a>
+        <a href="{{ route('chatbot') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'chatbot' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">chat</span>
             Chatbot
         </a>
-        <a href="{{ route('profile') }}" 
+        <a href="{{ route('profile') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'profile' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">person</span>
             Profile

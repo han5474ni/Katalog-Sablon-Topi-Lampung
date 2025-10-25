@@ -43,7 +43,7 @@
         </div>
 
         <div class="hero-image">
-            <img src="https://i.pinimg.com/originals/e9/04/53/e904533ed00df550bb4fc87064217f18.png" alt="Minimalist Jersey" class="hero-img">
+            <img src="https://i.pinimg.com/originals/e9/04/53/e904533ed00df550bb4fc87064217f18.png" alt="Minimalist Jersey" class="hero-img" width="640" height="640" decoding="async" fetchpriority="high">
         </div>
     </section>
 
@@ -64,10 +64,11 @@
                          data-product-id="{{ $product->id }}" 
                          data-product-name="{{ $product->name }}" 
                          data-product-price="{{ $product->formatted_price }}" 
-                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}">
+                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}"
+                         tabindex="0">
                         <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}" 
                              alt="{{ $product->name }}" 
-                             class="product-image">
+                             class="product-image" loading="lazy" decoding="async" width="300" height="300">
                         <div class="product-name">{{ $product->name }}</div>
                         <div class="product-price">Rp {{ $product->formatted_price }}</div>
                     </div>
@@ -99,10 +100,11 @@
                          data-product-id="{{ $product->id }}" 
                          data-product-name="{{ $product->name }}" 
                          data-product-price="{{ $product->formatted_price }}" 
-                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}">
+                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}"
+                         tabindex="0">
                         <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}" 
                              alt="{{ $product->name }}" 
-                             class="product-image">
+                             class="product-image" loading="lazy" decoding="async" width="300" height="300">
                         <div class="product-name">{{ $product->name }}</div>
                         <div class="product-price">Rp {{ $product->formatted_price }}</div>
                     </div>
@@ -123,7 +125,7 @@
         <div class="design-blue-container">
             <div class="design-container">
             <div class="jersey-preview">
-                <img src="https://i.pinimg.com/1200x/e0/62/b6/e062b626075c2d7191d6dbee36b5b697.jpg" alt="Custom Jersey" class="jersey-image">
+                <img src="https://i.pinimg.com/1200x/e0/62/b6/e062b626075c2d7191d6dbee36b5b697.jpg" alt="Custom Jersey" class="jersey-image" loading="lazy" decoding="async" width="480" height="480">
             </div>
 
             <div class="customization-panel">

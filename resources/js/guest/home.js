@@ -1,7 +1,12 @@
 // Close banner
-document.querySelector('.close-btn').addEventListener('click', function() {
-    document.querySelector('.top-banner').style.display = 'none';
-});
+const closeBannerBtn = document.querySelector('.close-btn');
+const topBanner = document.querySelector('.top-banner');
+
+if (closeBannerBtn && topBanner) {
+    closeBannerBtn.addEventListener('click', function() {
+        topBanner.style.display = 'none';
+    });
+}
 
 // Size selection
 document.querySelectorAll('.size-btn').forEach(btn => {
@@ -37,7 +42,7 @@ function toggleProfilePopup() {
 
     const isAuthenticated = profilePopup.dataset.auth === 'true';
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && profilePopup.dataset.loginUrl) {
         window.location.href = profilePopup.dataset.loginUrl;
         return;
     }
@@ -61,31 +66,31 @@ if (profileIcon) {
 }
 
 // Close popup when clicking outside
-document.addEventListener('click', function(e) {
-    if (profilePopup.style.display === 'block') {
-        // Check if click is outside both popup and profile icon
-        if (!profilePopup.contains(e.target) && e.target !== profileIcon) {
+if (profilePopup) {
+    document.addEventListener('click', function(e) {
+        if (profilePopup.style.display === 'block') {
+            if (!profilePopup.contains(e.target) && e.target !== profileIcon) {
+                closeProfilePopup();
+            }
+        }
+    });
+
+    // Prevent popup from closing when clicking inside it
+    profilePopup.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Close popup on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && profilePopup.style.display === 'block') {
             closeProfilePopup();
         }
-    }
-});
-
-// Prevent popup from closing when clicking inside it
-profilePopup.addEventListener('click', function(e) {
-    e.stopPropagation();
-});
-
-// Close popup on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && profilePopup.style.display === 'block') {
-        closeProfilePopup();
-    }
-});
+    });
+}
 
 // Product card click handler - redirect to detail page
 // Using event delegation to handle both original and cloned cards
 document.addEventListener('click', function(e) {
-    // Find the closest product-card element
     const productCard = e.target.closest('.product-card');
     
     if (productCard) {
@@ -95,7 +100,6 @@ document.addEventListener('click', function(e) {
         const productImage = productCard.getAttribute('data-product-image');
 
         if (productId && productName && productPrice && productImage) {
-            // Redirect to product detail page with query parameters
             window.location.href = `/public/detail?id=${productId}&name=${encodeURIComponent(productName)}&price=${productPrice}&image=${encodeURIComponent(productImage)}`;
         }
     }
