@@ -218,16 +218,11 @@
         }
 
         function selectOption(type, value, element) {
-            // Single select for cutting
             if (type === 'cutting') {
                 selectedOptions[type] = [value];
-                // Visually mark active in list
                 document.querySelectorAll(`#${type} .dropdown-item`).forEach(it => it.classList.remove('option-item-active'));
                 element.classList.add('option-item-active');
-                // Close after select
-                closeDropdown(type);
             } else {
-                // Multi select for material
                 const index = selectedOptions[type].indexOf(value);
                 if (index > -1) {
                     selectedOptions[type].splice(index, 1);
@@ -238,8 +233,9 @@
                 }
             }
             updateSelectedDisplay(type);
-            // Always close the dropdown after a selection
-            closeDropdown(type);
+            if (type === 'cutting') {
+                closeDropdown(type);
+            }
         }
 
         function updateSelectedDisplay(type) {
@@ -247,13 +243,13 @@
             if (!container) return;
             container.innerHTML = '';
             selectedOptions[type].forEach(option => {
-                const badge = document.createElement('div');
-                badge.className = 'selected-badge selection-item';
-                badge.innerHTML = `
+                const row = document.createElement('div');
+                row.className = 'file-uploaded uploaded-item selection-item';
+                row.innerHTML = `
                     <span class="selection-text">${option}</span>
-                    <button type="button" class="remove-badge" onclick="removeOption('${type}', '${option}')">×</button>
+                    <button type="button" class="remove-file" onclick="removeOption('${type}', '${option}')">⊗</button>
                 `;
-                container.appendChild(badge);
+                container.appendChild(row);
             });
         }
 
@@ -262,14 +258,11 @@
             if (index > -1) {
                 selectedOptions[type].splice(index, 1);
                 updateSelectedDisplay(type);
-                // Also unhighlight in list
-                const item = document.querySelector(`#${type} .dropdown-item span:nth-child(1)`) // placeholder
+                document.querySelectorAll(`#${type} .dropdown-item`).forEach(it => {
+                    const text = it.querySelector('span')?.textContent?.trim();
+                    if (text === value) it.classList.remove('option-item-active');
+                });
             }
-            // Unmark active item in the list
-            document.querySelectorAll(`#${type} .dropdown-item`).forEach(it => {
-                const text = it.querySelector('span')?.textContent?.trim();
-                if (text === value) it.classList.remove('option-item-active');
-            });
         }
 
         function buyNow() {

@@ -89,7 +89,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.order-list') }}" class="sidebar__link {{ request()->routeIs('admin.order-list') ? 'active' : '' }}">
                         <i class="fas fa-list"></i>
                         <span>Order List</span>
                     </a>
