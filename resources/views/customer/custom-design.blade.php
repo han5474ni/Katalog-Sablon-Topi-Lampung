@@ -10,9 +10,14 @@
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
     @php
-        $selectedName = request('name') ?: 'One Life Graphic T-shirt';
-        $selectedImage = request('image') ?: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop';
-        $estimatedPrice = request('price') ?: '250.000';
+        // Prefer server-provided product (from controller) for safety; fallback to request params
+        $selectedName = isset($product) ? $product->name : (request('name') ?: 'One Life Graphic T-shirt');
+        $selectedImage = isset($product)
+            ? ($product->image ? asset('storage/' . $product->image) : (request('image') ?: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop'))
+            : (request('image') ?: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop');
+        $estimatedPrice = isset($product)
+            ? number_format((float) $product->price, 0, ',', '.')
+            : (request('price') ?: '250.000');
     @endphp
 
     <x-navbar />
@@ -53,8 +58,6 @@
                                 <img src="{{ $selectedImage }}" alt="{{ $selectedName }}" class="product-image" onerror="this.src='https://via.placeholder.com/300x300/ffffff/333333?text=PREVIEW'">
                                 <a href="{{ request('preview_url', '#') }}" class="preview-link">Lihat preview 🔍</a>
                             </div>
-
-                            <!-- Upload Bagian Dropdown -->
                             <div class="dropdown-section">
                                 <div class="dropdown-header active" onclick="toggleDropdown('uploadBagian')">
                                     <span>Upload Bagian</span>
@@ -170,7 +173,13 @@
                         <div class="total-price">
                             Harga Total: <span class="total-amount">Rp {{ $estimatedPrice }}</span>
                         </div>
-                        <button class="buy-button" onclick="buyNow()">Beli sekarang!</button>
+                        <form id="customDesignForm" enctype="multipart/form-data">
+                            <input type="hidden" name="product_id" value="{{ isset($product) ? $product->id : request('id') }}">
+                            <input type="hidden" id="cutting_type_input" name="cutting_type">
+                            <input type="hidden" id="special_materials_input" name="special_materials">
+                            <input type="hidden" id="additional_description_input" name="additional_description">
+                            <button type="submit" class="buy-button">Tanyakan sekarang!</button>
+                        </form>
                     </div>
 
                     <a href="{{ route('home') }}" class="keluar-btn">Keluar</a>
@@ -272,19 +281,52 @@
             });
         }
 
-        function buyNow() {
-            const orderData = {
-                cutting: selectedOptions.cutting,
-                materials: selectedOptions.material
-            };
-            console.log('Order data:', orderData);
-            // Show success modal
-            const modal = document.getElementById('successModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
+
+        // Handle form submit
+        document.getElementById('customDesignForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            // Set hidden inputs
+            document.getElementById('cutting_type_input').value = selectedOptions.cutting[0] || '';
+            document.getElementById('special_materials_input').value = JSON.stringify(selectedOptions.material);
+            document.getElementById('additional_description_input').value = document.querySelector('.description-text').value;
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // Append uploads
+            let uploads = [];
+            uploadedSections.forEach(({ file }, section_name) => {
+                uploads.push({ section_name, file });
+            });
+            // Laravel expects uploads as uploads[0][section_name], uploads[0][file], ...
+            uploads.forEach((item, idx) => {
+                formData.append(`uploads[${idx}][section_name]`, item.section_name);
+                formData.append(`uploads[${idx}][file]`, item.file);
+            });
+
+            try {
+                const response = await fetch("{{ route('custom-design.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}'
+                    },
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    // Show success modal
+                    const modal = document.getElementById('successModal');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                } else {
+                    alert(data.message || 'Gagal menyimpan pesanan custom desain.');
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan saat mengirim data.');
             }
-        }
+        });
 
         function closeSuccessModal() {
             const modal = document.getElementById('successModal');

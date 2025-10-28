@@ -26,7 +26,7 @@ class CatalogController extends Controller
 
         $categoryName = $this->categories[$category];
         
-        // Start building query
+        // Start building query - Get ALL active products (not limited by stock)
         $query = Product::active()->category($category);
 
         // Apply search filter

@@ -21,18 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'gender',
+        'phone',
         'google_id',
         'avatar',
-        'phone',
-        'address',
-        'province',
-        'city',
-        'district',
-        'postal_code',
-        'address_notes',
-        'gender',
-        'birth_date',
-        'bio',
     ];
 
     protected $hidden = [
