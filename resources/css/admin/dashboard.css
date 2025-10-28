@@ -496,7 +496,7 @@ body {
 .content-body {
     flex: 1;
     overflow-y: auto;
-    padding: 32px 32px;
+    padding: 8px;
     background-color: var(--bg-light);
 }
 
@@ -507,14 +507,12 @@ body {
 .page-header {
     background-color: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
-    padding: 12px 0;
+    padding: 8px 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-sm);
-    margin-bottom: 16px;
-    margin: 0;
-    padding: 16px 20px;
+    margin-bottom: 8px;
 }
 
 .page-header__left {
@@ -1120,7 +1118,7 @@ body {
 .page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 24px;
+    padding: 8px;
     background-color: #f8f9fa;
 }
 

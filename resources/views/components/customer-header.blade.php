@@ -3,8 +3,8 @@
 <!-- Header -->
 <header class="bg-white p-4 shadow flex justify-between items-center">
     <div class="flex items-center text-sm">
-        <a href="{{ route('home') }}" class="text-gray-500 hover:text-gray-700 transition" aria-label="Kembali ke Homepage">Home</a>
-        <span class="mx-2 text-gray-400">/</span>
+        <a href="{{ route('home') }}" class="text-gray-500 hover:text-gray-700 transition" aria-label="Kembali ke Homepage">Beranda</a>
+        <li class="mx-2 text-gray-400"><i class="fas fa-chevron-right text-xs"></i></li>
         <span class="text-gray-700 font-medium">{{ $title }}</span>
     </div>
     <div class="flex items-center">

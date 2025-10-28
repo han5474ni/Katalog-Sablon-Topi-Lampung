@@ -83,7 +83,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.all-products') }}" class="sidebar__link {{ request()->routeIs('admin.all-products') ? 'active' : '' }}">
                         <i class="fas fa-box-open"></i>
                         <span>All Products</span>
                     </a>
@@ -113,7 +113,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.history') }}" class="sidebar__link {{ request()->routeIs('admin.history') ? 'active' : '' }}">
                         <i class="fas fa-history"></i>
                         <span>History</span>
                     </a>
@@ -223,71 +223,7 @@
         </main>
     </div>
 
+    @vite('resources/js/admin/layout.js')
     @stack('scripts')
-    
-    <script>
-        function toggleAdminDropdown() {
-            const menu = document.getElementById('adminDropdownMenu');
-            menu.classList.toggle('show');
-            
-            // Close notification dropdown if open
-            const notifDropdown = document.getElementById('notificationDropdown');
-            if (notifDropdown && notifDropdown.classList.contains('show')) {
-                notifDropdown.classList.remove('show');
-            }
-        }
-
-        function toggleNotificationDropdown() {
-            const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('show');
-            
-            // Close admin dropdown if open
-            const adminMenu = document.getElementById('adminDropdownMenu');
-            if (adminMenu && adminMenu.classList.contains('show')) {
-                adminMenu.classList.remove('show');
-            }
-        }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            // Close admin dropdown
-            if (!e.target.matches('.admin-dropdown__btn') && !e.target.closest('.admin-dropdown__btn')) {
-                const menu = document.getElementById('adminDropdownMenu');
-                if (menu && menu.classList.contains('show')) {
-                    menu.classList.remove('show');
-                }
-            }
-            
-            // Close notification dropdown
-            if (!e.target.matches('.notification-bell__btn') && !e.target.closest('.notification-bell')) {
-                const notifDropdown = document.getElementById('notificationDropdown');
-                if (notifDropdown && notifDropdown.classList.contains('show')) {
-                    notifDropdown.classList.remove('show');
-                }
-            }
-        });
-
-        // Listen for admin profile updates (real-time sync)
-        window.addEventListener('admin-profile-updated', function(event) {
-            const newAvatarUrl = event.detail.avatarUrl;
-            
-            // Update all admin avatar images
-            document.querySelectorAll('.admin-avatar').forEach(img => {
-                img.src = newAvatarUrl;
-            });
-            
-            // If it's a placeholder, replace with image
-            const placeholder = document.querySelector('.admin-avatar-placeholder');
-            if (placeholder && newAvatarUrl !== '{{ asset("images/default-avatar.png") }}') {
-                const img = document.createElement('img');
-                img.src = newAvatarUrl;
-                img.alt = 'Avatar';
-                img.className = 'admin-avatar';
-                placeholder.replaceWith(img);
-            }
-            
-            console.log('Admin avatar updated:', newAvatarUrl);
-        });
-    </script>
 </body>
 </html>

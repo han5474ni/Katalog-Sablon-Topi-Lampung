@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LGI Store - Semua Produk</title>
+    <title>Katalog Produk - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css'])
@@ -18,8 +18,11 @@
                     <li class="breadcrumb-item">
                         <a href="{{ route('home') }}">
                             <i class="fas fa-chevron-left"></i>
-                            Kembali ke beranda
+                            Beranda
                         </a>
+                    </li>
+                    <li class="breadcrumb-separator">
+                        <i class="fas fa-chevron-right"></i>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">Semua Produk</li>
                 </ol>
@@ -33,12 +36,12 @@
                 <aside class="sidebar">
                     <div class="filters-card filters-section">
                         <div class="filter-header">
-                            <h5>Filters</h5>
+                            <h5>Filter Produk</h5>
                             <i class="fas fa-sliders-h"></i>
                         </div>
 
                         <div class="filter-section">
-                            <h4>Semua Kategori</h4>
+                            <h4>Kategori</h4>
                             <i class="fas fa-chevron-right"></i>
                         </div>
 
@@ -54,7 +57,7 @@
 
                         <div class="filter-group">
                             <div class="filter-group-header">
-                                <h4>Colors</h4>
+                                <h4>Warna</h4>
                                 <i class="fas fa-chevron-up"></i>
                             </div>
                             <div class="color-options">
@@ -73,7 +76,7 @@
 
                         <div class="filter-group">
                             <div class="filter-group-header">
-                                <h4>Size</h4>
+                                <h4>Ukuran</h4>
                                 <i class="fas fa-chevron-up"></i>
                             </div>
                             <div class="size-options">
@@ -89,23 +92,23 @@
                             </div>
                         </div>
 
-                        <button class="apply-filter-btn">Terapkan Filter</button>
+                        <button class="apply-filter-btn">Terapkan</button>
                     </div>
                 </aside>
 
                 <main class="products-main">
                     <div class="products-header">
-                        <h2>Semua Produk</h2>
+                        <h2>Katalog Produk</h2>
                         <div class="sort-info">
-                            <small id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} Produk.</small>
+                            <small id="products-count">{{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} produk</small>
                             <div class="sort-select">
-                                <span>Urut berdasarkan:</span>
+                                <span>Urutkan:</span>
                                 <div class="select-wrapper">
                                     <select id="sort-select">
                                         <option value="most_popular" {{ request('sort') == 'most_popular' ? 'selected' : '' }}>Paling Populer</option>
                                         <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga: Terendah ke Tertinggi</option>
-                                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga: Tertinggi ke Terendah</option>
+                                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga Terendah</option>
+                                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga Tertinggi</option>
                                     </select>
                                     <i class="fas fa-chevron-down"></i>
                                 </div>
@@ -135,8 +138,9 @@
                             </div>
                         @empty
                             <div class="no-products" style="grid-column: 1 / -1;">
-                                <i class="fas fa-inbox"></i>
-                                <p>Produk tidak ditemukan</p>
+                                <i class="fas fa-search"></i>
+                                <p>Tidak ada produk ditemukan</p>
+                                <small>Coba ubah filter atau kata kunci pencarian</small>
                             </div>
                         @endforelse
                     </div>

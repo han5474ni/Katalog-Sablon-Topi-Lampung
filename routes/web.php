@@ -6,10 +6,13 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProductManagementController;
+use App\Http\Controllers\Admin\OrderManagementController;
+use App\Http\Controllers\Admin\ColorManagementController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\GoogleAuthController;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -63,51 +66,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::get('/auth/google', function () {
-    // Tambahkan parameter untuk memaksa user memilih akun
-    return Socialite::driver('google')
-        ->with(['prompt' => 'select_account'])
-        ->redirect();
-})->middleware('guest')->name('google.login');
+Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])
+    ->middleware('guest')
+    ->name('google.login');
 
-Route::get('/auth/google/callback', function () {
-    try {
-        $googleUser = Socialite::driver('google')->stateless()->user();
-        
-        // Cek apakah user sudah ada
-        $user = User::where('email', $googleUser->email)->first();
-        
-        if (!$user) {
-            // Buat user baru jika belum ada
-            $user = User::create([
-                'name' => $googleUser->name,
-                'email' => $googleUser->email,
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-                'password' => Hash::make(Str::random(16))
-            ]);
-        } else {
-            // Update google_id dan avatar jika user sudah ada tapi belum punya
-            if (!$user->google_id) {
-                $user->update([
-                    'google_id' => $googleUser->id,
-                    'avatar' => $googleUser->avatar,
-                ]);
-            }
-        }
-
-        // Login user
-        Auth::login($user);
-        
-        // Regenerate session untuk keamanan
-        request()->session()->regenerate();
-        
-        return redirect()->route('dashboard');
-        
-    } catch (\Exception $e) {
-        return redirect()->route('login')->with('error', 'Google login gagal: ' . $e->getMessage());
-    }
-})->name('google.callback');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])
+    ->name('google.callback');
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
@@ -120,7 +84,8 @@ Route::prefix('admin')->group(function () {
     // Routes untuk admin yang sudah login
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
-        Route::view('/order-list', 'admin.management-order')->name('admin.order-list');
+        Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
+        Route::get('/order-list/export', [OrderManagementController::class, 'export'])->name('admin.order-list.export');
         Route::get('/management-users', [UserManagementController::class, 'index'])->name('admin.management-users');
         Route::get('/management-users/customer/{id}', [UserManagementController::class, 'showCustomerDetail'])->name('admin.customer-detail');
         Route::get('/management-users/customer/{id}/export-pdf', [UserManagementController::class, 'exportCustomerPDF'])->name('admin.customer-export-pdf');
@@ -129,9 +94,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/management-users/export-customers', [UserManagementController::class, 'exportCustomers'])->name('admin.management-users.export-customers');
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
+        Route::get('/history', [ActivityLogController::class, 'history'])->name('admin.history');
         
         // Product Management
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');
+        Route::get('/all-products', [ProductManagementController::class, 'allProducts'])->name('admin.all-products');
         
         Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile');
         Route::post('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
@@ -161,6 +128,12 @@ Route::prefix('admin')->group(function () {
             Route::delete('/products/{id}', [ProductManagementController::class, 'destroy'])->name('products.destroy');
             Route::post('/products/bulk-archive', [ProductManagementController::class, 'bulkArchive'])->name('products.bulk-archive');
             Route::post('/products/{id}/toggle-status', [ProductManagementController::class, 'toggleStatus'])->name('products.toggle-status');
+            
+            // Color Management API
+            Route::get('/colors', [ColorManagementController::class, 'index'])->name('colors.index');
+            Route::post('/colors', [ColorManagementController::class, 'store'])->name('colors.store');
+            Route::delete('/colors/{color}', [ColorManagementController::class, 'destroy'])->name('colors.destroy');
+            Route::delete('/colors', [ColorManagementController::class, 'clear'])->name('colors.clear');
         });
         
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');

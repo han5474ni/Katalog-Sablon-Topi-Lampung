@@ -8,37 +8,28 @@
     @endpush
 
 <div class="order-list-container">
-    {{-- Header Halaman --}}
-    <header class="page-header">
-        <h1 class="page-title">Order List</h1>
-        <div class="date-range-picker">
-            <i class="far fa-calendar-alt"></i>
-            <span>Oktober 16, 2025 - November 11, 2025</span>
-        </div>
-    </header>
-
     {{-- Filter dan Kontrol --}}
-    <div class="controls-section">
+    <form method="GET" action="{{ route('admin.order-list') }}" class="controls-section">
         <div class="search-box">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search-input" placeholder="Cari Pesanan" />
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan" />
         </div>
-        <select id="range-filter" class="filter-select">
-            <option value="30">Rentang : 30 hari</option>
-            <option value="7">Rentang : 7 hari</option>
-            <option value="60">Rentang : 60 hari</option>
-            <option value="90">Rentang : 90 hari</option>
+        <select name="days" class="filter-select" onchange="this.form.submit()">
+            <option value="7" {{ request('days', 30) == 7 ? 'selected' : '' }}>Rentang : 7 hari</option>
+            <option value="30" {{ request('days', 30) == 30 ? 'selected' : '' }}>Rentang : 30 hari</option>
+            <option value="60" {{ request('days', 30) == 60 ? 'selected' : '' }}>Rentang : 60 hari</option>
+            <option value="90" {{ request('days', 30) == 90 ? 'selected' : '' }}>Rentang : 90 hari</option>
         </select>
-        <button id="export-btn" class="btn btn-success">
-            <i class="fas fa-file-excel"></i>
-            Export Excel
-        </button>
-    </div>
+    </form>
 
     {{-- Kartu Daftar Pesanan --}}
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Pesanan Terbaru</h3>
+            <a href="{{ route('admin.order-list.export', request()->all()) }}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i>
+                Export Excel
+            </a>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -46,127 +37,77 @@
                     <thead>
                         <tr>
                             <th class="checkbox-col"><input type="checkbox" id="select-all" /></th>
-                            <th>Produk</th>
-                            <th>ID Pesanan</th>
-                            <th>Tanggal</th>
-                            <th>Nama Pelanggan</th>
-                            <th>Status</th>
-                            <th>Jumlah</th>
+                            <th>PRODUK</th>
+                            <th>ID PESANAN</th>
+                            <th>TANGGAL</th>
+                            <th>NAMA PELANGGAN</th>
+                            <th>STATUS</th>
+                            <th>JUMLAH</th>
                             <th>Detail</th>
                             <th class="actions-col">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- Contoh Baris Data 1 --}}
+                        @forelse($orders as $order)
                         <tr>
                             <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            <td>Baju</td>
-                            <td>#23456</td>
-                            <td>Nov 8th, 2023</td>
-                            <td>Hakiki</td>
-                            <td><span class="status status-pengiriman">Pengiriman</span></td>
-                            <td>Rp.99.999</td>
-                            <td><i class="fas fa-info-circle detail-icon"></i></td>
-                            <td class="actions-col">
-                                <div class="action-dropdown">
-                                    <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
+                            <td>{{ $order->product_name ?? 'Produk Tidak Tersedia' }}</td>
+                            <td>#{{ $order->id }}</td>
+                            <td>{{ $order->created_at->format('M d, Y') }}</td>
+                            <td>{{ $order->user->name ?? 'Customer' }}</td>
+                            <td>
+                                @php
+                                    $statusClass = 'status-' . strtolower(str_replace(' ', '-', $order->status));
+                                @endphp
+                                <span class="status {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
                             </td>
-                        </tr>
-                        {{-- Contoh Baris Data 2 --}}
-                        <tr>
-                            <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            <td>Kaos</td>
-                            <td>#34567</td>
-                            <td>Nov 7th, 2023</td>
-                            <td>Blodot</td>
-                            <td><span class="status status-dibatalkan">Dibatalkan</span></td>
-                            <td>Rp.99.999</td>
-                            <td><i class="fas fa-info-circle detail-icon"></i></td>
-                            <td class="actions-col">
-                                <div class="action-dropdown">
-                                    <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                         {{-- Contoh Baris Data 3 dengan dropdown kompleks --}}
-                        <tr>
-                            <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            <td>Baju</td>
-                            <td>#12345</td>
-                            <td>Nov 5th, 2023</td>
-                            <td>handayani</td>
-                            <td><span class="status status-dibatalkan">Dibatalkan</span></td>
-                            <td>Rp.99.999</td>
+                            <td>Rp.{{ number_format($order->total_price ?? 0, 0, ',', '.') }}</td>
                             <td><i class="fas fa-info-circle detail-icon"></i></td>
                             <td class="actions-col">
                                 <div class="action-dropdown">
                                     <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
                                     <div class="dropdown-content">
                                         <a href="#">Disetujui</a>
-                                        <div class="dropdown-submenu">
-                                            <a href="#" class="submenu-trigger">
-                                                Ditolak
-                                                <i class="fas fa-chevron-right"></i>
-                                            </a>
-                                            <div class="submenu-content">
-                                                 <div class="submenu-header">Ditolak</div>
-                                                 <a href="#">- Gambar tidak PNG</a>
-                                                 <a href="#">- Gambar tidak jelas</a>
-                                                 <a href="#">- Gambar tidak bisa dibaca</a>
-                                            </div>
-                                        </div>
+                                        <a href="#">Ditolak</a>
+                                        <a href="#">Diproses</a>
                                     </div>
                                 </div>
                             </td>
                         </tr>
-                         {{-- Contoh Baris Data 4 --}}
+                        @empty
                         <tr>
-                            <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            <td>Kaos</td>
-                            <td>#43214</td>
-                            <td>Nov 4th, 2023</td>
-                            <td>Anyak</td>
-                            <td><span class="status status-pengiriman">Pengiriman</span></td>
-                            <td>Rp.99.999</td>
-                            <td><i class="fas fa-info-circle detail-icon"></i></td>
-                           <td class="actions-col">
-                                <div class="action-dropdown">
-                                    <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
+                            <td colspan="9" style="text-align:center;padding:40px">
+                                <p style="color:#999">Belum ada pesanan</p>
                             </td>
                         </tr>
-                        {{-- Contoh Baris Data 5 --}}
-                        <tr>
-                            <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            <td>Topi</td>
-                            <td>#22345</td>
-                            <td>Nov 2nd, 2023</td>
-                            <td>Elsa Novi</td>
-                            <td><span class="status status-dibatalkan">Dibatalkan</span></td>
-                            <td>Rp.99.999</td>
-                            <td><i class="fas fa-info-circle detail-icon"></i></td>
-                            <td class="actions-col">
-                                <div class="action-dropdown">
-                                    <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
-                                </div>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
 
             {{-- Pagination Footer --}}
             <div class="pagination-container">
-                 <span class="pagination-info">Menampilkan 15 dari 80 item</span>
+                 <span class="pagination-info">Menampilkan {{ $orders->firstItem() ?? 0 }}–{{ $orders->lastItem() ?? 0 }} dari {{ $orders->total() }} item</span>
                  <div class="pagination-controls">
-                     <span>Halaman</span>
-                     <select id="page-size-select">
-                         <option value="10">10</option>
-                         <option value="25" selected>25</option>
-                         <option value="50">50</option>
-                         <option value="100">100</option>
-                     </select>
+                     @if($orders->onFirstPage())
+                        <button class="pagination-btn pagination-btn-disabled" disabled>
+                            <span>Previous</span>
+                        </button>
+                     @else
+                        <a href="{{ $orders->previousPageUrl() }}" class="pagination-btn">
+                            <span>Previous</span>
+                        </a>
+                     @endif
+                     
+                     @if($orders->hasMorePages())
+                        <a href="{{ $orders->nextPageUrl() }}" class="pagination-btn">
+                            <span>Next</span>
+                        </a>
+                     @else
+                        <button class="pagination-btn pagination-btn-disabled" disabled>
+                            <span>Next</span>
+                        </button>
+                     @endif
                  </div>
             </div>
         </div>

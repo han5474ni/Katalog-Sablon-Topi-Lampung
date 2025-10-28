@@ -12,10 +12,13 @@ let selectedColors = [];
 let selectedSizes = [];
 let currentEditId = null;
 let uploadedImages = [];
+let savedColors = []; // Global saved colors
+let selectedSavedColors = new Set(); // Currently selected saved colors
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     loadProducts();
+    loadSavedColors();
 });
 
 function initializeEventListeners() {
@@ -101,26 +104,13 @@ function initializeEventListeners() {
         const label = document.querySelector('.custom-design-label');
         label.textContent = this.checked ? 'Custom Design Diizinkan' : 'Izinkan Custom Design';
     });
+
+    // Color management
+    initializeColorManagement();
 }
 
 function initializeOptions() {
-    // Colors
-    document.querySelectorAll('#colors-group .option-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            this.classList.toggle('active');
-            const value = this.dataset.value;
-            const index = selectedColors.indexOf(value);
-            if (index > -1) {
-                selectedColors.splice(index, 1);
-            } else {
-                selectedColors.push(value);
-            }
-            document.getElementById('colors-input').value = JSON.stringify(selectedColors);
-        });
-    });
-
-    // Sizes
+    // Sizes only (colors now handled by color management)
     document.querySelectorAll('#sizes-group .option-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -318,11 +308,21 @@ function resetForm() {
     document.getElementById('product-id').value = '';
     selectedColors = [];
     selectedSizes = [];
+    selectedSavedColors.clear();
     uploadedImages = [];
     document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('images-preview').innerHTML = '';
     document.querySelector('.status-label').textContent = 'Active';
     document.querySelector('.custom-design-label').textContent = 'Izinkan Custom Design';
+    
+    // Reset color management
+    document.getElementById('color-code-input').value = '';
+    document.getElementById('color-code-input').classList.remove('valid', 'invalid');
+    document.getElementById('add-color-btn').disabled = true;
+    document.getElementById('color-preview').style.backgroundColor = '#f1f5f9';
+    document.getElementById('color-preview').classList.remove('has-color');
+    updateColorsInput();
+    renderSavedColors();
 }
 
 async function editProduct(id) {
@@ -364,13 +364,11 @@ function fillForm(product) {
     document.getElementById('custom-design-allowed').checked = product.custom_design_allowed || false;
     document.querySelector('.custom-design-label').textContent = product.custom_design_allowed ? 'Custom Design Diizinkan' : 'Izinkan Custom Design';
 
-    // Set colors
+    // Set colors - handle both old format and new saved colors
     if (product.colors) {
-        selectedColors = product.colors;
-        product.colors.forEach(color => {
-            const btn = document.querySelector(`#colors-group .option-btn[data-value="${color}"]`);
-            if (btn) btn.classList.add('active');
-        });
+        selectedSavedColors = new Set(product.colors);
+        updateColorsInput();
+        renderSavedColors();
     }
 
     // Set sizes
@@ -401,7 +399,7 @@ async function handleFormSubmit(e) {
     formData.append('custom_design_allowed', form.custom_design_allowed.checked ? '1' : '0');
 
     // Colors & Sizes - stringify arrays
-    formData.append('colors', JSON.stringify(selectedColors));
+    formData.append('colors', JSON.stringify(Array.from(selectedSavedColors)));
     formData.append('sizes', JSON.stringify(selectedSizes));
 
     // Images - only if new files selected
@@ -629,9 +627,179 @@ function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// Color Management Functions
+function initializeColorManagement() {
+    const colorInput = document.getElementById('color-code-input');
+    const addColorBtn = document.getElementById('add-color-btn');
+    const colorPreview = document.getElementById('color-preview');
+
+    // Color input validation and preview
+    colorInput.addEventListener('input', function() {
+        const colorCode = this.value.trim();
+        const isValidColor = isValidHexColor(colorCode);
+        
+        // Update input styling
+        this.classList.remove('valid', 'invalid');
+        if (colorCode.length > 0) {
+            this.classList.add(isValidColor ? 'valid' : 'invalid');
+        }
+        
+        // Update preview
+        if (isValidColor) {
+            colorPreview.style.backgroundColor = colorCode;
+            colorPreview.classList.add('has-color');
+        } else {
+            colorPreview.style.backgroundColor = '#f1f5f9';
+            colorPreview.classList.remove('has-color');
+        }
+        
+        // Enable/disable add button
+        addColorBtn.disabled = !isValidColor || savedColors.includes(colorCode);
+    });
+
+    // Add color button
+    addColorBtn.addEventListener('click', function() {
+        const colorCode = colorInput.value.trim().toUpperCase();
+        if (isValidHexColor(colorCode) && !savedColors.includes(colorCode)) {
+            addSavedColor(colorCode);
+            colorInput.value = '';
+            colorPreview.style.backgroundColor = '#f1f5f9';
+            colorPreview.classList.remove('has-color');
+            colorInput.classList.remove('valid');
+            addColorBtn.disabled = true;
+        }
+    });
+
+    // Enter key to add color
+    colorInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !addColorBtn.disabled) {
+            addColorBtn.click();
+        }
+    });
+}
+
+function isValidHexColor(color) {
+    return /^#[0-9A-F]{6}$/i.test(color);
+}
+
+async function loadSavedColors() {
+    try {
+        const response = await fetch('/admin/api/colors', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            savedColors = result.data;
+            renderSavedColors();
+        } else {
+            console.error('Failed to load colors:', result.message);
+            savedColors = [];
+        }
+    } catch (error) {
+        console.error('Error loading colors:', error);
+        savedColors = [];
+    }
+}
+
+function renderSavedColors() {
+    const container = document.getElementById('saved-colors-container');
+    if (!container) return;
+
+    container.innerHTML = savedColors.map(color => `
+        <div class="saved-color-item ${selectedSavedColors.has(color) ? 'selected' : ''}" 
+             data-color="${color}" 
+             style="background-color: ${color}"
+             onclick="toggleSavedColor('${color}')">
+            <button class="remove-color" onclick="removeSavedColor('${color}')" title="Hapus warna">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+async function addSavedColor(colorCode) {
+    if (!savedColors.includes(colorCode)) {
+        try {
+            const response = await fetch('/admin/api/colors', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ color: colorCode })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                savedColors = result.data;
+                renderSavedColors();
+                updateColorsInput();
+            } else {
+                alert('Failed to save color: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error saving color:', error);
+            alert('Error saving color');
+        }
+    }
+}
+
+async function removeSavedColor(colorCode) {
+    event.stopPropagation(); // Prevent triggering toggleSavedColor
+    
+    if (confirm(`Hapus warna ${colorCode}?`)) {
+        try {
+            const response = await fetch(`/admin/api/colors/${encodeURIComponent(colorCode)}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                savedColors = result.data;
+                selectedSavedColors.delete(colorCode);
+                renderSavedColors();
+                updateColorsInput();
+            } else {
+                alert('Failed to delete color: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting color:', error);
+            alert('Error deleting color');
+        }
+    }
+}
+
+function toggleSavedColor(colorCode) {
+    if (selectedSavedColors.has(colorCode)) {
+        selectedSavedColors.delete(colorCode);
+    } else {
+        selectedSavedColors.add(colorCode);
+    }
+    renderSavedColors();
+    updateColorsInput();
+}
+
+function updateColorsInput() {
+    const colorsArray = Array.from(selectedSavedColors);
+    document.getElementById('colors-input').value = JSON.stringify(colorsArray);
+}
+
 // Global functions for onclick handlers
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.toggleProductStatus = toggleProductStatus;
 window.changePage = changePage;
 window.removeImage = removeImage;
+window.toggleSavedColor = toggleSavedColor;
+window.removeSavedColor = removeSavedColor;

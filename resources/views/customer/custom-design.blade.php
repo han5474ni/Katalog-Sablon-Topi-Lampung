@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Design - Order List</title>
+    <title>Desain Kustom - LGI Store</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/customer/shared.css', 'resources/css/guest/custom-design.css', 'resources/css/components/footer.css', 'resources/css/app.css'])
@@ -27,13 +27,13 @@
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
-            <x-customer-header title="Custom Design" />
+            <x-customer-header title="Desain Kustom" />
 
             <main class="flex-1 overflow-y-auto min-h-0">
                 <div class="main-content">
                     <div class="breadcrumb">
                         <a href="{{ url()->previous() }}">
-                            < Kembali ke halaman sebelumnya
+                            <i class="fas fa-chevron-left"></i> Kembali
                         </a>
                     </div>
 

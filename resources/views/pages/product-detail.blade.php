@@ -94,9 +94,9 @@
         <div class="breadcrumb-inner">
             <a href="{{ route('home') }}" class="breadcrumb-link">
                 <span aria-hidden="true">&lt;</span>
-                <span>Kembali ke beranda</span>
+                <span>Beranda</span>
             </a>
-            <span class="breadcrumb-separator">/</span>
+            <li class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
             <span class="breadcrumb-current">{{ $product['name'] ?? 'Produk' }}</span>
         </div>
     </nav>

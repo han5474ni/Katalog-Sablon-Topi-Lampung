@@ -4,30 +4,6 @@
     @endpush
 
 <div class="product-management-container">
-    <!-- Header -->
-    <header class="page-header">
-        <div class="header-content">
-            <div>
-                <h1 class="page-title">Product Management</h1>
-                <p class="page-subtitle">Kelola katalog produk LGI Store: tambah, edit, arsipkan, dan kontrol stok.</p>
-            </div>
-            <div class="header-actions">
-                <button id="bulk-archive-btn" class="btn btn-warning" style="display: none;">
-                    <i class="fas fa-archive"></i>
-                    Arsipkan (<span id="selected-count">0</span>)
-                </button>
-                <button id="export-btn" class="btn btn-subtle">
-                    <i class="fas fa-download"></i>
-                    Export
-                </button>
-                <button id="add-product-btn" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Tambah Produk
-                </button>
-            </div>
-        </div>
-    </header>
-
     <!-- Filters & Controls -->
     <div class="controls-section">
         <!-- Tabs -->
@@ -61,6 +37,20 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Daftar Produk</h3>
+            <div class="header-actions">
+                <button id="bulk-archive-btn" class="btn btn-warning" style="display: none;">
+                    <i class="fas fa-archive"></i>
+                    Arsipkan (<span id="selected-count">0</span>)
+                </button>
+                <button id="export-btn" class="btn btn-subtle">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button id="add-product-btn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Tambah Produk
+                </button>
+            </div>
             <span class="product-count" id="product-count">0 produk</span>
         </div>
         <div class="card-body">
@@ -158,14 +148,34 @@
             <div class="form-grid form-grid-2">
                 <div class="form-group">
                     <label>Warna</label>
-                    <div class="options-group" id="colors-group">
-                        <button type="button" class="option-btn" data-value="hitam">Hitam</button>
-                        <button type="button" class="option-btn" data-value="putih">Putih</button>
-                        <button type="button" class="option-btn" data-value="biru">Biru</button>
-                        <button type="button" class="option-btn" data-value="hijau">Hijau</button>
-                        <button type="button" class="option-btn" data-value="merah">Merah</button>
-                        <button type="button" class="option-btn" data-value="kuning">Kuning</button>
+                    
+                    <!-- Color Management Section -->
+                    <div class="color-management">
+                        <!-- Saved Colors Row -->
+                        <div class="saved-colors-section">
+                            <label class="section-label">Warna Tersimpan</label>
+                            <div class="saved-colors-container" id="saved-colors-container">
+                                <!-- Saved colors will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Color Input Section -->
+                        <div class="color-input-section">
+                            <label class="section-label">Tambah Warna Baru</label>
+                            <div class="color-input-group">
+                                <div class="color-preview" id="color-preview">
+                                    <span class="preview-text">Preview</span>
+                                </div>
+                                <div class="color-input-wrapper">
+                                    <input type="text" id="color-code-input" placeholder="Kode warna" maxlength="7">
+                                    <button type="button" id="add-color-btn" class="btn-add-color" disabled>
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    
                     <input type="hidden" name="colors" id="colors-input">
                 </div>
 

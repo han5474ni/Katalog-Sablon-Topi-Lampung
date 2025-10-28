@@ -37,6 +37,23 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.card-header .card-title {
+    flex: 1;
+}
+
+.card-header .product-count {
+    font-size: 0.875rem;
+    color: #64748b;
 }
 
 /* Buttons */
@@ -685,7 +702,189 @@
     min-height: 6rem;
 }
 
-/* Options Group (Colors/Sizes) */
+/* Color Management */
+.color-management {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.saved-colors-section {
+    margin-bottom: 0.5rem;
+}
+
+.saved-colors-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    background: #f8fafc;
+}
+
+.saved-color-item {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 0.5rem;
+    border: 2px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.saved-color-item:hover {
+    transform: scale(1.05);
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.saved-color-item.selected {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2);
+}
+
+.saved-color-item .remove-color {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 10px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.saved-color-item:hover .remove-color {
+    display: flex;
+}
+
+.saved-color-item .remove-color:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+}
+
+.color-input-section {
+    margin-top: 0.5rem;
+}
+
+.color-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.color-preview {
+    width: 60px;
+    height: 40px;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.color-preview .preview-text {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+    text-align: center;
+    z-index: 1;
+}
+
+.color-preview.has-color .preview-text {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.color-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#color-code-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+#color-code-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#color-code-input.valid {
+    border-color: #10b981;
+}
+
+#color-code-input.invalid {
+    border-color: #ef4444;
+}
+
+.btn-add-color {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 0.5rem;
+    background: #e2e8f0;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.btn-add-color:enabled {
+    background: #10b981;
+    color: white;
+}
+
+.btn-add-color:enabled:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.btn-add-color:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Options Group (Sizes) */
 .options-group {
     display: flex;
     flex-wrap: wrap;
@@ -795,5 +994,26 @@
 
     .table-actions {
         flex-direction: column;
+    }
+    
+    /* Color Management Responsive */
+    .color-input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .color-preview {
+        width: 100%;
+        height: 50px;
+    }
+    
+    .saved-colors-container {
+        min-height: 60px;
+        padding: 0.75rem;
+    }
+    
+    .saved-color-item {
+        width: 50px;
+        height: 50px;
     }
 }

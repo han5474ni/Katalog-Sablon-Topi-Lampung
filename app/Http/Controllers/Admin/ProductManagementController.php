@@ -20,6 +20,14 @@ class ProductManagementController extends Controller
     }
 
     /**
+     * Display all products in grid view
+     */
+    public function allProducts()
+    {
+        return view('admin.all-products');
+    }
+
+    /**
      * Get all products with filters (for AJAX)
      */
     public function getProducts(Request $request)

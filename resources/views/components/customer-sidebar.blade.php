@@ -22,22 +22,22 @@
         <a href="{{ route('order-list') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'order-list' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">list_alt</span>
-            Order List
+            Daftar Pesanan
         </a>
         <a href="{{ route('custom-design') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'custom-design' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">palette</span>
-            Custom Design
+            Desain Kustom
         </a>
         <a href="{{ route('chatbot') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'chatbot' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">chat</span>
-            Chatbot
+            Bantuan
         </a>
         <a href="{{ route('profile') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'profile' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">person</span>
-            Profile
+            Profil
         </a>
     </nav>
 
@@ -45,7 +45,7 @@
         @csrf
         <button type="submit" class="w-full bg-yellow-400 text-navy-900 p-3 rounded-lg flex items-center justify-center font-semibold hover:bg-yellow-500 transition">
             <span class="material-icons mr-2">logout</span>
-            Log Out
+            Keluar
         </button>
     </form>
 </div>

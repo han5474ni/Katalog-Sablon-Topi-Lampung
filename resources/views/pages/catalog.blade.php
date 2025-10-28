@@ -15,8 +15,9 @@
             <nav class="breadcrumb" aria-label="Breadcrumb">
                 <a href="{{ route('home') }}" class="breadcrumb-back">
                     <span aria-hidden="true">&lt;</span>
-                    Kembali ke beranda
+                    Beranda
                 </a>
+                <li class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
                 <span class="breadcrumb-current">{{ $categoryName }}</span>
             </nav>
         </div>
