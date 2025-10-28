@@ -50,6 +50,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/custom-design', [CustomerController::class, 'customDesign'])
         ->name('custom-design');
 
+        // Route untuk submit custom design order
+        Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])
+            ->name('custom-design.store');
+
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();

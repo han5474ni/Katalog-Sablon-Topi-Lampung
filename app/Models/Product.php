@@ -53,8 +53,7 @@ class Product extends Model
     // Scopes for filtering
     public function scopeActive($query)
     {
-        return $query->where('is_active', true)
-                     ->where('stock', '>', 0);
+        return $query->where('is_active', true);
     }
     
     public function scopeReady($query)
