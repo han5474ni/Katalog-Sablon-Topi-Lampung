@@ -124,7 +124,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
+            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -219,7 +219,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
+            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',

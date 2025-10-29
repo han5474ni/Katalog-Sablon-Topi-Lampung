@@ -19,16 +19,16 @@ class ProductController extends Controller
         if ($request->has('id')) {
             try {
                 $product = Product::findOrFail($request->id);
-
+                
                 // Increment views
                 $product->incrementViews();
-
+                
                 // Format for view
                 $productData = [
                     'id' => $product->id,
                     'name' => $product->name,
                     'price' => $product->formatted_price,
-                    'original_price' => $product->original_price ? number_format((float) $product->original_price, 0, ',', '.') : null,
+                    'original_price' => $product->original_price ? number_format($product->original_price, 0, ',', '.') : null,
                     'image' => $product->image ? asset('storage/' . $product->image) : $request->query('image', 'https://via.placeholder.com/400'),
                     // Provide gallery/images when available
                     'gallery' => $product->images ?? [],
@@ -41,33 +41,27 @@ class ProductController extends Controller
                     'custom_design_allowed' => (bool) ($product->custom_design_allowed ?? false),
                 ];
 
-                // Recommendations: same category, exclude current product
-                try {
-                    $recommendations = Product::where('is_active', true)
-                        ->where('category', $product->category)
-                        ->where('id', '!=', $product->id)
-                        ->inRandomOrder()
-                        ->limit(4)
-                        ->get()
-                        ->map(function ($p) {
-                            return [
-                                'id' => $p->id,
-                                'name' => $p->name,
-                                'price' => $p->formatted_price,
-                                'image' => $p->image ? asset('storage/' . $p->image) : 'https://via.placeholder.com/300',
-                                'custom_design_allowed' => (bool) ($p->custom_design_allowed ?? false),
-                            ];
-                        })->toArray();
-                } catch (\Exception $ex) {
-                    $recommendations = [];
-                }
+                // Ambil rekomendasi produk (produk lain dari kategori yang sama)
+                $recommendations = Product::where('category', $product->category)
+                    ->where('id', '!=', $product->id)
+                    ->limit(4)
+                    ->get()
+                    ->map(function ($rec) {
+                        return [
+                            'id' => $rec->id,
+                            'name' => $rec->name,
+                            'price' => $rec->formatted_price,
+                            'image' => $rec->image ? asset('storage/' . $rec->image) : 'https://via.placeholder.com/300',
+                            'custom_design_allowed' => (bool) $rec->custom_design_allowed,
+                        ];
+                    });
 
                 return view('pages.product-detail', ['product' => $productData, 'recommendations' => $recommendations]);
             } catch (\Exception $e) {
                 // Fall back to query parameters if product not found
             }
         }
-
+        
         // Fallback: use query parameters (backward compatibility)
         $product = [
             'id' => $request->query('id', 1),
@@ -82,20 +76,16 @@ class ProductController extends Controller
             'custom_design_allowed' => false,
         ];
 
-        // Provide fallback recommendations (random active products)
-        try {
-            $recommendations = Product::where('is_active', true)->inRandomOrder()->limit(4)->get()->map(function ($p) {
-                return [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'price' => $p->formatted_price,
-                    'image' => $p->image ? asset('storage/' . $p->image) : 'https://via.placeholder.com/300',
-                    'custom_design_allowed' => (bool) ($p->custom_design_allowed ?? false),
-                ];
-            })->toArray();
-        } catch (\Exception $ex) {
-            $recommendations = [];
-        }
+        // Ambil rekomendasi produk untuk fallback (produk populer)
+        $recommendations = Product::limit(4)->get()->map(function ($rec) {
+            return [
+                'id' => $rec->id,
+                'name' => $rec->name,
+                'price' => $rec->formatted_price,
+                'image' => $rec->image ? asset('storage/' . $rec->image) : 'https://via.placeholder.com/300',
+                'custom_design_allowed' => (bool) $rec->custom_design_allowed,
+            ];
+        });
 
         return view('pages.product-detail', compact('product', 'recommendations'));
     }

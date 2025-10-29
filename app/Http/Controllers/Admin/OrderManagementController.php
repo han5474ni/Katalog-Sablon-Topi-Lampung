@@ -57,4 +57,3 @@ class OrderManagementController extends Controller
         );
     }
 }
-

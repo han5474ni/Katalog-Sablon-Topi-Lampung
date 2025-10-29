@@ -49,4 +49,3 @@ class CustomDesignOrderExport implements FromCollection, WithHeadings, WithMappi
         ];
     }
 }
-

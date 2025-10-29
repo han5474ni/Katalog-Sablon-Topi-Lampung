@@ -121,7 +121,7 @@
                             <div class="product-card"
                                  data-product-id="{{ $product->id }}"
                                  data-product-name="{{ $product->name }}"
-                                 data-product-price="{{ $product->formatted_price ?? number_format($product->price, 0, ',', '.') }}"
+                                 data-product-price="{{$product->formatted_price}}"
                                  data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}">
                                 <div class="product-image">
                                     <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}"
@@ -133,7 +133,7 @@
                                 </div>
                                 <div class="product-info">
                                     <h6 class="product-name">{{ $product->name }}</h6>
-                                    <div class="product-price">Rp {{ number_format($product->formatted_price ?? $product->price, 0, ',', '.') }}</div>
+                                    <div class="product-price">Rp {{$product->formatted_price}}</div>
                                 </div>
                                 <div class="product-actions" role="group" aria-label="Aksi produk">
                                     <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">

@@ -108,5 +108,3 @@
     @push('styles')
     @endpush
 </x-admin-layout>
-
-

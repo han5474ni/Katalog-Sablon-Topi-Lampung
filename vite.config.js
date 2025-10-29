@@ -19,6 +19,8 @@ export default defineConfig({
                 'resources/css/admin/login.css',
                 'resources/css/admin/dashboard.css',
                 'resources/css/admin/history.css',
+                'resources/css/admin/profile.css',
+                'resources/css/admin/customer-detail.css',
                 'resources/css/admin/management-order.css',
                 'resources/css/admin/user-management.css',
                 'resources/css/admin/product-management.css',
@@ -32,6 +34,7 @@ export default defineConfig({
                 
                 // Auth
                 'resources/css/auth/forgot-password.css',
+                'resources/css/auth/auth-layout.css',
                 
                 // Guest/Homepage
                 'resources/css/guest/home.css',
@@ -43,6 +46,7 @@ export default defineConfig({
                 'resources/js/guest/home.js',
                 'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
+                'resources/css/guest/all-products.css',
                 'resources/js/guest/product-slider.js',
                 'resources/js/guest/product-detail.js',
                 'resources/js/guest/catalog.js',

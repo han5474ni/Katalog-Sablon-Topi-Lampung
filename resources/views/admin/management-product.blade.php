@@ -27,8 +27,9 @@
             <option value="">Semua Kategori</option>
             <option value="kaos">Kaos</option>
             <option value="jaket">Jaket</option>
+            <option value="polo">Polo</option>
             <option value="jersey">Jersey</option>
-            <option value="tas">Tas</option>
+            <option value="celana">Celana</option>
             <option value="topi">Topi</option>
         </select>
     </div>
@@ -117,8 +118,9 @@
                         <option value="">Pilih Kategori</option>
                         <option value="kaos">Kaos</option>
                         <option value="jaket">Jaket</option>
+                        <option value="polo">Polo</option>
                         <option value="jersey">Jersey</option>
-                        <option value="tas">Tas</option>
+                        <option value="celana">Celana</option>
                         <option value="topi">Topi</option>
                     </select>
                 </div>

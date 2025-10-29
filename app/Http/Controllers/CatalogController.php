@@ -9,12 +9,14 @@ class CatalogController extends Controller
 {
     // Categories mapping
     private $categories = [
+        'jersey' => 'Jersey',
         'topi' => 'Topi',
         'kaos' => 'Kaos',
-        'sablon' => 'Sablon',
+        'polo' => 'Polo',
+        'celana' => 'Celana',
+        //'sablon' => 'Sablon',
         'jaket' => 'Jaket',
-        'jersey' => 'Jersey',
-        'tas' => 'Tas'
+        //'tas' => 'Tas'
     ];
 
     public function index(Request $request, $category)
