@@ -217,6 +217,17 @@ class AllProductsManager {
                 stockBadge.className = 'badge stock-badge';
             }
         }
+
+        // Custom design badge
+        const customBadge = element.querySelector('.custom-badge');
+        if (customBadge) {
+            if (product.custom_design_allowed) {
+                customBadge.style.display = 'inline-block';
+                customBadge.textContent = 'CUSTOM';
+            } else {
+                customBadge.style.display = 'none';
+            }
+        }
     }
 
     setView(view) {

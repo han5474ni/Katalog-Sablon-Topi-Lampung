@@ -20,7 +20,7 @@
             : (request('price') ?: '250.000');
     @endphp
 
-    <x-navbar />
+    {{-- Public navbar intentionally removed for the custom-design workspace view --}}
 
     <div class="flex flex-1 min-h-screen">
         <x-customer-sidebar active="custom-design" />

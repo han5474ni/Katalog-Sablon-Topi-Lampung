@@ -101,13 +101,22 @@
                                  data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}">
                                 <div class="product-image-container">
                                     <img class="product-image" src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}" alt="{{ $product->name }}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                                    <button class="wishlist-btn" type="button" aria-label="Tambah ke favorit">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
+                                    @if(!empty($product->custom_design_allowed) && $product->custom_design_allowed)
+                                        <div class="product-ribbon" aria-hidden="true">CUSTOM</div>
+                                    @endif
+                                    <!-- wishlist removed per request -->
                                 </div>
                                 <div class="product-info">
                                     <h3 class="product-title">{{ $product->name }}</h3>
                                     <p class="product-price">Rp {{ $product->formatted_price }}</p>
+                                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                            <i class="fas fa-comments" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
+                                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         @empty

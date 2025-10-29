@@ -21,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Ignore Google client secret JSON files
+client_secret_*.json

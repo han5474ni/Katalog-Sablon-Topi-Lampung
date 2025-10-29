@@ -63,8 +63,19 @@
                         <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}" 
                              alt="{{ $product->name }}" 
                              class="product-image" loading="lazy" decoding="async" width="300" height="300">
+                        @if(!empty($product->custom_design_allowed) && $product->custom_design_allowed)
+                            <div class="product-ribbon small" aria-hidden="true">CUSTOM</div>
+                        @endif
                         <div class="product-name">{{ $product->name }}</div>
                         <div class="product-price">Rp {{ $product->formatted_price }}</div>
+                        <div class="product-actions" role="group" aria-label="Aksi produk">
+                            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                <i class="fas fa-comments" aria-hidden="true"></i>
+                            </button>
+                            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
                 @empty
                     <div class="no-products">
@@ -101,6 +112,14 @@
                              class="product-image" loading="lazy" decoding="async" width="300" height="300">
                         <div class="product-name">{{ $product->name }}</div>
                         <div class="product-price">Rp {{ $product->formatted_price }}</div>
+                        <div class="product-actions" role="group" aria-label="Aksi produk">
+                            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                <i class="fas fa-comments" aria-hidden="true"></i>
+                            </button>
+                            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
                 @empty
                     <div class="no-products">

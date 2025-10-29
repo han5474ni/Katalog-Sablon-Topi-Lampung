@@ -120,6 +120,7 @@
             <div class="product-badges">
                 <span class="badge status-badge"></span>
                 <span class="badge stock-badge"></span>
+                <span class="badge custom-badge" style="display:none">CUSTOM</span>
             </div>
         </div>
         <div class="product-info">
@@ -142,6 +143,9 @@
     <div class="product-list-item" data-id="">
         <div class="list-image">
             <img src="" alt="" class="main-image">
+            <div class="product-badges">
+                <span class="badge custom-badge" style="display:none">CUSTOM</span>
+            </div>
         </div>
         <div class="list-content">
             <div class="list-main">

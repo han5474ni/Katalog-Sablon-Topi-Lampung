@@ -343,6 +343,19 @@
     background: #ef4444;
 }
 
+/* Custom Design ribbon/badge */
+.custom-badge {
+    background: #f97316;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transform: rotate(-8deg);
+    display: inline-block;
+    font-size: 11px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
 .product-info {
     padding: 10px;
     display: flex;

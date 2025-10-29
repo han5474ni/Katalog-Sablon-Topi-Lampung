@@ -471,6 +471,14 @@
                 <div class="product-card-info">
                     <p class="product-card-title">Streetwear Series Hoodie</p>
                     <p class="product-card-price">Rp 425.000</p>
+                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="product-card">
@@ -478,6 +486,14 @@
                 <div class="product-card-info">
                     <p class="product-card-title">Minimal Logo Tee</p>
                     <p class="product-card-price">Rp 295.000</p>
+                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="product-card">
@@ -485,6 +501,14 @@
                 <div class="product-card-info">
                     <p class="product-card-title">Classic Varsity Jacket</p>
                     <p class="product-card-price">Rp 650.000</p>
+                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="product-card">
@@ -492,6 +516,14 @@
                 <div class="product-card-info">
                     <p class="product-card-title">Limited Edition Cap</p>
                     <p class="product-card-price">Rp 175.000</p>
+                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

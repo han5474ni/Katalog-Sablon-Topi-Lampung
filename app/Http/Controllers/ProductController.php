@@ -19,16 +19,16 @@ class ProductController extends Controller
         if ($request->has('id')) {
             try {
                 $product = Product::findOrFail($request->id);
-                
+
                 // Increment views
                 $product->incrementViews();
-                
+
                 // Format for view
                 $productData = [
                     'id' => $product->id,
                     'name' => $product->name,
                     'price' => $product->formatted_price,
-                    'original_price' => $product->original_price ? number_format($product->original_price, 0, ',', '.') : null,
+                    'original_price' => $product->original_price ? number_format((float) $product->original_price, 0, ',', '.') : null,
                     'image' => $product->image ? asset('storage/' . $product->image) : $request->query('image', 'https://via.placeholder.com/400'),
                     // Provide gallery/images when available
                     'gallery' => $product->images ?? [],
@@ -40,13 +40,34 @@ class ProductController extends Controller
                     // Expose flag whether custom design is allowed for this product
                     'custom_design_allowed' => (bool) ($product->custom_design_allowed ?? false),
                 ];
-                
-                return view('pages.product-detail', ['product' => $productData]);
+
+                // Recommendations: same category, exclude current product
+                try {
+                    $recommendations = Product::where('is_active', true)
+                        ->where('category', $product->category)
+                        ->where('id', '!=', $product->id)
+                        ->inRandomOrder()
+                        ->limit(4)
+                        ->get()
+                        ->map(function ($p) {
+                            return [
+                                'id' => $p->id,
+                                'name' => $p->name,
+                                'price' => $p->formatted_price,
+                                'image' => $p->image ? asset('storage/' . $p->image) : 'https://via.placeholder.com/300',
+                                'custom_design_allowed' => (bool) ($p->custom_design_allowed ?? false),
+                            ];
+                        })->toArray();
+                } catch (\Exception $ex) {
+                    $recommendations = [];
+                }
+
+                return view('pages.product-detail', ['product' => $productData, 'recommendations' => $recommendations]);
             } catch (\Exception $e) {
                 // Fall back to query parameters if product not found
             }
         }
-        
+
         // Fallback: use query parameters (backward compatibility)
         $product = [
             'id' => $request->query('id', 1),
@@ -61,6 +82,21 @@ class ProductController extends Controller
             'custom_design_allowed' => false,
         ];
 
-        return view('pages.product-detail', compact('product'));
+        // Provide fallback recommendations (random active products)
+        try {
+            $recommendations = Product::where('is_active', true)->inRandomOrder()->limit(4)->get()->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'price' => $p->formatted_price,
+                    'image' => $p->image ? asset('storage/' . $p->image) : 'https://via.placeholder.com/300',
+                    'custom_design_allowed' => (bool) ($p->custom_design_allowed ?? false),
+                ];
+            })->toArray();
+        } catch (\Exception $ex) {
+            $recommendations = [];
+        }
+
+        return view('pages.product-detail', compact('product', 'recommendations'));
     }
 }

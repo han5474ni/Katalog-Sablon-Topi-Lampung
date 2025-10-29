@@ -4,18 +4,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileIcon = document.getElementById('profile-icon');
     const profilePopup = document.getElementById('profile-popup');
 
-    if (profileIcon && profilePopup) {
-        profileIcon.addEventListener('click', function(e) {
-            e.stopPropagation();
-            profilePopup.classList.toggle('show');
-        });
+    if (profileIcon) {
+        if (profilePopup) {
+            // If user is authenticated (popup exists) toggle popup
+            profileIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profilePopup.classList.toggle('show');
+            });
 
-        // Close popup when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!profileIcon.contains(e.target) && !profilePopup.contains(e.target)) {
-                profilePopup.classList.remove('show');
-            }
-        });
+            // Close popup when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileIcon.contains(e.target) && !profilePopup.contains(e.target)) {
+                    profilePopup.classList.remove('show');
+                }
+            });
+        } else {
+            // If no popup (user not authenticated), clicking profile redirects to login page
+            profileIcon.style.cursor = 'pointer';
+            profileIcon.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/login';
+            });
+        }
     }
 
     // Search functionality

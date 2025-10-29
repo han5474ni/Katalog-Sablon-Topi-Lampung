@@ -62,32 +62,7 @@
         $category = $product['category'] ?? 'Umum';
         $stock = $product['stock'] ?? 0;
 
-        $recommendations = [
-            [
-                'id' => 1,
-                'name' => 'Polo with Contrast Trims',
-                'price' => '60.000',
-                'image' => 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=300&h=300&fit=crop',
-            ],
-            [
-                'id' => 2,
-                'name' => 'Gradient Graphic T-shirt',
-                'price' => '55.000',
-                'image' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300&h=300&fit=crop',
-            ],
-            [
-                'id' => 3,
-                'name' => 'Polo with Tipping Details',
-                'price' => '50.000',
-                'image' => 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&h=300&fit=crop',
-            ],
-            [
-                'id' => 4,
-                'name' => 'Black Striped T-shirt',
-                'price' => '45.000',
-                'image' => 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=300&h=300&fit=crop',
-            ],
-        ];
+        
     @endphp
 
     <nav class="breadcrumb">
@@ -227,15 +202,32 @@
             <h2 class="recommendations-title">Mungkin Kamu Juga Suka</h2>
             <div class="recommendation-grid">
                 @foreach($recommendations as $item)
-                    <article class="recommendation-card" data-product-id="{{ $item['id'] }}" data-product-name="{{ $item['name'] }}" data-product-price="{{ $item['price'] }}" data-product-image="{{ $item['image'] }}" tabindex="0" role="button" aria-label="Lihat {{ $item['name'] }}">
+                    @php
+                        $recId = $item['id'] ?? ($item->id ?? null);
+                        $recName = $item['name'] ?? ($item->name ?? 'Produk');
+                        $recPrice = $item['price'] ?? ($item->formatted_price ?? '0');
+                        $recImage = $item['image'] ?? (isset($item->image) ? asset('storage/'.$item->image) : 'https://via.placeholder.com/300');
+                    @endphp
+                    <a href="{{ route('product.detail', ['id' => $recId, 'name' => $recName, 'price' => $recPrice, 'image' => $recImage]) }}" class="recommendation-card" data-product-id="{{ $recId }}" tabindex="0" aria-label="Lihat {{ $recName }}">
                         <div class="recommendation-image">
                             <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" loading="lazy" decoding="async" width="240" height="240">
+                            @if(!empty($item['custom_design_allowed']) && $item['custom_design_allowed'])
+                                <div class="product-ribbon small" aria-hidden="true">CUSTOM</div>
+                            @endif
                         </div>
                         <div class="recommendation-info">
                             <h3 class="recommendation-name">{{ $item['name'] }}</h3>
                             <p class="recommendation-price">Rp {{ $item['price'] }}</p>
+                            <div class="product-actions" role="group" aria-label="Aksi produk">
+                                <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                    <i class="fas fa-comments" aria-hidden="true"></i>
+                                </button>
+                                <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $item['id'] }}">
+                                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                    </article>
+                    </a>
                 @endforeach
             </div>
         </section>

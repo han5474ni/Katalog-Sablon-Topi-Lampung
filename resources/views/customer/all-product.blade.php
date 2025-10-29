@@ -127,13 +127,21 @@
                                     <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}"
                                          alt="{{ $product->name }}"
                                          onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                                    @if(!empty($product->custom_design_allowed) && $product->custom_design_allowed)
+                                        <div class="product-ribbon small" aria-hidden="true">CUSTOM</div>
+                                    @endif
                                 </div>
                                 <div class="product-info">
                                     <h6 class="product-name">{{ $product->name }}</h6>
                                     <div class="product-price">Rp {{ number_format($product->formatted_price ?? $product->price, 0, ',', '.') }}</div>
                                 </div>
-                                <div class="compare-icon">
-                                    <i class="fas fa-arrows-left-right"></i>
+                                <div class="product-actions" role="group" aria-label="Aksi produk">
+                                    <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                        <i class="fas fa-comments" aria-hidden="true"></i>
+                                    </button>
+                                    <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
+                                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                    </button>
                                 </div>
                             </div>
                         @empty

@@ -144,3 +144,71 @@
         font-size: 16px;
     }
 }
+
+/* Compare / Chat icon on product cards (shared) */
+.product-actions {
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-actions .action-btn {
+    width: 34px;
+    height: 34px;
+    border: 2px solid #dddddd;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.12s;
+}
+
+.product-actions .action-btn i {
+    font-size: 14px;
+    color: #333333;
+}
+
+.product-actions .action-btn:hover {
+    border-color: var(--primary-navy);
+    background-color: var(--primary-navy);
+}
+
+/* Make inner icons inherit hover color for contrast */
+.product-actions .action-btn:hover i {
+    color: #ffffff;
+}
+
+/* Small focus styles for keyboard users */
+.product-actions .action-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* Ribbon label for custom-design-enabled products */
+.product-ribbon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #f97316; /* orange */
+    color: #ffffff;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    border-radius: 4px;
+    transform: rotate(-8deg);
+    z-index: 6;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* Smaller variant for tight cards */
+.product-ribbon.small {
+    padding: 3px 6px;
+    font-size: 10px;
+}
