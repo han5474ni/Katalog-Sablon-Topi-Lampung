@@ -10,12 +10,22 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/bootstrap.js',
                 
+                // Components
+                'resources/css/components/navbar.css',
+                'resources/css/components/footer.css',
+                'resources/js/components/navbar.js',
+                
                 // Admin
                 'resources/css/admin/login.css',
                 'resources/css/admin/dashboard.css',
+                'resources/css/admin/history.css',
                 'resources/css/admin/management-order.css',
                 'resources/css/admin/user-management.css',
                 'resources/css/admin/product-management.css',
+                'resources/css/admin/all-products.css',
+                'resources/js/admin/login.js',
+                'resources/js/admin/layout.js',
+                'resources/js/admin/all-products.js',
                 'resources/js/admin/dashboard-charts.js',
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
