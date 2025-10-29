@@ -6,6 +6,106 @@
     <title>{{ $categoryName }} - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css', 'resources/js/guest/catalog.js'])
+    <style>
+        /* ================= FILTER STYLING ================= */
+        .filter-container {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .filter-section {
+            margin-bottom: 24px;
+        }
+
+        .filter-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .color-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .color-btn.active {
+            outline: 2px solid #2563eb;
+            outline-offset: 3px;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .size-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .size-btn {
+            border: none;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 8px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .size-btn.active {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .size-btn:hover {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .apply-filter-btn {
+            background-color: #000;
+            color: #fff;
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .apply-filter-btn:hover {
+            background-color: #1f2937;
+        }
+        /* ================================================== */
+    </style>
 </head>
 <body>
     <x-navbar />
@@ -40,56 +140,55 @@
             </div>
 
             <div class="content-wrapper">
+                <!-- ================= FILTER SECTION (UPDATED) ================= -->
                 <aside class="sidebar">
-                    <div class="filter-section">
+                    <div class="filter-container">
                         <div class="filter-header">
-                            <span class="filter-title">Filters</span>
+                            <h3>Filters</h3>
                             <i class="fas fa-sliders-h"></i>
                         </div>
-                        <div class="filter-links">
-                            <button class="filter-link" type="button">{{ $categoryName }} Anak</button>
-                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Panjang</button>
-                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Pendek</button>
-                        </div>
-                    </div>
 
-                    <div class="filter-section">
-                        <div class="filter-header">
-                            <span class="filter-title">Warna</span>
-                            <i class="fas fa-chevron-up"></i>
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Colors</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="color-options">
+                                <button class="color-btn" style="background-color:#22c55e"></button>
+                                <button class="color-btn" style="background-color:#ef4444"></button>
+                                <button class="color-btn" style="background-color:#facc15"></button>
+                                <button class="color-btn" style="background-color:#f97316"></button>
+                                <button class="color-btn" style="background-color:#06b6d4"></button>
+                                <button class="color-btn active" style="background-color:#2563eb"></button>
+                                <button class="color-btn" style="background-color:#a855f7"></button>
+                                <button class="color-btn" style="background-color:#ec4899"></button>
+                                <button class="color-btn" style="background-color:#ffffff; border:1px solid #e5e7eb;"></button>
+                                <button class="color-btn" style="background-color:#000000"></button>
+                            </div>
                         </div>
-                        <div class="color-grid">
-                            <button class="color-option color-green" type="button" aria-label="Hijau" data-color="green"></button>
-                            <button class="color-option color-red" type="button" aria-label="Merah" data-color="red"></button>
-                            <button class="color-option color-yellow" type="button" aria-label="Kuning" data-color="yellow"></button>
-                            <button class="color-option color-orange" type="button" aria-label="Oranye" data-color="orange"></button>
-                            <button class="color-option color-cyan" type="button" aria-label="Cyan" data-color="cyan"></button>
-                            <button class="color-option color-blue" type="button" aria-label="Biru" data-color="blue"></button>
-                            <button class="color-option color-purple" type="button" aria-label="Ungu" data-color="purple"></button>
-                            <button class="color-option color-pink" type="button" aria-label="Pink" data-color="pink"></button>
-                            <button class="color-option color-black" type="button" aria-label="Hitam" data-color="black"></button>
-                        </div>
-                    </div>
 
-                    <div class="filter-section">
-                        <div class="filter-header">
-                            <span class="filter-title">Ukuran</span>
-                            <i class="fas fa-chevron-up"></i>
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Size</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="size-options">
+                                <button class="size-btn">XX-Small</button>
+                                <button class="size-btn">X-Small</button>
+                                <button class="size-btn">Small</button>
+                                <button class="size-btn">Medium</button>
+                                <button class="size-btn active">Large</button>
+                                <button class="size-btn">X-Large</button>
+                                <button class="size-btn">XX-Large</button>
+                                <button class="size-btn">3X-Large</button>
+                                <button class="size-btn">4X-Large</button>
+                            </div>
                         </div>
-                        <div class="size-grid">
-                            <button class="size-option" type="button">XX-Small</button>
-                            <button class="size-option" type="button">X-Small</button>
-                            <button class="size-option" type="button">Small</button>
-                            <button class="size-option" type="button">Medium</button>
-                            <button class="size-option" type="button">Large</button>
-                            <button class="size-option" type="button">X-Large</button>
-                            <button class="size-option" type="button">2X-Large</button>
-                            <button class="size-option" type="button">3X-Large</button>
-                        </div>
-                    </div>
 
-                    <button class="apply-filter" type="button">Terapkan Filter</button>
+                        <button class="apply-filter-btn">Apply Filter</button>
+                    </div>
                 </aside>
+                <!-- ============================================================= -->
 
                 <main class="products-section">
                     <div class="products-grid" id="products-grid">
@@ -104,7 +203,6 @@
                                     @if(!empty($product->custom_design_allowed) && $product->custom_design_allowed)
                                         <div class="product-ribbon" aria-hidden="true">CUSTOM</div>
                                     @endif
-                                    <!-- wishlist removed per request -->
                                 </div>
                                 <div class="product-info">
                                     <h3 class="product-title">{{ $product->name }}</h3>
@@ -170,5 +268,22 @@
     </section>
 
     <x-guest-footer />
+
+    <script>
+        // Optional: toggle active state
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -218,8 +218,9 @@ body {
 
 .purchase-actions {
     display: flex;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
 }
 
 .quantity-selector {
@@ -230,6 +231,7 @@ body {
     border-radius: 999px;
     padding: 10px 24px;
     background: var(--surface);
+    width: fit-content;
 }
 
 .quantity-btn {
@@ -254,6 +256,39 @@ body {
     text-align: center;
 }
 
+/* Button row untuk Custom dan Add to Cart */
+.button-row-top {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Tombol Custom Design */
+.custom-design-btn {
+    flex: 1;
+    border: 2px solid var(--primary-navy);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--primary-navy);
+    padding: 16px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-design-btn:hover:not(:disabled) {
+    background: var(--primary-navy);
+    color: var(--surface);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(10, 31, 68, 0.2);
+}
+
+.custom-design-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .add-to-cart-btn {
     flex: 1;
     border: none;
@@ -271,6 +306,26 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
     background: #101828;
+}
+
+/* Tombol Buy Now */
+.buy-now-btn {
+    width: 100%;
+    border: none;
+    border-radius: 999px;
+    background: var(--accent-gold);
+    color: var(--surface);
+    padding: 16px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.buy-now-btn:hover {
+    background: #e09416;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(245, 166, 35, 0.3);
 }
 
 .product-meta {
@@ -420,6 +475,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0;
+    text-decoration: none;
+    color: inherit;
 }
 
 .recommendation-card:hover,
@@ -429,6 +486,7 @@ body {
 }
 
 .recommendation-image {
+    position: relative;
     background: var(--surface-alt);
     display: flex;
     align-items: center;
@@ -441,6 +499,27 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+/* Badge CUSTOM di recommendation cards */
+.product-ribbon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--accent-gold);
+    color: var(--surface);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+    z-index: 2;
+}
+
+.product-ribbon.small {
+    padding: 6px 12px;
+    font-size: 11px;
 }
 
 .recommendation-info {
@@ -461,6 +540,49 @@ body {
     color: var(--accent-gold);
 }
 
+/* Product Actions di recommendation cards */
+.product-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.action-btn {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-chat {
+    background: var(--surface-alt);
+    color: var(--text-dark);
+    border: 1px solid var(--border);
+}
+
+.action-chat:hover {
+    background: var(--primary-navy);
+    color: var(--surface);
+    border-color: var(--primary-navy);
+}
+
+.action-cart {
+    background: var(--primary-navy);
+    color: var(--surface);
+}
+
+.action-cart:hover {
+    background: var(--text-dark);
+    transform: scale(1.05);
+}
+
+/* Responsive Styles */
 @media (max-width: 1280px) {
     .product-page {
         padding: 32px;
@@ -505,8 +627,18 @@ body {
         align-items: stretch;
     }
 
+    .button-row-top {
+        flex-direction: column;
+    }
+
+    .custom-design-btn,
     .add-to-cart-btn {
         width: 100%;
+    }
+
+    .quantity-selector {
+        width: 100%;
+        justify-content: space-between;
     }
 }
 
@@ -542,5 +674,14 @@ body {
 
     .recommendation-grid {
         grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    .product-actions {
+        gap: 6px;
+    }
+
+    .action-btn {
+        padding: 10px;
+        font-size: 14px;
     }
 }

@@ -61,8 +61,7 @@
         $description = $product['description'] ?? 'Produk ini dibuat dengan material berkualitas tinggi yang nyaman digunakan sepanjang hari.';
         $category = $product['category'] ?? 'Umum';
         $stock = $product['stock'] ?? 0;
-
-        
+        $customAllowed = (bool)($product['custom_design_allowed'] ?? false);
     @endphp
 
     <nav class="breadcrumb">
@@ -124,7 +123,32 @@
                         <span class="quantity-value" id="quantityValue" aria-live="polite">1</span>
                         <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah">+</button>
                     </div>
-                    <button type="button" class="add-to-cart-btn" data-product-name="{{ $product['name'] ?? '' }}">Tambahkan ke Keranjang</button>
+
+                    <div class="button-row-top">
+                        @if($customAllowed)
+                            <button type="button" class="custom-design-btn" data-custom-link="{{ route('custom-design', [
+                                'id' => $product['id'] ?? null,
+                                'name' => $product['name'] ?? 'One Life Graphic T-shirt',
+                                'price' => $price,
+                                'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+                                'preview_url' => request()->fullUrl(),
+                            ]) }}">
+                                Custom
+                            </button>
+                        @else
+                            <button type="button" class="custom-design-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                Custom
+                            </button>
+                        @endif
+                        
+                        <button type="button" class="add-to-cart-btn" data-product-name="{{ $product['name'] ?? '' }}">
+                            Tambahkan ke Keranjang
+                        </button>
+                    </div>
+
+                    <button type="button" class="buy-now-btn" data-product-name="{{ $product['name'] ?? '' }}">
+                        Beli Sekarang
+                    </button>
                 </div>
 
                 <div class="product-meta">
@@ -143,24 +167,7 @@
         <section class="product-details">
             <div class="tab-controls" role="tablist" aria-label="Informasi produk">
                 <button type="button" class="tab-button active" data-tab="details" aria-selected="true">Detail Produk</button>
-                @php $customAllowed = (bool)($product['custom_design_allowed'] ?? false); @endphp
-                @if($customAllowed)
-                    <a href="{{ route('custom-design', [
-                        'id' => $product['id'] ?? null,
-                        'name' => $product['name'] ?? 'One Life Graphic T-shirt',
-                        'price' => $price,
-                        'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
-                        'preview_url' => request()->fullUrl(),
-                    ]) }}" class="tab-button" data-navigate="{{ route('custom-design', [
-                        'id' => $product['id'] ?? null,
-                        'name' => $product['name'] ?? 'One Life Graphic T-shirt',
-                        'price' => $price,
-                        'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
-                        'preview_url' => request()->fullUrl(),
-                    ]) }}" aria-selected="false">Custom Ini</a>
-                @else
-                    <button type="button" class="tab-button" title="Custom desain tidak tersedia untuk produk ini" disabled style="opacity:.5; cursor:not-allowed;">Custom Tidak Tersedia</button>
-                @endif
+
             </div>
 
             <div class="tab-panels">
@@ -234,5 +241,41 @@
     </main>
 
     <x-guest-footer />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom design button
+            const customBtn = document.querySelector('.custom-design-btn');
+            if (customBtn && !customBtn.disabled) {
+                customBtn.addEventListener('click', function() {
+                    const customLink = this.dataset.customLink;
+                    if (customLink) {
+                        window.location.href = customLink;
+                    }
+                });
+            }
+
+            // Buy now button
+            const buyNowBtn = document.querySelector('.buy-now-btn');
+            if (buyNowBtn) {
+                buyNowBtn.addEventListener('click', function() {
+                    const productName = this.dataset.productName;
+                    console.log('Beli sekarang:', productName);
+                    // Add your buy now logic here
+                    // For example: add to cart and redirect to checkout
+                });
+            }
+
+            // Add to cart button (existing functionality)
+            const addToCartBtn = document.querySelector('.add-to-cart-btn');
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function() {
+                    const productName = this.dataset.productName;
+                    console.log('Tambahkan ke keranjang:', productName);
+                    // Add your add to cart logic here
+                });
+            }
+        });
+    </script>
 </body>
 </html>

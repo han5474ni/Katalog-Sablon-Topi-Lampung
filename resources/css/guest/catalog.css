@@ -489,8 +489,8 @@ header {
 .filter-header h5 {
     font-size: 18px;
     font-weight: 600;
-    margin: 0;
 }
+
 
 .filter-header i {
     font-size: 18px;
@@ -505,6 +505,7 @@ header {
     border-bottom: 1px solid #f0f0f0;
     color: #333;
 }
+
 
 .filter-section:last-of-type {
     border-bottom: none;
@@ -560,7 +561,6 @@ header {
     border: 2px solid #e0e0e0;
     cursor: pointer;
     transition: transform 0.2s, border-color 0.2s;
-    position: relative;
 }
 
 .color-option:hover {
@@ -578,6 +578,7 @@ header {
     font-weight: bold;
 }
 
+
 /* Size Options */
 .size-options {
     display: flex;
@@ -594,12 +595,6 @@ header {
     font-weight: 500;
     color: #333;
     cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-}
-
-.size-option:hover {
-    border-color: var(--primary-navy);
-    background-color: #f8f9fa;
 }
 
 .size-option.active {
@@ -607,6 +602,7 @@ header {
     color: #ffffff;
     border-color: var(--primary-navy);
 }
+
 
 /* Apply Filter Button */
 .apply-filter-btn {
@@ -619,9 +615,9 @@ header {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 12px;
-    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
+
 
 .apply-filter-btn:hover {
     background-color: #0f1a35;
@@ -1125,7 +1121,7 @@ header {
 
 .catalog-section .color-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
