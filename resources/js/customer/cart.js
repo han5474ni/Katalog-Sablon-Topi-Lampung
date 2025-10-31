@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage();
     initializeEventListeners();
     renderCart();
+    updateCheckoutCount(); // Initialize checkout count
 });
 
 // Load cart from localStorage
@@ -299,10 +300,32 @@ function renderSummary() {
 // Handle checkout
 function handleCheckout() {
     if (cartItems.length === 0) return;
-    
+
     // Mock checkout - replace with actual checkout flow
     alert('Lanjut ke halaman checkout (dalam pengembangan)');
-    
+
     // You can redirect to checkout page:
     // window.location.href = '/checkout';
+}
+
+// Update checkout count based on checked items
+function updateCheckoutCount() {
+    const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+    const count = checkedBoxes.length;
+    const checkoutCount = document.getElementById('checkout-count');
+    if (checkoutCount) {
+        checkoutCount.textContent = `(${count})`;
+    }
+}
+
+// Remove item from cart
+function removeItem(itemId) {
+    if (confirm('Hapus item ini dari keranjang?')) {
+        // For demo, just hide the item (in real app, update backend)
+        const itemElement = event.target.closest('.grid');
+        if (itemElement) {
+            itemElement.remove();
+            updateCheckoutCount();
+        }
+    }
 }

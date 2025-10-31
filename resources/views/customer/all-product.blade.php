@@ -139,7 +139,7 @@
                                 </div>
                                 <div class="product-info">
                                     <h6 class="product-name">{{ $product->name }}</h6>
-                                    <div class="product-price">Rp {{ number_format($product->formatted_price ?? $product->price, 0, ',', '.') }}</div>
+                                    <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
                                 </div>
                                 <div class="compare-icon">
                                     <i class="fas fa-comments"></i>

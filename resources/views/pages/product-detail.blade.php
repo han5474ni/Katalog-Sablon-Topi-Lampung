@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $product['name'] ?? 'Detail Produk' }} - LGI Store</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/guest/product-detail.css', 'resources/css/components/footer.css', 'resources/js/guest/product-detail.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite(['resources/css/guest/product-detail.css', 'resources/css/components/navbar.css', 'resources/css/components/footer.css', 'resources/js/guest/product-detail.js', 'resources/js/components/navbar.js'])
 </head>
 <body>
     <x-navbar />

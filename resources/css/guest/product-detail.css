@@ -1,24 +1,25 @@
 :root {
-    --primary-navy: #0a1f44;
-    --accent-gold: #f5a623;
+    --primary-navy: #1a2847;
+    --primary-yellow: #fbbf24;
+    --secondary-blue: #2d3e50;
+    --accent-color: #ffa500;
     --text-dark: #1f2937;
-    --text-muted: #6b7280;
-    --surface: #ffffff;
-    --surface-alt: #fafafa;
-    --border: #e5e7eb;
-    --background: #f5f5f5;
+    --text-gray: #6b7280;
+    --bg-light: #f8f9fa;
+    --bg-white: #ffffff;
+    --border-color: #e5e7eb;
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background-color: var(--background);
-    color: var(--text-dark);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
     line-height: 1.6;
 }
 
 .breadcrumb {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .breadcrumb-inner {
@@ -35,32 +36,32 @@ body {
     align-items: center;
     gap: 6px;
     font-size: 14px;
-    color: var(--text-muted);
+    color: #6b7280;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
 }
 
 .breadcrumb-link:hover {
-    color: var(--primary-navy);
+    color: #1a2847;
 }
 
 .breadcrumb-separator {
-    color: var(--text-muted);
+    color: #6b7280;
     font-size: 12px;
 }
 
 .breadcrumb-current {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #1f2937;
 }
 
 .product-page {
     max-width: 1240px;
     margin: 0 auto 80px;
     padding: 40px;
-    background: var(--surface);
+    background: #ffffff;
     border-radius: 24px;
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
@@ -87,8 +88,8 @@ body {
     width: 110px;
     height: 110px;
     border-radius: 16px;
-    border: 2px solid var(--border);
-    background: var(--surface-alt);
+    border: 2px solid #e5e7eb;
+    background: #fafafa;
     overflow: hidden;
     cursor: pointer;
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
@@ -103,14 +104,14 @@ body {
 
 .thumbnail:hover,
 .thumbnail.active {
-    border-color: var(--primary-navy);
-    box-shadow: 0 0 0 4px rgba(10, 31, 68, 0.12);
+    border-color: #1a2847;
+    box-shadow: 0 0 0 4px rgba(26, 40, 71, 0.12);
     transform: translateY(-4px);
 }
 
 .main-image {
     flex: 1;
-    background: var(--surface-alt);
+    background: #fafafa;
     border-radius: 24px;
     display: flex;
     align-items: center;
@@ -133,9 +134,9 @@ body {
 }
 
 .product-title {
-    font-size: 40px;
+    font-size: 32px;
     font-weight: 700;
-    color: var(--primary-navy);
+    color: #1a2847;
     letter-spacing: -0.5px;
     text-transform: uppercase;
 }
@@ -143,11 +144,11 @@ body {
 .product-price {
     font-size: 32px;
     font-weight: 700;
-    color: var(--accent-gold);
+    color: #fbbf24;
 }
 
 .product-description {
-    color: var(--text-muted);
+    color: #6b7280;
     font-size: 15px;
     line-height: 1.8;
 }
@@ -160,7 +161,7 @@ body {
 .option-label {
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #1f2937;
 }
 
 .color-options {
@@ -183,8 +184,8 @@ body {
 }
 
 .color-swatch.active {
-    border-color: var(--surface);
-    box-shadow: 0 0 0 4px rgba(10, 31, 68, 0.4);
+    border-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(26, 40, 71, 0.4);
 }
 
 .size-options {
@@ -195,25 +196,25 @@ body {
 
 .size-option {
     padding: 12px 22px;
-    border: 1px solid var(--border);
+    border: 1px solid #e5e7eb;
     border-radius: 999px;
-    background: var(--surface);
+    background: #ffffff;
     font-weight: 600;
     font-size: 14px;
-    color: var(--text-muted);
+    color: #6b7280;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .size-option:hover {
-    border-color: var(--primary-navy);
-    color: var(--primary-navy);
+    border-color: #1a2847;
+    color: #1a2847;
 }
 
 .size-option.active {
-    background: var(--primary-navy);
-    border-color: var(--primary-navy);
-    color: var(--surface);
+    background: #1a2847;
+    border-color: #1a2847;
+    color: #ffffff;
 }
 
 .purchase-actions {
@@ -227,10 +228,10 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
-    border: 1px solid var(--border);
+    border: 1px solid #e5e7eb;
     border-radius: 999px;
     padding: 10px 24px;
-    background: var(--surface);
+    background: #ffffff;
     width: fit-content;
 }
 
@@ -239,14 +240,14 @@ body {
     background: none;
     font-size: 22px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #1f2937;
     cursor: pointer;
     padding: 0 6px;
     transition: color 0.2s ease;
 }
 
 .quantity-btn:hover {
-    color: var(--primary-navy);
+    color: #1a2847;
 }
 
 .quantity-value {
@@ -266,10 +267,10 @@ body {
 /* Tombol Custom Design */
 .custom-design-btn {
     flex: 1;
-    border: 2px solid var(--primary-navy);
+    border: 2px solid #1a2847;
     border-radius: 999px;
-    background: var(--surface);
-    color: var(--primary-navy);
+    background: #ffffff;
+    color: #1a2847;
     padding: 16px 32px;
     font-size: 15px;
     font-weight: 600;
@@ -278,10 +279,10 @@ body {
 }
 
 .custom-design-btn:hover:not(:disabled) {
-    background: var(--primary-navy);
-    color: var(--surface);
+    background: #1a2847;
+    color: #ffffff;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(10, 31, 68, 0.2);
+    box-shadow: 0 8px 20px rgba(26, 40, 71, 0.2);
 }
 
 .custom-design-btn:disabled {
@@ -293,8 +294,8 @@ body {
     flex: 1;
     border: none;
     border-radius: 999px;
-    background: var(--text-dark);
-    color: var(--surface);
+    background: #1f2937;
+    color: #ffffff;
     padding: 16px 32px;
     font-size: 15px;
     font-weight: 600;
@@ -313,8 +314,8 @@ body {
     width: 100%;
     border: none;
     border-radius: 999px;
-    background: var(--accent-gold);
-    color: var(--surface);
+    background: #fbbf24;
+    color: #ffffff;
     padding: 16px 32px;
     font-size: 15px;
     font-weight: 600;
@@ -338,7 +339,7 @@ body {
     display: flex;
     justify-content: space-between;
     font-size: 14px;
-    color: var(--text-muted);
+    color: #6b7280;
 }
 
 .meta-label {
@@ -347,7 +348,7 @@ body {
 
 .meta-value {
     font-weight: 600;
-    color: var(--text-dark);
+    color: #1f2937;
 }
 
 .product-details {
@@ -372,7 +373,7 @@ body {
     background: none;
     font-size: 16px;
     font-weight: 600;
-    color: var(--text-muted);
+    color: #6b7280;
     padding: 16px 0;
     cursor: pointer;
     border-bottom: 2px solid transparent;
@@ -381,17 +382,17 @@ body {
 }
 
 .tab-button:hover {
-    color: var(--primary-navy);
+    color: #1a2847;
 }
 
 .tab-button.active {
-    color: var(--text-dark);
-    border-bottom-color: var(--text-dark);
+    color: #1f2937;
+    border-bottom-color: #1f2937;
 }
 
 .tab-panels {
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
     border-radius: 20px;
     padding: 36px;
 }
@@ -425,19 +426,19 @@ body {
 .detail-title {
     font-size: 16px;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #1f2937;
 }
 
 .detail-text {
     font-size: 15px;
-    color: var(--text-muted);
+    color: #6b7280;
     line-height: 1.8;
 }
 
 .detail-list {
     list-style: disc inside;
     font-size: 15px;
-    color: var(--text-muted);
+    color: #6b7280;
     line-height: 1.8;
     display: grid;
     gap: 8px;
@@ -446,7 +447,7 @@ body {
 .recommendations {
     margin-top: 60px;
     padding: 60px 48px 72px;
-    background: var(--primary-navy);
+    background: #1a2847;
     border-radius: 28px;
 }
 
@@ -454,7 +455,7 @@ body {
     text-align: center;
     font-size: 32px;
     font-weight: 700;
-    color: var(--surface);
+    color: #ffffff;
     letter-spacing: 1px;
     text-transform: uppercase;
     margin-bottom: 48px;
@@ -467,7 +468,7 @@ body {
 }
 
 .recommendation-card {
-    background: var(--surface);
+    background: #ffffff;
     border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
@@ -487,7 +488,7 @@ body {
 
 .recommendation-image {
     position: relative;
-    background: var(--surface-alt);
+    background: #fafafa;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -506,8 +507,8 @@ body {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: var(--accent-gold);
-    color: var(--surface);
+    background: #fbbf24;
+    color: #ffffff;
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 11px;
@@ -531,13 +532,13 @@ body {
 .recommendation-name {
     font-size: 16px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #1f2937;
 }
 
 .recommendation-price {
     font-size: 18px;
     font-weight: 700;
-    color: var(--accent-gold);
+    color: #fbbf24;
 }
 
 /* Product Actions di recommendation cards */
@@ -561,24 +562,24 @@ body {
 }
 
 .action-chat {
-    background: var(--surface-alt);
-    color: var(--text-dark);
-    border: 1px solid var(--border);
+    background: #fafafa;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
 }
 
 .action-chat:hover {
-    background: var(--primary-navy);
-    color: var(--surface);
-    border-color: var(--primary-navy);
+    background: #1a2847;
+    color: #ffffff;
+    border-color: #1a2847;
 }
 
 .action-cart {
-    background: var(--primary-navy);
-    color: var(--surface);
+    background: #1a2847;
+    color: #ffffff;
 }
 
 .action-cart:hover {
-    background: var(--text-dark);
+    background: #1f2937;
     transform: scale(1.05);
 }
 

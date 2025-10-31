@@ -19,14 +19,8 @@
 
             <!-- Cart Content -->
             <div class="p-4 md:p-8">
-                <div class="mx-auto max-w-6xl">
-                    <!-- Header -->
-                    <header class="mb-6 flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-slate-900">Keranjang Belanja</h1>
-                        <button id="clear-cart-btn" class="hidden px-4 py-2 text-sm font-medium text-slate-800 bg-slate-100 rounded-xl hover:bg-slate-200 transition">
-                            Kosongkan
-                        </button>
-                    </header>
+                <div class="mx-auto max-w-full">
+                    
 
                     <!-- Empty State -->
                     <div id="empty-cart" class="hidden rounded-2xl border border-slate-200 bg-white shadow-sm p-8 text-center">
@@ -42,110 +36,257 @@
                         </div>
                     </div>
 
-                    <!-- Cart Items -->
-                    <div id="cart-content" class="grid gap-6 md:grid-cols-3">
-                        <!-- Left: Cart List -->
-                        <div class="md:col-span-2 space-y-4">
-                            <!-- Cart Items Card -->
-                            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                                <!-- Header -->
-                                <div class="flex items-center justify-between border-b border-slate-100 p-4">
-                                    <div class="flex items-center gap-3">
-                                        <input type="checkbox" id="select-all" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400">
-                                        <label for="select-all" class="text-sm text-slate-700 cursor-pointer">Pilih semua</label>
+                    <!-- Cart Items Table -->
+                    <div id="cart-content" class="bg-white rounded-lg shadow-sm border border-slate-200">
+                        <!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 p-4 border-b border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700">
+    <div class="col-span-1 flex items-center justify-center">
+        <input type="checkbox" id="select-all-top" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+    </div>
+    <div class="col-span-4 flex items-center">Semua Produk</div>
+    <div class="col-span-2 text-center">Harga Satuan</div>
+    <div class="col-span-2 text-center">Kuantitas</div>
+    <div class="col-span-2 text-center">Total Harga</div>
+    <div class="col-span-1 text-center">Aksi</div>
+</div>
+
+
+                        <!-- Cart Items -->
+                        <div id="cart-items" class="divide-y divide-slate-200">
+                           
+
+                            <!-- Sample Item 2 -->
+                            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-slate-50 transition items-center">
+                                <div class="col-span-1 flex items-center">
+                                    <input type="checkbox" class="item-checkbox h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400" onchange="updateCheckoutCount()">
+                                </div>
+                                <div class="col-span-4 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-amber-900 rounded-lg flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M16 18v2H8v-2h8M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                        </svg>
                                     </div>
                                     <div>
-                                        <button id="delete-selected-btn" class="hidden px-3 py-1.5 text-sm font-medium text-white bg-rose-600 rounded-xl hover:bg-rose-700 transition">
-                                            Hapus yang dipilih
-                                        </button>
-                                        <div id="item-count" class="text-sm text-slate-500">0 item</div>
+                                        <span class="text-sm font-medium text-slate-900">T-Shirt Premium</span>
+                                        <div class="text-xs text-slate-500 mt-1">
+                                            Variasi:
+                                            <button class="text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+                                                Hijau, XL
+                                                <span class="material-icons text-xs">expand_more</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm text-slate-900">Rp 90.000</span>
+                                </div>
+                                <div class="col-span-2 flex justify-center">
+                                    <span class="text-sm text-slate-900">3</span>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm font-medium text-slate-900">Rp 180.000</span>
+                                </div>
+                                <div class="col-span-1">
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <button class="text-sm text-rose-600 hover:text-rose-700 font-medium" onclick="removeItem(2)">
+                                            Hapus
+                                        </button>
+                                       <div class="flex items-center justify-center gap-1">
+    <span class="text-xs text-center whitespace-nowrap" style="color: #FFC633;">
+        Produk Serupa
+    </span>
+    <span class="material-icons text-xs cursor-pointer" style="color: #FFC633;">
+        expand_more
+    </span>
+</div>
 
-                                <!-- Items List -->
-                                <ul id="cart-items" class="divide-y divide-slate-100">
-                                    <!-- Items will be inserted here by JavaScript -->
-                                </ul>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Coupon Card -->
-                            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-4">
-                                <div class="flex flex-wrap items-center gap-3">
-                                    <input
-                                        id="coupon-input"
-                                        type="text"
-                                        placeholder="Kode kupon (contoh: HEMAT10)"
-                                        class="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-100"
-                                    />
-                                    <button id="apply-coupon-btn" class="px-4 py-2.5 text-sm font-medium text-slate-800 bg-slate-100 rounded-xl hover:bg-slate-200 transition">
-                                        Terapkan
-                                    </button>
-                                    <span id="coupon-badge" class="hidden rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-                                        Kupon <span id="coupon-code"></span> aktif
-                                    </span>
+                            <!-- Sample Item 3 (Checked) -->
+                            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-slate-50 transition items-center bg-blue-50">
+                                <div class="col-span-1 flex items-center">
+                                    <input type="checkbox" checked class="item-checkbox h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400" onchange="updateCheckoutCount()">
+                                </div>
+                                <div class="col-span-4 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-amber-900 rounded-lg flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M16 18v2H8v-2h8M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-slate-900">T-Shirt Premium</span>
+                                        <div class="text-xs text-slate-500 mt-1">
+                                            Variasi:
+                                            <button class="text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+                                                Hijau, XL
+                                                <span class="material-icons text-xs">expand_more</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm text-slate-900">Rp 90.000</span>
+                                </div>
+                                <div class="col-span-2 flex justify-center">
+                                    <span class="text-sm text-slate-900">3</span>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm font-medium text-slate-900">Rp 180.000</span>
+                                </div>
+                                <div class="col-span-1">
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <button class="text-sm text-rose-600 hover:text-rose-700 font-medium" onclick="removeItem(3)">
+                                            Hapus
+                                        </button>
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span class="text-xs text-yellow-500 text-center whitespace-nowrap">
+                                                Produk Serupa
+                                            </span>
+                                            <span class="material-icons text-xs text-yellow-500 cursor-pointer">expand_more</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sample Item 4 -->
+                            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-slate-50 transition items-center">
+                                <div class="col-span-1 flex items-center">
+                                    <input type="checkbox" class="item-checkbox h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400" onchange="updateCheckoutCount()">
+                                </div>
+                                <div class="col-span-4 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-amber-900 rounded-lg flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M16 18v2H8v-2h8M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-slate-900">T-Shirt Premium</span>
+                                        <div class="text-xs text-slate-500 mt-1">
+                                            Variasi:
+                                            <button class="text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+                                                Hijau, XL
+                                                <span class="material-icons text-xs">expand_more</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm text-slate-900">Rp 90.000</span>
+                                </div>
+                                <div class="col-span-2 flex justify-center">
+                                    <span class="text-sm text-slate-900">3</span>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm font-medium text-slate-900">Rp 180.000</span>
+                                </div>
+                                <div class="col-span-1">
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <button class="text-sm text-rose-600 hover:text-rose-700 font-medium" onclick="removeItem(4)">
+                                            Hapus
+                                        </button>
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span class="text-xs text-yellow-500 text-center whitespace-nowrap">
+                                                Produk Serupa
+                                            </span>
+                                            <span class="material-icons text-xs text-yellow-500 cursor-pointer">expand_more</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sample Item 5 (Custom variant) -->
+                            <div class="grid grid-cols-12 gap-4 p-4 hover:bg-slate-50 transition items-center">
+                                <div class="col-span-1 flex items-center">
+                                    <input type="checkbox" class="item-checkbox h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400" onchange="updateCheckoutCount()">
+                                </div>
+                                <div class="col-span-4 flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-amber-900 rounded-lg flex items-center justify-center">
+                                        <svg class="w-10 h-10 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M16 18v2H8v-2h8M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-medium text-slate-900">T-Shirt Premium</span>
+                                        <div class="text-xs text-slate-500 mt-1">
+                                            Variasi:
+                                            <button class="text-slate-600 hover:text-slate-900 inline-flex items-center gap-1">
+                                                Custom, XL, Foil
+                                                <span class="material-icons text-xs">expand_more</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm text-slate-900">Rp 90.000</span>
+                                </div>
+                                <div class="col-span-2 flex justify-center">
+                                    <span class="text-sm text-slate-900">3</span>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <span class="text-sm font-medium text-slate-900">Rp 180.000</span>
+                                </div>
+                                <div class="col-span-1">
+                                    <div class="flex flex-col items-center justify-center gap-1 text-center">
+                                        <button class="text-sm text-rose-600 hover:text-rose-700 font-medium" onclick="removeItem(5)">
+                                            Hapus
+                                        </button>
+                                        <div class="flex items-center justify-center gap-1">
+                                            <span class="text-xs text-yellow-500 text-center whitespace-nowrap">
+                                                Produk Serupa
+                                            </span>
+                                            <span class="material-icons text-xs text-yellow-500 cursor-pointer">expand_more</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right: Order Summary -->
-                        <div class="space-y-4">
-                            <!-- Summary Card -->
-                            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-                                <h3 class="mb-4 text-base font-semibold text-slate-900">Ringkasan Pesanan</h3>
-
-                                <div class="space-y-3 text-sm">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-slate-600">Subtotal</span>
-                                        <span id="subtotal" class="font-medium text-slate-900">Rp 0</span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-slate-600">Diskon</span>
-                                        <span id="discount" class="font-medium text-emerald-700">-Rp 0</span>
-                                    </div>
-
-                                    <!-- Shipping Method -->
-                                    <div class="pt-2">
-                                        <div class="mb-2 text-slate-600">Pengiriman</div>
-                                        <div class="space-y-2">
-                                            <label class="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 p-3 text-sm hover:bg-slate-50 transition">
-                                                <div>
-                                                    <input type="radio" name="shipping" value="STANDARD" class="mr-2" checked>
-                                                    <span>Standard (2-4 hari)</span>
-                                                </div>
-                                                <div class="font-medium">Rp 15.000</div>
-                                            </label>
-                                            <label class="flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 p-3 text-sm hover:bg-slate-50 transition">
-                                                <div>
-                                                    <input type="radio" name="shipping" value="EXPRESS" class="mr-2">
-                                                    <span>Express (1-2 hari)</span>
-                                                </div>
-                                                <div class="font-medium">Rp 30.000</div>
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center justify-between pt-2">
-                                        <span class="text-slate-600">PPN (11%)</span>
-                                        <span id="tax" class="font-medium text-slate-900">Rp 0</span>
-                                    </div>
-
-                                    <div class="flex items-center justify-between border-t border-slate-100 pt-3 text-base">
-                                        <span class="font-semibold text-slate-900">Total</span>
-                                        <span id="total" class="font-bold text-slate-900">Rp 0</span>
-                                    </div>
+                        <!-- Voucher Section -->
+                        <div class="p-4 border-t border-slate-200 bg-slate-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" id="select-voucher" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+                                    <span class="text-sm font-medium text-slate-900">Voucher</span>
                                 </div>
-
-                                <div class="mt-4">
-                                    <button id="checkout-btn" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-xl hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                        Lanjutkan ke Checkout
-                                    </button>
+                                <div class="flex items-center gap-4">
+                                    <select id="voucher-select" class="px-3 py-2 text-sm border border-slate-300 rounded-lg bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400">
+                                        <option value="">Pilih voucher</option>
+                                        <option value="5000" selected>-Rp 5.000</option>
+                                        <option value="10000">-Rp 10.000</option>
+                                        <option value="15000">-Rp 15.000</option>
+                                    </select>
+                                    <span class="material-icons text-slate-400 cursor-pointer">chevron_right</span>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Notes Card -->
-                            <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5">
-                                <h3 class="mb-2 text-base font-semibold text-slate-900">Catatan</h3>
-                                <p class="text-sm text-slate-600">Biaya pengiriman dapat berubah berdasarkan alamat pada halaman checkout. Kupon tertentu mungkin hanya berlaku untuk kategori/brand tertentu.</p>
+                        <!-- Bottom Summary -->
+                        <div class="p-4 border-t border-slate-200 bg-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" id="select-all-bottom" class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400">
+                                    <label for="select-all-bottom" class="text-sm text-slate-700">
+                                        Pilih semua <span id="item-count-text">(5)</span>
+                                    </label>
+                                    <button id="delete-selected-btn" class="text-sm text-rose-600 hover:text-rose-700 font-medium">
+                                        Hapus
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-8">
+                                    <div class="text-right">
+                                        <div class="text-xs text-slate-500 mb-1">
+                                            Total <span id="subtotal-label">(Hemat Rp 5.000)</span>
+                                        </div>
+                                        <div class="text-lg font-bold text-slate-900" id="total-price">
+                                            Rp 90.000 <span class="text-xs line-through text-slate-400">~ Rp 95.000</span>
+                                        </div>
+                                    </div>
+                                    <button id="checkout-btn" class="px-8 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold rounded-lg transition flex items-center gap-2">
+                                        Checkout <span id="checkout-count" class="bg-slate-900 text-white text-xs px-2 py-0.5 rounded">(1)</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

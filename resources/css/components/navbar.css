@@ -82,8 +82,8 @@
 .search-area {
     position: relative;
     width: 100%;
-    max-width: 760px;
-    min-width: 320px;
+    max-width: 600px;
+    min-width: 280px;
 }
 
 .search-bar {
