@@ -1,3 +1,0 @@
-- [ ] Add floating chat icon to home.blade.php
-- [ ] Add floating chat icon to catalog.blade.php
-- [ ] Ensure icon is responsive and visible on scroll
