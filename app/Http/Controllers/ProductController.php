@@ -30,11 +30,15 @@ class ProductController extends Controller
                     'price' => $product->formatted_price,
                     'original_price' => $product->original_price ? number_format($product->original_price, 0, ',', '.') : null,
                     'image' => $product->image ? asset('storage/' . $product->image) : $request->query('image', 'https://via.placeholder.com/400'),
+                    // Provide gallery/images when available
+                    'gallery' => $product->images ?? [],
                     'description' => $product->description ?: 'This product is crafted with superior quality and attention to detail.',
                     'colors' => $product->colors ?: [],
                     'sizes' => $product->sizes ?: [],
                     'stock' => $product->stock,
                     'category' => $product->category,
+                    // Expose flag whether custom design is allowed for this product
+                    'custom_design_allowed' => (bool) ($product->custom_design_allowed ?? false),
                 ];
                 
                 return view('pages.product-detail', ['product' => $productData]);
@@ -53,7 +57,8 @@ class ProductController extends Controller
             'colors' => ['#4A5F4A', '#2C3E50', '#1A1A1A'],
             'sizes' => ['Small', 'Medium', 'Large', 'X-Large'],
             'stock' => 0,
-            'category' => 'kaos'
+            'category' => 'kaos',
+            'custom_design_allowed' => false,
         ];
 
         return view('pages.product-detail', compact('product'));

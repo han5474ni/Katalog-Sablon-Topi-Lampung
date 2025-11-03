@@ -345,7 +345,7 @@ header {
 
 /* Breadcrumb */
 .catalog-breadcrumb-section {
-    padding: 24px 0 8px;
+    padding: 60px 0 8px;
 }
 
 .catalog-inner-container {
@@ -1067,9 +1067,13 @@ header {
 
 .catalog-section .color-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
+    justify-items: center;
+    align-items: center;
 }
+
+
 
 .catalog-section .color-option {
     width: 40px;

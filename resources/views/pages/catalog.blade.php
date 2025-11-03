@@ -40,39 +40,37 @@
 
             <div class="content-wrapper">
                 <aside class="sidebar">
+                    <!-- Updated Filters Section -->
                     <div class="filter-section">
                         <div class="filter-header">
                             <span class="filter-title">Filters</span>
                             <i class="fas fa-sliders-h"></i>
                         </div>
-                        <div class="filter-links">
-                            <button class="filter-link" type="button">{{ $categoryName }} Anak</button>
-                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Panjang</button>
-                            <button class="filter-link" type="button">{{ $categoryName }} Lengan Pendek</button>
-                        </div>
                     </div>
 
+                    <!-- Colors Filter -->
                     <div class="filter-section">
                         <div class="filter-header">
-                            <span class="filter-title">Warna</span>
+                            <span class="filter-title">Colors</span>
                             <i class="fas fa-chevron-up"></i>
                         </div>
                         <div class="color-grid">
-                            <button class="color-option color-green" type="button" aria-label="Hijau" data-color="green"></button>
-                            <button class="color-option color-red" type="button" aria-label="Merah" data-color="red"></button>
-                            <button class="color-option color-yellow" type="button" aria-label="Kuning" data-color="yellow"></button>
-                            <button class="color-option color-orange" type="button" aria-label="Oranye" data-color="orange"></button>
-                            <button class="color-option color-cyan" type="button" aria-label="Cyan" data-color="cyan"></button>
-                            <button class="color-option color-blue" type="button" aria-label="Biru" data-color="blue"></button>
-                            <button class="color-option color-purple" type="button" aria-label="Ungu" data-color="purple"></button>
-                            <button class="color-option color-pink" type="button" aria-label="Pink" data-color="pink"></button>
-                            <button class="color-option color-black" type="button" aria-label="Hitam" data-color="black"></button>
+                            <button class="color-option" style="background-color: #22c55e;" type="button" aria-label="Hijau" data-color="green"></button>
+                            <button class="color-option" style="background-color: #ef4444;" type="button" aria-label="Merah" data-color="red"></button>
+                            <button class="color-option" style="background-color: #eab308;" type="button" aria-label="Kuning" data-color="yellow"></button>
+                            <button class="color-option" style="background-color: #f97316;" type="button" aria-label="Oranye" data-color="orange"></button>
+                            <button class="color-option" style="background-color: #06b6d4;" type="button" aria-label="Cyan" data-color="cyan"></button>
+                            <button class="color-option" style="background-color: #3b82f6;" type="button" aria-label="Biru" data-color="blue"></button>
+                            <button class="color-option" style="background-color: #a855f7;" type="button" aria-label="Ungu" data-color="purple"></button>
+                            <button class="color-option" style="background-color: #ec4899;" type="button" aria-label="Pink" data-color="pink"></button>
+                            <button class="color-option" style="background-color: #000000;" type="button" aria-label="Hitam" data-color="black"></button>
                         </div>
                     </div>
 
+                    <!-- Size Filter -->
                     <div class="filter-section">
                         <div class="filter-header">
-                            <span class="filter-title">Ukuran</span>
+                            <span class="filter-title">Size</span>
                             <i class="fas fa-chevron-up"></i>
                         </div>
                         <div class="size-grid">
@@ -80,14 +78,15 @@
                             <button class="size-option" type="button">X-Small</button>
                             <button class="size-option" type="button">Small</button>
                             <button class="size-option" type="button">Medium</button>
-                            <button class="size-option" type="button">Large</button>
+                            <button class="size-option active" type="button">Large</button>
                             <button class="size-option" type="button">X-Large</button>
                             <button class="size-option" type="button">2X-Large</button>
                             <button class="size-option" type="button">3X-Large</button>
+                            <button class="size-option" type="button">4X-Large</button>
                         </div>
                     </div>
 
-                    <button class="apply-filter" type="button">Terapkan Filter</button>
+                    <button class="apply-filter" type="button">Apply Filter</button>
                 </aside>
 
                 <main class="products-section">

@@ -18,8 +18,8 @@
             </div>
             <div class="top-bar-actions">
                 <a href="#" class="top-link"><i class="fas fa-info-circle"></i> <span>Tentang LGI</span></a>
-                <a href="#" class="top-link"><i class="fas fa-question-circle"></i> <span>Bantuan</span></a>
-                <a href="#" class="top-link notification-link"><i class="fas fa-bell"></i> <span>Notifikasi</span></a>
+                <a href="#" class="top-link"><i class="fas fa-question-circle"></i> <span>Kontak</span></a>
+
                 @if($currentUser)
                     <span class="top-user">Hi, {{ \Illuminate\Support\Str::limit($currentUser->name, 18) }}</span>
                     <a href="{{ $isAdmin ? route('admin.dashboard') : route('dashboard') }}" class="top-btn top-btn-outline">Dashboard</a>
@@ -247,7 +247,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 18px;
+        gap: 5px;
         min-width: 360px;
     }
 

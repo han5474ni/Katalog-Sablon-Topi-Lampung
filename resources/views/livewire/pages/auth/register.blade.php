@@ -15,35 +15,49 @@ state([
     'name' => '',
     'email' => '',
     'password' => '',
-    'password_confirmation' => ''
+    'password_confirmation' => '',
+    'gender' => '',
+    'phone' => ''
 ]);
 
 rules([
     'name' => ['required', 'string', 'max:255'],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+    'gender' => ['required', 'in:male,female'],
+    'phone' => ['required', 'string', 'regex:/^(\+62|62|0)[0-9]{9,12}$/']
 ]);
 
 $register = function () {
     try {
         $validated = $this->validate();
 
+        // Hash password sebelum disimpan
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered($user = User::create($validated)));
+        // Buat user baru
+        $user = User::create($validated);
 
-        // Redirect ke login dengan pesan sukses
+        // Trigger event registered
+        event(new Registered($user));
+
+        // Flash success message
         session()->flash('success', 'Akun berhasil dibuat! Silakan login untuk melanjutkan.');
         
-        $this->redirect(route('login', absolute: false), navigate: true);
+        // Redirect ke login
+        return redirect()->route('login');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Validation error akan ditangani otomatis oleh Livewire
+        throw $e;
     } catch (\Exception $e) {
-        // Jika terjadi error
-        session()->flash('error', 'Gagal membuat akun. Silakan coba lagi.');
+        // Log error untuk debugging
+        \Log::error('Registration error: ' . $e->getMessage());
         
-        $this->redirect(route('register', absolute: false), navigate: true);
+        session()->flash('error', 'Gagal membuat akun. Silakan coba lagi. Error: ' . $e->getMessage());
+        return null;
     }
 };
-
 ?>
 
 <div style="min-height: 100vh; background-color: #f5f5f5; display: flex; flex-direction: column;">
@@ -99,21 +113,23 @@ $register = function () {
                     </label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <label style="display: flex; align-items: center; justify-content: center; padding: 12px; border: 1px solid #d0d0d0; border-radius: 8px; cursor: pointer; font-size: 14px;">
-                            <input type="radio" name="gender" value="male" style="margin-right: 8px;">
+                            <input type="radio" wire:model="gender" value="male" style="margin-right: 8px;">
                             <span>Laki - Laki</span>
                         </label>
                         <label style="display: flex; align-items: center; justify-content: center; padding: 12px; border: 1px solid #d0d0d0; border-radius: 8px; cursor: pointer; font-size: 14px;">
-                            <input type="radio" name="gender" value="female" style="margin-right: 8px;">
+                            <input type="radio" wire:model="gender" value="female" style="margin-right: 8px;">
                             <span>Perempuan</span>
                         </label>
                     </div>
+                    <x-input-error :messages="$errors->get('gender')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
                 </div>
 
                 <!-- Phone -->
                 <div style="margin-bottom: 18px;">
                     <label style="display: block; font-size: 14px; font-weight: 400; color: #999; margin-bottom: 10px;">Nomor Seluler</label>
-                    <input type="tel" placeholder="+62"
-                           style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                    <input wire:model="phone" type="tel" placeholder="+62" required
+                        style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
+                    <x-input-error :messages="$errors->get('phone')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
                 </div>
 
                 <!-- Email -->
@@ -128,6 +144,12 @@ $register = function () {
                     <input wire:model="password" type="password" placeholder="Password" required
                            style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
                     <x-input-error :messages="$errors->get('password')" style="margin-top: 8px; color: #dc2626; font-size: 13px;" />
+                </div>
+
+                <!-- Password Confirmation -->
+                <div style="margin-bottom: 20px;">
+                    <input wire:model="password_confirmation" type="password" placeholder="Konfirmasi Password" required
+                        style="width: 100%; padding: 12px 16px; border: 1px solid #d0d0d0; border-radius: 8px; font-size: 14px;">
                 </div>
 
                 <!-- Terms -->
@@ -148,6 +170,9 @@ $register = function () {
                 <div style="text-align: center;">
                     <p style="font-size: 13px; color: #666;">
                         Sudah Memiliki Akun ?
+                        <a href="{{ route('login') }}" wire:navigate style="color: #ffc107; text-decoration: none; font-weight: 600; cursor: pointer;">
+                            Login Disini
+                        </a>
                     </p>
                 </div>
             </form>

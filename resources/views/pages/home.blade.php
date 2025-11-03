@@ -119,56 +119,6 @@
         <button class="view-all-btn top-selling-view-all">View All</button>
     </section>
 
-    <!-- Custom Design Section -->
-    <section class="custom-design">
-        <h2>DESIGN BAJUMU SENDIRI</h2>
-        <div class="design-blue-container">
-            <div class="design-container">
-            <div class="jersey-preview">
-                <img src="https://i.pinimg.com/1200x/e0/62/b6/e062b626075c2d7191d6dbee36b5b697.jpg" alt="Custom Jersey" class="jersey-image" loading="lazy" decoding="async" width="480" height="480">
-            </div>
-
-            <div class="customization-panel">
-                <div class="jersey-options">
-                    <div class="jersey-option">
-                        <div style="width: 100%; height: 100%; background: #333; display: flex; align-items: center; justify-content: center; color: #fff;">
-                            <i class="fas fa-tshirt" style="font-size: 30px;"></i>
-                        </div>
-                    </div>
-                    <div class="jersey-option active">
-                        <div style="width: 100%; height: 100%; background: #dc143c; display: flex; align-items: center; justify-content: center; color: #fff;">
-                            <i class="fas fa-tshirt" style="font-size: 30px;"></i>
-                        </div>
-                    </div>
-                    <div class="jersey-option">
-                        <div style="width: 100%; height: 100%; background: #fff; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; color: #333;">
-                            <i class="fas fa-tshirt" style="font-size: 30px;"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="option-group">
-                    <div class="option-label">Select Color</div>
-                    <div class="color-options">
-                        <div class="color-btn" style="background-color: #8b6f47;"></div>
-                        <div class="color-btn active" style="background-color: #333;"></div>
-                        <div class="color-btn" style="background-color: #1e3a5f;"></div>
-                    </div>
-                </div>
-
-                <div class="option-group">
-                    <div class="option-label">Choose Size</div>
-                    <div class="size-options">
-                        <button class="size-btn">Small</button>
-                        <button class="size-btn">Medium</button>
-                        <button class="size-btn active">Large</button>
-                        <button class="size-btn">X-Large</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>
-    </section>
 
     <!-- Footer Component -->
     <x-guest-footer />

@@ -50,6 +50,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/custom-design', [CustomerController::class, 'customDesign'])
         ->name('custom-design');
 
+        // Route untuk submit custom design order
+        Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])
+            ->name('custom-design.store');
+
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
@@ -116,6 +120,7 @@ Route::prefix('admin')->group(function () {
     // Routes untuk admin yang sudah login
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
+        Route::view('/order-list', 'admin.management-order')->name('admin.order-list');
         Route::get('/management-users', [UserManagementController::class, 'index'])->name('admin.management-users');
         Route::get('/management-users/customer/{id}', [UserManagementController::class, 'showCustomerDetail'])->name('admin.customer-detail');
         Route::get('/management-users/customer/{id}/export-pdf', [UserManagementController::class, 'exportCustomerPDF'])->name('admin.customer-export-pdf');

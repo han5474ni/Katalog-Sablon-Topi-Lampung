@@ -168,17 +168,24 @@
         <section class="product-details">
             <div class="tab-controls" role="tablist" aria-label="Informasi produk">
                 <button type="button" class="tab-button active" data-tab="details" aria-selected="true">Detail Produk</button>
-                <a href="{{ route('custom-design', [
-                    'name' => $product['name'] ?? 'One Life Graphic T-shirt',
-                    'price' => $price,
-                    'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
-                    'preview_url' => request()->fullUrl(),
-                ]) }}" class="tab-button" data-navigate="{{ route('custom-design', [
-                    'name' => $product['name'] ?? 'One Life Graphic T-shirt',
-                    'price' => $price,
-                    'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
-                    'preview_url' => request()->fullUrl(),
-                ]) }}" aria-selected="false">Custom Ini</a>
+                @php $customAllowed = (bool)($product['custom_design_allowed'] ?? false); @endphp
+                @if($customAllowed)
+                    <a href="{{ route('custom-design', [
+                        'id' => $product['id'] ?? null,
+                        'name' => $product['name'] ?? 'One Life Graphic T-shirt',
+                        'price' => $price,
+                        'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+                        'preview_url' => request()->fullUrl(),
+                    ]) }}" class="tab-button" data-navigate="{{ route('custom-design', [
+                        'id' => $product['id'] ?? null,
+                        'name' => $product['name'] ?? 'One Life Graphic T-shirt',
+                        'price' => $price,
+                        'image' => $gallery[0] ?? 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop',
+                        'preview_url' => request()->fullUrl(),
+                    ]) }}" aria-selected="false">Custom Ini</a>
+                @else
+                    <button type="button" class="tab-button" title="Custom desain tidak tersedia untuk produk ini" disabled style="opacity:.5; cursor:not-allowed;">Custom Tidak Tersedia</button>
+                @endif
             </div>
 
             <div class="tab-panels">

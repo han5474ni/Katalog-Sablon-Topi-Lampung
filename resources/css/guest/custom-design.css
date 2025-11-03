@@ -273,10 +273,9 @@ main {
 
 .selected-items {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 16px 0;
-    min-height: 40px;
+    flex-direction: column;
+    gap: 16px;
+    margin: 16px 0 28px;
 }
 
 .selection-item {
@@ -438,16 +437,6 @@ main {
     width: 100%;
 }
 
-.description-text {
-    width: 100%;
-    min-height: 200px;
-    padding: 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 14px;
-    resize: vertical;
-}
-
 .description-label {
     font-size: 14px;
     font-weight: 600;
@@ -457,14 +446,14 @@ main {
 
 .description-text {
     width: 100%;
-    min-height: 120px;
-    padding: 12px 16px;
-    border-radius: 10px;
+    min-height: 320px;
+    padding: 20px 24px;
+    border-radius: 12px;
     border: 1px solid #d1d5db;
     background: #ffffff;
-    font-size: 13px;
+    font-size: 14px;
     color: #333333;
-    line-height: 1.6;
+    line-height: 1.7;
     resize: vertical;
     outline: none;
 }

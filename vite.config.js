@@ -13,6 +13,7 @@ export default defineConfig({
                 // Admin
                 'resources/css/admin/login.css',
                 'resources/css/admin/dashboard.css',
+                'resources/css/admin/management-order.css',
                 'resources/css/admin/user-management.css',
                 'resources/css/admin/product-management.css',
                 'resources/js/admin/dashboard-charts.js',

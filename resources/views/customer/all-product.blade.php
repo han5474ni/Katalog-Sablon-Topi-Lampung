@@ -14,15 +14,12 @@
     <section class="catalog-breadcrumb-section">
         <div class="catalog-inner-container">
             <nav aria-label="breadcrumb" class="catalog-breadcrumb-nav">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ route('home') }}">
-                            <i class="fas fa-chevron-left"></i>
-                            Kembali ke beranda
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Semua Produk</li>
-                </ol>
+                <nav class="breadcrumb">
+    <a href="{{ route('home') }}">
+        <i class="fas fa-chevron-left"></i>
+        Kembali ke beranda
+    </a>
+</nav>
             </nav>
         </div>
     </section>
@@ -37,59 +34,74 @@
                             <i class="fas fa-sliders-h"></i>
                         </div>
 
-                        <div class="filter-section">
-                            <h4>Semua Kategori</h4>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-
-                        <div class="filter-section">
-                            <h4>Topi</h4>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-
-                        <div class="filter-section">
-                            <h4>Kaos</h4>
-                            <i class="fas fa-chevron-right"></i>
-                        </div>
-
-                        <div class="filter-group">
-                            <div class="filter-group-header">
-                                <h4>Colors</h4>
-                                <i class="fas fa-chevron-up"></i>
+                        <!-- Promo dan lainnya Section -->
+                        <div class="filter-checkbox-section">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="promo-diskon" name="promo">
+                                <label for="promo-diskon">Dengan diskon</label>
                             </div>
-                            <div class="color-options">
-                                <div class="color-option" style="background-color: #00ff00;" data-color="green"></div>
-                                <div class="color-option" style="background-color: #ff0000;" data-color="red"></div>
-                                <div class="color-option" style="background-color: #ffff00;" data-color="yellow"></div>
-                                <div class="color-option" style="background-color: #ff8800;" data-color="orange"></div>
-                                <div class="color-option" style="background-color: #00bfff;" data-color="cyan"></div>
-                                <div class="color-option" style="background-color: #0000ff;" data-color="blue"></div>
-                                <div class="color-option" style="background-color: #8800ff;" data-color="purple"></div>
-                                <div class="color-option" style="background-color: #ff00ff;" data-color="pink"></div>
-                                <div class="color-option" style="background-color: #ffffff; border: 1px solid #ddd;" data-color="white"></div>
-                                <div class="color-option" style="background-color: #000000;" data-color="black"></div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="ready-stok" name="ready">
+                                <label for="ready-stok">Ready stok</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="kustomisasi" name="custom">
+                                <label for="kustomisasi">Kustomisasi</label>
                             </div>
                         </div>
 
-                        <div class="filter-group">
-                            <div class="filter-group-header">
-                                <h4>Size</h4>
-                                <i class="fas fa-chevron-up"></i>
+                        <!-- Kategori Section -->
+                        <div class="filter-group-section">
+                            <div class="filter-group-title">
+                                <h4>Kategori</h4>
                             </div>
-                            <div class="size-options">
-                                <button class="size-option">XX-Small</button>
-                                <button class="size-option">X-Small</button>
-                                <button class="size-option">Small</button>
-                                <button class="size-option">Medium</button>
-                                <button class="size-option active">Large</button>
-                                <button class="size-option">X-Large</button>
-                                <button class="size-option">2X-Large</button>
-                                <button class="size-option">3X-Large</button>
-                                <button class="size-option">4X-Large</button>
+                            <div class="filter-checkbox-list">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-topi" name="kategori" value="topi">
+                                    <label for="kategori-topi">Topi</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-celana" name="kategori" value="celana">
+                                    <label for="kategori-celana">Celana</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-polo" name="kategori" value="polo">
+                                    <label for="kategori-polo">Polo</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-jaket" name="kategori" value="jaket">
+                                    <label for="kategori-jaket">Jaket</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-jersey" name="kategori" value="jersey">
+                                    <label for="kategori-jersey">Jersey</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="kategori-lainlain" name="kategori" value="lain-lain">
+                                    <label for="kategori-lainlain">Lain-lain</label>
+                                </div>
                             </div>
                         </div>
 
-                        <button class="apply-filter-btn">Terapkan Filter</button>
+                        <!-- Harga Section -->
+                        <div class="filter-group-section">
+                            <div class="filter-group-title">
+                                <h4>Harga</h4>
+                            </div>
+                            <div class="price-range-wrapper">
+                                <div class="price-inputs">
+                                    <input type="text" class="price-input" id="min-price" placeholder="Rp 0" value="Rp 0">
+                                    <span class="price-separator">-</span>
+                                    <input type="text" class="price-input" id="max-price" placeholder="Rp 5.000.000" value="Rp 5.000.000">
+                                </div>
+                                <div class="price-slider-container">
+                                    <div class="price-slider-track"></div>
+                                    <div class="price-slider-range"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="apply-filter-btn">Apply Filter</button>
                     </div>
                 </aside>
 
@@ -130,7 +142,7 @@
                                     <div class="product-price">Rp {{ number_format($product->formatted_price ?? $product->price, 0, ',', '.') }}</div>
                                 </div>
                                 <div class="compare-icon">
-                                    <i class="fas fa-arrows-left-right"></i>
+                                    <i class="fas fa-comments"></i>
                                 </div>
                             </div>
                         @empty
@@ -181,23 +193,264 @@
 
     <x-guest-footer />
 
+    <style>
+        /* Filter Sidebar Container */
+        .sidebar {
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .filters-card {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Filter Sidebar Styles - Updated Design */
+        .filter-checkbox-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            cursor: pointer;
+            accent-color: #1a1a1a;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .checkbox-item label {
+            font-size: 13px;
+            font-weight: 400;
+            color: #374151;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .filter-group-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            width: 100%;
+        }
+
+        .filter-group-section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .filter-group-title {
+            margin-bottom: 12px;
+        }
+
+        .filter-group-title h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .filter-checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Price Range Styles */
+        .price-range-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .price-inputs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .price-input {
+            flex: 1;
+            min-width: 0;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #374151;
+            background: #ffffff;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: #1a1a1a;
+            box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.08);
+        }
+
+        .price-input::placeholder {
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        .price-separator {
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .price-slider-container {
+            position: relative;
+            height: 6px;
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .price-slider-track {
+            position: absolute;
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+        }
+
+        .price-slider-range {
+            position: absolute;
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 3px;
+            left: 0%;
+            width: 100%;
+        }
+
+        /* Apply Filter Button */
+        .apply-filter-btn {
+            width: 100%;
+            padding: 11px 16px;
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-sizing: border-box;
+        }
+
+        .apply-filter-btn:hover {
+            background: #2d2d2d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .apply-filter-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .sidebar {
+                max-width: 260px;
+            }
+            
+            .checkbox-item label {
+                font-size: 12px;
+            }
+            
+            .price-input {
+                font-size: 11px;
+                padding: 7px 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                max-width: 100%;
+            }
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const colorOptions = document.querySelectorAll('.color-option');
-            colorOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    this.classList.toggle('active');
+            // Checkbox functionality
+            const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log(`${this.id} is ${this.checked ? 'checked' : 'unchecked'}`);
                 });
             });
 
-            const sizeOptions = document.querySelectorAll('.size-option');
-            sizeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    sizeOptions.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
+            // Price input formatting
+            const priceInputs = document.querySelectorAll('.price-input');
+            priceInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/[^\d]/g, '');
+                    if (value) {
+                        e.target.value = 'Rp ' + parseInt(value).toLocaleString('id-ID');
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    if (!e.target.value || e.target.value === 'Rp ') {
+                        if (e.target.id === 'min-price') {
+                            e.target.value = 'Rp 0';
+                        } else {
+                            e.target.value = 'Rp 5.000.000';
+                        }
+                    }
                 });
             });
 
+            // Apply Filter Button
+            const applyFilterBtn = document.querySelector('.apply-filter-btn');
+            applyFilterBtn.addEventListener('click', function() {
+                const selectedFilters = {
+                    promo: document.getElementById('promo-diskon')?.checked,
+                    ready: document.getElementById('ready-stok')?.checked,
+                    custom: document.getElementById('kustomisasi')?.checked,
+                    categories: [],
+                    priceRange: {
+                        min: document.getElementById('min-price')?.value,
+                        max: document.getElementById('max-price')?.value
+                    }
+                };
+
+                // Get selected categories
+                const categoryCheckboxes = document.querySelectorAll('input[name="kategori"]:checked');
+                categoryCheckboxes.forEach(cb => {
+                    selectedFilters.categories.push(cb.value);
+                });
+
+                console.log('Applying filters:', selectedFilters);
+                
+                // Here you can add your filter logic
+                // For example, redirect to filtered URL or make AJAX request
+            });
+
+            // Sort select functionality (existing code)
             const sortSelect = document.getElementById('sort-select');
             if (sortSelect) {
                 sortSelect.addEventListener('change', function() {
