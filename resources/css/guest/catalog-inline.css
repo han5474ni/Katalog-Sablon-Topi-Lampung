@@ -1,0 +1,98 @@
+/* ================= FILTER STYLING ================= */
+.filter-container {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.filter-section {
+    margin-bottom: 24px;
+}
+
+.filter-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 12px;
+    cursor: pointer;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.color-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.color-btn.active {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.size-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.size-btn {
+    border: none;
+    background-color: #f5f5f5;
+    color: #333;
+    padding: 8px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.size-btn.active {
+    background-color: #000;
+    color: #fff;
+}
+
+.size-btn:hover {
+    background-color: #000;
+    color: #fff;
+}
+
+.apply-filter-btn {
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.apply-filter-btn:hover {
+    background-color: #1f2937;
+}
+/* ================================================== */

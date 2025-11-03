@@ -178,7 +178,7 @@
                             <input type="hidden" id="cutting_type_input" name="cutting_type">
                             <input type="hidden" id="special_materials_input" name="special_materials">
                             <input type="hidden" id="additional_description_input" name="additional_description">
-                            <button type="submit" class="buy-button">Tanyakan sekarang!</button>
+                            <button type="submit" class="buy-button">Pesan Sekarang</button>
                         </form>
                     </div>
 

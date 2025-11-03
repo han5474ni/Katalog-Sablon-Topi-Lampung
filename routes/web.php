@@ -43,6 +43,17 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/keranjang', [CustomerController::class, 'keranjang'])
         ->name('keranjang');
+    Route::post('/keranjang', [CustomerController::class, 'addToCart'])
+        ->name('cart.add');
+    Route::patch('/keranjang/{key}', [CustomerController::class, 'updateCartItem'])
+        ->name('cart.update');
+    Route::delete('/keranjang/{key}', [CustomerController::class, 'removeCartItem'])
+        ->name('cart.remove');
+    Route::delete('/keranjang-bulk', [CustomerController::class, 'removeSelected'])
+        ->name('cart.bulk-remove');
+
+    Route::post('/checkout', [CustomerController::class, 'checkout'])
+        ->name('checkout');
 
     Route::get('/order-list', [CustomerController::class, 'orderList'])
         ->name('order-list');
@@ -85,7 +96,11 @@ Route::prefix('admin')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
+        Route::get('/order-list/{id}/detail', [OrderManagementController::class, 'showDetail'])->name('admin.order.detail');
         Route::get('/order-list/export', [OrderManagementController::class, 'export'])->name('admin.order-list.export');
+        Route::post('/order-list/{id}/approve', [OrderManagementController::class, 'approve'])->name('admin.order.approve');
+        Route::post('/order-list/{id}/reject', [OrderManagementController::class, 'reject'])->name('admin.order.reject');
+        Route::patch('/order-list/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.order.update-status');
         Route::get('/management-users', [UserManagementController::class, 'index'])->name('admin.management-users');
         Route::get('/management-users/customer/{id}', [UserManagementController::class, 'showCustomerDetail'])->name('admin.customer-detail');
         Route::get('/management-users/customer/{id}/export-pdf', [UserManagementController::class, 'exportCustomerPDF'])->name('admin.customer-export-pdf');

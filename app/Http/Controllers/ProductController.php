@@ -27,7 +27,7 @@ class ProductController extends Controller
                 $productData = [
                     'id' => $product->id,
                     'name' => $product->name,
-                    'price' => $product->formatted_price,
+                    'price' => $product->price, // Pass raw numeric price
                     'original_price' => $product->original_price ? number_format($product->original_price, 0, ',', '.') : null,
                     'image' => $product->image ? asset('storage/' . $product->image) : $request->query('image', 'https://via.placeholder.com/400'),
                     // Provide gallery/images when available

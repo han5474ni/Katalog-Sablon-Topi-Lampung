@@ -10,10 +10,10 @@
     <div class="flex items-center">
         <div class="flex items-center">
             <!-- Notification Bell -->
-            <button class="relative p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Notifikasi">
-                <span class="material-icons text-gray-600 text-2xl">notifications</span>
+            <button class="notification-bell relative p-2 hover:bg-gray-100 rounded-full transition-colors" aria-label="Notifikasi">
+                <i class="fas fa-bell text-gray-600 text-xl"></i>
                 <!-- Notification Badge -->
-                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span class="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">0</span>
             </button>
         </div>
     </div>

@@ -116,6 +116,13 @@
                 </div>
 
                 <div class="purchase-actions">
+                    <form id="addToCartForm" method="POST" action="{{ route('cart.add') }}">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product['id'] ?? '' }}">
+                        <input type="hidden" name="quantity" id="cartQuantityInput" value="1">
+                        <input type="hidden" name="color" id="cartColorInput" value="">
+                        <input type="hidden" name="size" id="cartSizeInput" value="">
+                    </form>
                     <div class="quantity-selector" aria-label="Pilih kuantitas">
                         <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah">−</button>
                         <span class="quantity-value" id="quantityValue" aria-live="polite">1</span>
@@ -224,12 +231,7 @@
                             <h3 class="recommendation-name">{{ $item['name'] }}</h3>
                             <p class="recommendation-price">Rp {{ $item['price'] }}</p>
                             <div class="product-actions" role="group" aria-label="Aksi produk">
-                                <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                                    <i class="fas fa-comments" aria-hidden="true"></i>
-                                </button>
-                                <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $item['id'] }}">
-                                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                                </button>
+                                
                             </div>
                         </div>
                     </a>

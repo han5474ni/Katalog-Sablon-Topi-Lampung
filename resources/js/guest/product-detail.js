@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const colorOptions = document.querySelectorAll('.color-swatch');
+    const cartColorInput = document.getElementById('cartColorInput');
     colorOptions.forEach(option => {
         option.addEventListener('click', () => {
             colorOptions.forEach(item => {
@@ -73,10 +74,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             option.classList.add('active');
             option.setAttribute('aria-pressed', 'true');
+            if (cartColorInput) {
+                cartColorInput.value = option.dataset.color || '';
+            }
         });
     });
+    if (cartColorInput) {
+        const activeColor = document.querySelector('.color-swatch.active');
+        cartColorInput.value = activeColor ? activeColor.dataset.color || '' : '';
+    }
 
     const sizeOptions = document.querySelectorAll('.size-option');
+    const cartSizeInput = document.getElementById('cartSizeInput');
     sizeOptions.forEach(option => {
         option.addEventListener('click', () => {
             sizeOptions.forEach(item => {
@@ -85,17 +94,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             option.classList.add('active');
             option.setAttribute('aria-pressed', 'true');
+            if (cartSizeInput) {
+                cartSizeInput.value = option.dataset.size || option.textContent.trim();
+            }
         });
     });
+    if (cartSizeInput) {
+        const activeSize = document.querySelector('.size-option.active');
+        cartSizeInput.value = activeSize ? activeSize.dataset.size || activeSize.textContent.trim() : '';
+    }
 
     const quantitySelector = document.querySelector('.quantity-selector');
     const quantityValue = document.getElementById('quantityValue');
+    const cartQuantityInput = document.getElementById('cartQuantityInput');
     let quantity = 1;
 
     function updateQuantity(newQuantity) {
         quantity = Math.max(1, Math.min(newQuantity, 99));
         if (quantityValue) {
             quantityValue.textContent = quantity.toString();
+        }
+        if (cartQuantityInput) {
+            cartQuantityInput.value = quantity.toString();
         }
     }
 
@@ -109,16 +129,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    if (cartQuantityInput) {
+        cartQuantityInput.value = quantity.toString();
+    }
 
     const addToCartButton = document.querySelector('.add-to-cart-btn');
-    if (addToCartButton) {
+    const addToCartForm = document.getElementById('addToCartForm');
+    if (addToCartButton && addToCartForm) {
         addToCartButton.addEventListener('click', () => {
-            const selectedColor = document.querySelector('.color-swatch.active');
-            const selectedSize = document.querySelector('.size-option.active');
-            const colorLabel = selectedColor ? selectedColor.dataset.color : 'Default';
-            const sizeLabel = selectedSize ? selectedSize.dataset.size || selectedSize.textContent : 'Default';
-            const productName = addToCartButton.dataset.productName || 'Produk';
-            alert(`${productName} ditambahkan ke keranjang\nWarna: ${colorLabel}\nUkuran: ${sizeLabel}\nJumlah: ${quantity}`);
+            const activeColor = document.querySelector('.color-swatch.active');
+            const activeSize = document.querySelector('.size-option.active');
+            if (cartColorInput) {
+                cartColorInput.value = activeColor ? activeColor.dataset.color || '' : '';
+            }
+            if (cartSizeInput) {
+                cartSizeInput.value = activeSize ? activeSize.dataset.size || activeSize.textContent.trim() : '';
+            }
+            if (cartQuantityInput) {
+                cartQuantityInput.value = quantity.toString();
+            }
+            addToCartForm.submit();
         });
     }
 

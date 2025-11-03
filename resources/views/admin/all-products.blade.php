@@ -20,10 +20,10 @@
                     <option value="">Semua Kategori</option>
                     <option value="topi">Topi</option>
                     <option value="kaos">Kaos</option>
-                    <option value="sablon">Sablon</option>
+                    <option value="polo">Polo</option>
                     <option value="jaket">Jaket</option>
                     <option value="jersey">Jersey</option>
-                    <option value="tas">Tas</option>
+                    <option value="celana">Celana</option>
                 </select>
             </div>
             
