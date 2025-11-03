@@ -11,7 +11,9 @@
     --gray-500: #6b7280;
     --gray-700: #374151;
     --gray-800: #1f2937;
+    --gray-900: #111827; /* Untuk tombol approve */
     --white: #ffffff;
+    --yellow-500: #f59e0b; /* Untuk tombol ditolak */
     --border-radius: 8px;
     --card-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
 }
@@ -19,7 +21,7 @@
 /* Kontainer Utama */
 .order-detail-container {
     padding: 24px;
-    font-family: 'Inter', sans-serif; /* Ganti jika font berbeda */
+    font-family: 'Inter', sans-serif;
 }
 
 /* Header Halaman */
@@ -76,7 +78,7 @@
 /* Kartu Detail Produk */
 .product-detail-card .card-header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 250px; /* Disesuaikan dengan konten */
+    grid-template-columns: 1fr 1fr 1fr 200px; /* Kolom 4 untuk spasi gambar */
     padding: 12px 24px;
     background-color: var(--gray-100);
     border-bottom: 1px solid var(--gray-200);
@@ -93,7 +95,6 @@
 .product-info {
     flex-grow: 1;
     padding-right: 24px;
-    border-right: 1px solid var(--gray-200);
 }
 
 .info-grid {
@@ -125,6 +126,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .product-image-section img {
@@ -133,6 +135,7 @@
     border-radius: var(--border-radius);
     background-color: var(--gray-100);
     padding: 8px;
+    border: 1px solid var(--gray-200);
 }
 
 
@@ -145,13 +148,12 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Jarak antar baris */
 }
 
 .summary-row, .summary-header {
     display: grid;
-    grid-template-columns: 200px 1fr; /* Kolom pertama lebih kecil */
-    padding: 12px 0;
+    grid-template-columns: 250px 1fr; /* Kolom pertama lebih besar */
+    padding: 14px 0;
     border-bottom: 1px solid var(--gray-100);
 }
 .summary-row:last-child {
@@ -160,7 +162,7 @@
 .summary-header {
     font-weight: 600;
     color: var(--gray-700);
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 2px solid var(--gray-200);
     padding-bottom: 16px;
     margin-bottom: 8px;
 }
@@ -178,4 +180,40 @@
 .log-status {
     white-space: pre-line; /* Membuat newline berfungsi */
     line-height: 1.6;
+}
+
+/* Footer Tombol Tindakan */
+.page-actions-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+    margin-top: 24px;
+}
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-reject {
+    background-color: var(--yellow-500);
+    color: var(--white);
+}
+.btn-reject:hover {
+    background-color: #d97706; /* Varian lebih gelap */
+}
+
+.btn-approve {
+    background-color: var(--gray-900);
+    color: var(--white);
+}
+.btn-approve:hover {
+    background-color: var(--gray-700);
 }

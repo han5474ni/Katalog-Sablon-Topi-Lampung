@@ -11,7 +11,10 @@
     {{-- Header Halaman dengan Breadcrumb --}}
     <header class="page-header">
         <h1 class="page-title">
-            <a href="/path-to-order-list">Order List</a> 
+            {{-- Ganti "Home" dengan link ke dashboard jika perlu --}}
+            <a href="#">Home</a> 
+            <span class="breadcrumb-separator">></span> 
+            <a href="#">Order List</a> 
             <span class="breadcrumb-separator">></span> 
             Detail
         </h1>
@@ -50,46 +53,53 @@
                 </div>
             </div>
             <div class="product-image-section">
-                <img src="https://i.ibb.co/6843v21/tshirt-image.png" alt="Product Image">
+                {{-- Ganti src gambar ini dengan data dinamis Anda --}}
+                <img src="httpspre-logo.jpg" alt="Product Image">
             </div>
         </div>
     </div>
 
     {{-- Kartu Rincian Biaya dan Log --}}
     <div class="card summary-card">
-         <div class="summary-table">
-             <div class="summary-header">
-                 <div class="summary-col">Kategori</div>
-                 <div class="summary-col">Detail</div>
-             </div>
-             <div class="summary-body">
-                 <div class="summary-row">
-                     <div class="summary-col">Biaya Produk</div>
-                     <div class="summary-col">Rp 70.000</div>
-                 </div>
-                 <div class="summary-row">
-                     <div class="summary-col">Biaya Custom</div>
-                     <div class="summary-col">Rp -</div>
-                 </div>
-                 <div class="summary-row">
-                     <div class="summary-col">Subtotal</div>
-                     <div class="summary-col">Rp 100.000</div>
-                 </div>
-                 <div class="summary-row">
-                     <div class="summary-col">Diskon</div>
-                     <div class="summary-col">Rp 0</div>
-                 </div>
-                 <div class="summary-row">
-                     <div class="summary-col">Log Status Pesanan</div>
-                     <div class="summary-col log-status">
+        <div class="summary-table">
+            <div class="summary-header">
+                <div class="summary-col">Kategori</div>
+                <div class="summary-col">Detail</div>
+            </div>
+            <div class="summary-body">
+                <div class="summary-row">
+                    <div class="summary-col">Biaya Produk</div>
+                    <div class="summary-col">Rp 70.000</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-col">Biaya Custom</div>
+                    <div class="summary-col">Rp -</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-col">Subtotal</div>
+                    <div class="summary-col">Rp 100.000</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-col">Diskon</div>
+                    <div class="summary-col">Rp 0</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-col">Log Status Pesanan</div>
+                    <div class="summary-col log-status">
                         Nov 8th, 2023 10:00: Pesanan dibuat. 
                         Nov 8th, 2023 10:15: diterima. 
                         Nov 9th, 2023 14:00: Status diubah ke Produksi.
-                     </div>
-                 </div>
-             </div>
-         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    {{-- Tombol Tindakan di Footer Halaman --}}
+    <footer class="page-actions-footer">
+        <button class="btn btn-reject">Ditolak</button>
+        <button class="btn btn-approve">Disetujui</button>
+    </footer>
 </div>
 
 </x-admin-layout>
