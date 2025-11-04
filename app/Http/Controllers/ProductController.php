@@ -7,10 +7,85 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function allProducts()
+    public function allProducts(Request $request)
     {
-        $products = Product::paginate(12);
-        return view('customer.all-product', compact('products'));
+        $query = Product::active();
+
+        // Filter promo (dengan diskon) - products with original_price > price
+        if ($request->boolean('promo')) {
+            $query->whereNotNull('original_price')->whereColumn('original_price', '>', 'price');
+        }
+
+        // Filter ready stock - products with stock > 0
+        if ($request->boolean('ready')) {
+            $query->where('stock', '>', 0);
+        }
+
+        // Filter custom - products that allow custom design
+        if ($request->boolean('custom')) {
+            $query->where('custom_design_allowed', true);
+        }
+
+        // Filter categories
+        if ($request->filled('categories')) {
+            $categories = is_array($request->categories) ? $request->categories : explode(',', $request->categories);
+            $categories = array_values(array_filter($categories));
+            if (!empty($categories)) {
+                $query->whereIn('category', $categories);
+            }
+        }
+
+        // Filter price range
+        $minPrice = $request->filled('min_price') ? (int) preg_replace('/[^\d]/', '', $request->min_price) : null;
+        $maxPrice = $request->filled('max_price') ? (int) preg_replace('/[^\d]/', '', $request->max_price) : null;
+
+        if (!is_null($minPrice) && !is_null($maxPrice) && $maxPrice >= $minPrice) {
+            $query->whereBetween('price', [$minPrice, $maxPrice]);
+        } elseif (!is_null($minPrice)) {
+            $query->where('price', '>=', $minPrice);
+        } elseif (!is_null($maxPrice)) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        // Apply sorting
+        $sort = $request->get('sort', 'most_popular');
+        $query->sortBy($sort);
+
+        // Paginate results
+        $products = $query->paginate(12)->appends($request->except('page'));
+
+        // Prepare applied filters for view
+        $appliedFilters = [
+            'promo' => $request->boolean('promo'),
+            'ready' => $request->boolean('ready'),
+            'custom' => $request->boolean('custom'),
+            'categories' => $request->filled('categories')
+                ? (is_array($request->categories)
+                    ? array_values(array_filter($request->categories))
+                    : array_values(array_filter(explode(',', $request->categories))))
+                : [],
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
+            'sort' => $sort,
+        ];
+
+        // Handle AJAX request
+        if ($request->ajax()) {
+            return response()->json([
+                'products' => $products->items(),
+                'pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                    'from' => $products->firstItem(),
+                    'to' => $products->lastItem(),
+                ],
+                'applied_filters' => $appliedFilters,
+            ]);
+        }
+
+        return view('customer.all-product', compact('products', 'appliedFilters'));
     }
 
     public function detail(Request $request)

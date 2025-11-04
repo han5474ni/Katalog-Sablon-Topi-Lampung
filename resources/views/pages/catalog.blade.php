@@ -8,6 +8,10 @@
     @vite(['resources/css/guest/catalog.css', 'resources/css/guest/catalog-inline.css', 'resources/css/components/footer.css', 'resources/js/guest/catalog.js'])
 </head>
 <body>
+    @php
+        $selectedColors = array_unique($currentFilters['colors'] ?? []);
+        $selectedSizes = array_unique($currentFilters['sizes'] ?? []);
+    @endphp
     <x-navbar />
 
     <section class="catalog-breadcrumb">
@@ -54,16 +58,19 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="color-options">
-                                <button class="color-btn" style="background-color:#22c55e"></button>
-                                <button class="color-btn" style="background-color:#ef4444"></button>
-                                <button class="color-btn" style="background-color:#facc15"></button>
-                                <button class="color-btn" style="background-color:#f97316"></button>
-                                <button class="color-btn" style="background-color:#06b6d4"></button>
-                                <button class="color-btn active" style="background-color:#2563eb"></button>
-                                <button class="color-btn" style="background-color:#a855f7"></button>
-                                <button class="color-btn" style="background-color:#ec4899"></button>
-                                <button class="color-btn" style="background-color:#ffffff; border:1px solid #e5e7eb;"></button>
-                                <button class="color-btn" style="background-color:#000000"></button>
+                                @forelse ($availableColors as $color)
+                                    @php
+                                        $normalizedColor = strtolower($color);
+                                        $needsBorder = in_array($normalizedColor, ['#fff', '#ffffff', 'white']);
+                                    @endphp
+                                    <button type="button"
+                                        class="color-btn{{ in_array($color, $selectedColors, true) ? ' active' : '' }}"
+                                        data-color="{{ $color }}"
+                                        style="background-color: {{ $color }};{{ $needsBorder ? ' border:1px solid #e5e7eb;' : '' }}">
+                                    </button>
+                                @empty
+                                    <span class="no-filter-option">Tidak ada warna tersedia</span>
+                                @endforelse
                             </div>
                         </div>
 
@@ -73,19 +80,19 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                             <div class="size-options">
-                                <button class="size-btn">XX-Small</button>
-                                <button class="size-btn">X-Small</button>
-                                <button class="size-btn">Small</button>
-                                <button class="size-btn">Medium</button>
-                                <button class="size-btn active">Large</button>
-                                <button class="size-btn">X-Large</button>
-                                <button class="size-btn">XX-Large</button>
-                                <button class="size-btn">3X-Large</button>
-                                <button class="size-btn">4X-Large</button>
+                                @forelse ($availableSizes as $size)
+                                    <button type="button"
+                                        class="size-btn{{ in_array($size, $selectedSizes, true) ? ' active' : '' }}"
+                                        data-size="{{ $size }}">
+                                        {{ $size }}
+                                    </button>
+                                @empty
+                                    <span class="no-filter-option">Tidak ada ukuran tersedia</span>
+                                @endforelse
                             </div>
                         </div>
 
-                        <button class="apply-filter-btn">Apply Filter</button>
+                        <button type="button" class="apply-filter-btn">Apply Filter</button>
                     </div>
                 </aside>
                 <!-- ============================================================= -->
@@ -170,18 +177,78 @@
     <x-guest-footer />
 
     <script>
-        // Optional: toggle active state
-        document.querySelectorAll('.color-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const colorButtons = document.querySelectorAll('.color-btn');
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            const applyFilterBtn = document.querySelector('.apply-filter-btn');
+            const sortSelect = document.getElementById('sort-select');
 
-        document.querySelectorAll('.size-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+            const colorSelections = new Set(@json($selectedColors));
+            const sizeSelections = new Set(@json($selectedSizes));
+
+            colorButtons.forEach(btn => {
+                const colorValue = btn.dataset.color;
+
+                if (colorSelections.has(colorValue)) {
+                    btn.classList.add('active');
+                }
+
+                btn.addEventListener('click', () => {
+                    if (colorSelections.has(colorValue)) {
+                        colorSelections.delete(colorValue);
+                        btn.classList.remove('active');
+                    } else {
+                        colorSelections.add(colorValue);
+                        btn.classList.add('active');
+                    }
+                });
+            });
+
+            sizeButtons.forEach(btn => {
+                const sizeValue = btn.dataset.size;
+
+                if (sizeSelections.has(sizeValue)) {
+                    btn.classList.add('active');
+                }
+
+                btn.addEventListener('click', () => {
+                    if (sizeSelections.has(sizeValue)) {
+                        sizeSelections.delete(sizeValue);
+                        btn.classList.remove('active');
+                    } else {
+                        sizeSelections.add(sizeValue);
+                        btn.classList.add('active');
+                    }
+                });
+            });
+
+            applyFilterBtn?.addEventListener('click', () => {
+                const url = new URL(window.location.href);
+                const params = url.searchParams;
+
+                if (colorSelections.size > 0) {
+                    params.set('colors', Array.from(colorSelections).join(','));
+                } else {
+                    params.delete('colors');
+                }
+
+                if (sizeSelections.size > 0) {
+                    params.set('sizes', Array.from(sizeSelections).join(','));
+                } else {
+                    params.delete('sizes');
+                }
+
+                params.delete('page');
+
+                window.location.href = `${url.pathname}?${params.toString()}`;
+            });
+
+            sortSelect?.addEventListener('change', () => {
+                const url = new URL(window.location.href);
+                const params = url.searchParams;
+                params.set('sort', sortSelect.value);
+                params.delete('page');
+                window.location.href = `${url.pathname}?${params.toString()}`;
             });
         });
     </script>

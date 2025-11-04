@@ -101,8 +101,16 @@ class CatalogController extends Controller
             'currentFilters' => [
                 'search' => $request->search,
                 'subcategory' => $request->subcategory,
-                'colors' => $request->colors,
-                'sizes' => $request->sizes,
+                'colors' => $request->has('colors')
+                    ? (is_array($request->colors)
+                        ? array_values(array_filter($request->colors))
+                        : array_values(array_filter(explode(',', $request->colors))))
+                    : [],
+                'sizes' => $request->has('sizes')
+                    ? (is_array($request->sizes)
+                        ? array_values(array_filter($request->sizes))
+                        : array_values(array_filter(explode(',', $request->sizes))))
+                    : [],
                 'sort' => $sort,
             ],
         ]);
