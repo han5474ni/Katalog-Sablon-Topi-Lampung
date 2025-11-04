@@ -34,6 +34,11 @@
             <span class="material-icons mr-3">chat</span>
             Bantuan
         </a>
+        <a href="{{ route('pemesanan') }}"
+           class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'pemesanan' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
+            <span class="material-icons mr-3">shopping_cart</span>
+            Pemesanan
+        </a>
         <a href="{{ route('profile') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'profile' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">person</span>

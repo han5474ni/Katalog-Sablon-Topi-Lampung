@@ -55,6 +55,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout', [CustomerController::class, 'checkout'])
         ->name('checkout');
 
+    Route::get('/alamat', [CustomerController::class, 'alamat'])
+        ->name('alamat');
+
+    Route::get('/pemesanan', [CustomerController::class, 'pemesanan'])
+        ->name('pemesanan');
+
     Route::get('/order-list', [CustomerController::class, 'orderList'])
         ->name('order-list');
 

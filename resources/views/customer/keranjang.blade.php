@@ -195,5 +195,140 @@
             </div>
         </div>
     </div>
+
+    <style>
+        /* Modal Styles */
+        #address-modal {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        #address-modal:not(.hidden) {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        #address-modal .transform {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Blur background when modal is active */
+        body.modal-active {
+            overflow: hidden;
+        }
+
+        body.modal-active > div:first-child {
+            filter: blur(2px);
+            pointer-events: none;
+        }
+
+        /* Modal responsive adjustments */
+        @media (max-width: 640px) {
+            #address-modal .transform {
+                margin: 1rem;
+                max-width: calc(100vw - 2rem);
+            }
+        }
+    </style>
+
+    <!-- Address Modal -->
+    <div id="address-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all">
+                <div class="p-6">
+                    <div class="text-center">
+                        <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
+                            <span class="material-icons text-amber-600 text-3xl">location_on</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 mb-2">Anda belum memasukin alamat pengiriman !!</h2>
+                        <p class="text-slate-600 text-sm leading-relaxed">Silahkan memasukan alamat pengiriman, untuk melanjutkan checkout</p>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button id="modal-back-btn" class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">
+                            Kembali
+                        </button>
+                        <button id="modal-continue-btn" class="flex-1 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-xl transition">
+                            Lanjutkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const addressModal = document.getElementById('address-modal');
+            const modalBackBtn = document.getElementById('modal-back-btn');
+            const modalContinueBtn = document.getElementById('modal-continue-btn');
+            const body = document.body;
+
+            // Show modal when checkout button is clicked
+            checkoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showModal();
+            });
+
+            // Hide modal when back button is clicked
+            modalBackBtn.addEventListener('click', function() {
+                hideModal();
+            });
+
+            // Handle continue button (you can add your logic here)
+            modalContinueBtn.addEventListener('click', function() {
+                // Redirect to address page for checkout
+                window.location.href = '/alamat';
+            });
+
+            // Hide modal when clicking outside the modal content
+            addressModal.addEventListener('click', function(e) {
+                if (e.target === addressModal) {
+                    hideModal();
+                }
+            });
+
+            // Hide modal on Escape key press
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !addressModal.classList.contains('hidden')) {
+                    hideModal();
+                }
+            });
+
+            function showModal() {
+                addressModal.classList.remove('hidden');
+                body.classList.add('modal-active');
+                // Focus on the continue button for accessibility
+                setTimeout(() => modalContinueBtn.focus(), 100);
+            }
+
+            function hideModal() {
+                addressModal.classList.add('hidden');
+                body.classList.remove('modal-active');
+                // Return focus to checkout button
+                checkoutBtn.focus();
+            }
+        });
+    </script>
+
 </body>
 </html>

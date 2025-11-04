@@ -205,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+
         if (!confirm('Hapus produk yang dipilih dari keranjang?')) {
             return;
         }

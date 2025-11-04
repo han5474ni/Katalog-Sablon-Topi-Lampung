@@ -98,6 +98,22 @@ class CustomerController extends Controller
     }
 
     /**
+     * Display address page
+     */
+    public function alamat()
+    {
+        return view('customer.alamat');
+    }
+
+    /**
+     * Display pemesanan page
+     */
+    public function pemesanan()
+    {
+        return view('customer.pemesanan');
+    }
+
+    /**
      * Handle custom design order submission and file uploads
      */
     public function storeCustomDesign(Request $request)

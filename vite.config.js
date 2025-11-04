@@ -43,6 +43,8 @@ export default defineConfig({
                 'resources/css/guest/product-detail.css',
                 'resources/css/guest/catalog.css',
                 'resources/css/guest/custom-design.css',
+                'resources/css/guest/alamat.css',
+                'resources/css/guest/Pemesanan.css',
                 'resources/js/guest/home.js',
                 'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
