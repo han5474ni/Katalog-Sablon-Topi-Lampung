@@ -8,6 +8,8 @@ use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ProductManagementController extends Controller
 {
@@ -17,14 +19,6 @@ class ProductManagementController extends Controller
     public function index()
     {
         return view('admin.management-product');
-    }
-
-    /**
-     * Display all products in grid view
-     */
-    public function allProducts()
-    {
-        return view('admin.all-products');
     }
 
     /**
@@ -124,7 +118,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana',
+            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -133,7 +127,7 @@ class ProductManagementController extends Controller
             'colors' => 'nullable|string', // JSON string from frontend
             'sizes' => 'nullable|string',  // JSON string from frontend
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:2048',
+            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240', // Naikkan limit ke 10MB, akan dikompres otomatis
         ]);
 
         if ($validator->fails()) {
@@ -181,13 +175,22 @@ class ProductManagementController extends Controller
                 $data['sizes'] = is_string($sizes) ? json_decode($sizes, true) : $sizes;
             }
 
-            // Handle image upload
+            // === HANDLE IMAGE UPLOAD DENGAN KOMPRESI ===
             if ($request->hasFile('images')) {
                 $imagePaths = [];
+                
+                // Loop setiap gambar yang diupload
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('products', 'public');
+                    // 🎯 PANGGIL METHOD KOMPRESI
+                    // Method ini akan:
+                    // 1. Resize jika terlalu besar
+                    // 2. Kompres dengan quality 85%
+                    // 3. Convert ke WebP (lebih kecil 30-50%)
+                    // 4. Return path file yang sudah dikompresi
+                    $path = $this->compressAndStoreImage($image, 'products');
                     $imagePaths[] = $path;
                 }
+                
                 $data['images'] = $imagePaths;
                 $data['image'] = $imagePaths[0] ?? null; // First image as main
             }
@@ -219,7 +222,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana',
+            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -228,7 +231,7 @@ class ProductManagementController extends Controller
             'colors' => 'nullable|string', // JSON string from frontend
             'sizes' => 'nullable|string',  // JSON string from frontend
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:2048',
+            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240', // Naikkan limit ke 10MB, akan dikompres otomatis
         ]);
 
         if ($validator->fails()) {
@@ -280,7 +283,7 @@ class ProductManagementController extends Controller
                 $data['sizes'] = is_string($sizes) ? json_decode($sizes, true) : $sizes;
             }
 
-            // Handle new image uploads
+            // === HANDLE NEW IMAGE UPLOADS DENGAN KOMPRESI ===
             if ($request->hasFile('images')) {
                 // Delete old images
                 if ($product->images) {
@@ -290,10 +293,14 @@ class ProductManagementController extends Controller
                 }
 
                 $imagePaths = [];
+                
+                // Loop setiap gambar baru yang diupload
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('products', 'public');
+                    // 🎯 PANGGIL METHOD KOMPRESI
+                    $path = $this->compressAndStoreImage($image, 'products');
                     $imagePaths[] = $path;
                 }
+                
                 $data['images'] = $imagePaths;
                 $data['image'] = $imagePaths[0] ?? null;
             }
@@ -502,6 +509,134 @@ class ProductManagementController extends Controller
                 'success' => false,
                 'message' => 'Failed to export products: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * 🎯 HELPER METHOD: Compress and optimize uploaded image
+     * 
+     * LOGIKA KOMPRESI AGRESIF:
+     * 1. Baca file yang diupload
+     * 2. Cek dimensi dan resize proportional
+     * 3. Kompres dengan quality dinamis hingga ukuran < 2MB
+     * 4. Convert ke WebP untuk ukuran lebih kecil
+     * 5. Jika masih > 2MB, turunkan quality secara bertahap
+     * 6. Simpan ke storage
+     * 
+     * @param \Illuminate\Http\UploadedFile $file - File yang diupload
+     * @param string $directory - Folder tujuan (default: 'products')
+     * @return string - Path file yang sudah dikompresi
+     */
+    private function compressAndStoreImage($file, $directory = 'products')
+    {
+        // === KONFIGURASI ===
+        $maxWidth = 1500;         // Lebar maksimal dalam pixel
+        $maxHeight = 1500;        // Tinggi maksimal dalam pixel
+        $targetSizeKB = 2048;     // Target ukuran maksimal 2MB (2048 KB)
+        $initialQuality = 85;     // Quality awal
+        $minQuality = 50;         // Quality minimal (jangan terlalu rendah agar tetap bagus)
+        $convertToWebp = true;    // Set false jika tidak mau convert ke WebP
+        
+        try {
+            // === STEP 1: Initialize ImageManager dengan GD driver ===
+            $manager = new ImageManager(new Driver());
+            
+            // === STEP 2: Load gambar ===
+            $image = $manager->read($file);
+            
+            // === STEP 3: Cek dimensi gambar ===
+            $width = $image->width();
+            $height = $image->height();
+            
+            // === STEP 4: Resize jika melebihi batas ===
+            if ($width > $maxWidth || $height > $maxHeight) {
+                $image->scale(width: $maxWidth, height: $maxHeight);
+            }
+            
+            // === STEP 5: Generate nama file unik ===
+            $filename = Str::random(40);
+            
+            // === STEP 6: Kompresi dengan quality dinamis hingga ukuran < 2MB ===
+            $quality = $initialQuality;
+            $encodedImage = null;
+            $attempts = 0;
+            $maxAttempts = 10; // Maksimal 10 percobaan
+            
+            do {
+                $attempts++;
+                
+                if ($convertToWebp) {
+                    $filename = str_replace(['.jpg', '.jpeg', '.png', '.webp'], '', $filename) . '.webp';
+                    $encodedImage = $image->toWebp($quality);
+                } else {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = str_replace(['.jpg', '.jpeg', '.png', '.webp'], '', $filename) . '.' . $extension;
+                    
+                    if (in_array($extension, ['jpg', 'jpeg'])) {
+                        $encodedImage = $image->toJpeg($quality);
+                    } elseif ($extension === 'png') {
+                        // PNG tidak support quality, convert ke JPG jika terlalu besar
+                        if ($attempts > 1) {
+                            $filename = str_replace('.png', '.jpg', $filename);
+                            $encodedImage = $image->toJpeg($quality);
+                        } else {
+                            $encodedImage = $image->toPng();
+                        }
+                    } elseif ($extension === 'webp') {
+                        $encodedImage = $image->toWebp($quality);
+                    } else {
+                        $encodedImage = $image->toJpeg($quality);
+                    }
+                }
+                
+                // Cek ukuran hasil kompresi
+                $sizeKB = strlen($encodedImage) / 1024; // Convert bytes ke KB
+                
+                // Jika ukuran sudah < 2MB, selesai
+                if ($sizeKB <= $targetSizeKB) {
+                    break;
+                }
+                
+                // Jika masih terlalu besar, turunkan quality
+                // Rumus: turunkan 5-10 poin per iterasi tergantung seberapa besar file
+                if ($sizeKB > $targetSizeKB * 2) {
+                    $quality -= 15; // File sangat besar, turunkan drastis
+                } elseif ($sizeKB > $targetSizeKB * 1.5) {
+                    $quality -= 10; // File cukup besar
+                } else {
+                    $quality -= 5;  // File sedikit besar
+                }
+                
+                // Pastikan quality tidak di bawah minimum
+                if ($quality < $minQuality) {
+                    $quality = $minQuality;
+                }
+                
+                // Jika sudah di quality minimal tapi masih besar, resize lebih kecil lagi
+                if ($quality === $minQuality && $sizeKB > $targetSizeKB) {
+                    $maxWidth = (int)($maxWidth * 0.8); // Kurangi 20%
+                    $maxHeight = (int)($maxHeight * 0.8);
+                    $image->scale(width: $maxWidth, height: $maxHeight);
+                }
+                
+            } while ($sizeKB > $targetSizeKB && $attempts < $maxAttempts);
+            
+            // === STEP 7: Simpan ke storage ===
+            $path = $directory . '/' . $filename;
+            Storage::disk('public')->put($path, (string) $encodedImage);
+            
+            // Log info untuk monitoring
+            $finalSizeKB = round(strlen($encodedImage) / 1024, 2);
+            \Log::info("Image compressed: {$file->getClientOriginalName()} | Original: " . 
+                      round($file->getSize() / 1024, 2) . "KB | Compressed: {$finalSizeKB}KB | Quality: {$quality}");
+            
+            // === STEP 8: Return path untuk disimpan ke database ===
+            return $path;
+            
+        } catch (\Exception $e) {
+            // Jika kompresi gagal, fallback ke upload biasa
+            \Log::error('Image compression failed: ' . $e->getMessage());
+            return $file->store($directory, 'public');
         }
     }
 }

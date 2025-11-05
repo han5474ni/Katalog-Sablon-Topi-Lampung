@@ -568,8 +568,9 @@ function handleImageUpload(e) {
     }
 
     Array.from(files).forEach((file, index) => {
-        if (file.size > 2 * 1024 * 1024) {
-            alert(`${file.name} is too large. Max 2MB per file.`);
+        // Ubah validasi dari 2MB ke 10MB (akan dikompres otomatis di backend)
+        if (file.size > 10 * 1024 * 1024) {
+            alert(`${file.name} is too large. Max 10MB per file (will be compressed automatically).`);
             return;
         }
 
