@@ -108,84 +108,63 @@ body {
 /* ============================================
    PROGRESS STEPS
    ============================================ */
-.progress-steps {
+.steps-container {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 48px;
-    margin-bottom: 64px;
+    justify-content: space-between;
+    max-width: 800px;
+    margin: 40px auto 60px;
+    padding: 0 20px;
 }
 
 .step {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
     gap: 12px;
-    position: relative;
-    flex: 1;
-    max-width: 200px;
 }
 
 .step-icon {
-    width: 56px;
-    height: 56px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background-color: #ccc;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    color: white;
 }
 
-.step-icon .material-icons {
-    font-size: 28px;
+.step-icon.completed {
+    background-color: #ccc;
 }
 
-/* Step Active State */
-.step-active .step-icon {
-    background-color: #0f172a;
-    color: #ffffff;
+.step-icon.active {
+    background-color: #0f1e3d;
 }
 
-.step-active .step-label {
-    color: #0f172a;
-    font-weight: 500;
+.step-text {
+    text-align: left;
 }
 
-.step-active .step-title {
-    color: #0f172a;
-    font-weight: 700;
+.step-number {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 2px;
 }
 
-/* Step Inactive State */
-.step-inactive .step-icon {
-    background-color: transparent;
-    border: 2px solid #d1d5db;
-    color: #9ca3af;
-}
-
-.step-inactive .step-label {
-    color: #9ca3af;
-}
-
-.step-inactive .step-title {
-    color: #9ca3af;
-}
-
-.step-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.step.completed .step-number,
+.step.active .step-number {
+    color: #666;
 }
 
 .step-label {
-    font-size: 12px;
-    text-transform: capitalize;
-}
-
-.step-title {
     font-size: 16px;
     font-weight: 600;
+    color: #ccc;
+}
+
+.step.completed .step-label,
+.step.active .step-label {
+    color: #0f1e3d;
 }
 
 /* ============================================

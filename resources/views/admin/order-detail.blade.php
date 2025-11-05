@@ -87,7 +87,7 @@
                                 <div class="text-right">
                                     <p class="text-sm text-gray-600">Rp {{ number_format($order->subtotal, 0, ',', '.') }}</p>
                                     <p class="text-sm text-gray-600">Rp {{ number_format($order->discount, 0, ',', '.') }}</p>
-                                    <p class="text-lg font-bold text-gray-900">Rp {{ $order->formatted_price }}</p>
+                                    <p class="text-lg font-bold text-gray-900">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</p>
                                 </div>
                             </div>
                     </div>

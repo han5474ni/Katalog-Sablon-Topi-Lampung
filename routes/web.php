@@ -61,6 +61,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pemesanan', [CustomerController::class, 'pemesanan'])
         ->name('pemesanan');
 
+    Route::get('/pembayaran', [CustomerController::class, 'pembayaran'])
+        ->name('pembayaran');
+
     Route::get('/order-list', [CustomerController::class, 'orderList'])
         ->name('order-list');
 

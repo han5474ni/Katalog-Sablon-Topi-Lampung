@@ -23,37 +23,40 @@
     <main class="checkout-main">
         <div class="container">
             <!-- Progress Steps -->
-            <div class="progress-steps">
-                <!-- Step 1: Alamat (Inactive) -->
-                <div class="step step-inactive">
-                    <div class="step-icon">
-                        <span class="material-icons">location_on</span>
+            <div class="steps-container">
+                <div class="step completed">
+                    <div class="step-icon completed">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
                     </div>
-                    <div class="step-info">
-                        <div class="step-label">Langkah 1</div>
-                        <div class="step-title">Alamat</div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Pengiriman (Active) -->
-                <div class="step step-active">
-                    <div class="step-icon">
-                        <span class="material-icons">local_shipping</span>
-                    </div>
-                    <div class="step-info">
-                        <div class="step-label">Langkah 2</div>
-                        <div class="step-title">Pengiriman</div>
+                    <div class="step-text">
+                        <div class="step-number">Langkah 1</div>
+                        <div class="step-label">Alamat</div>
                     </div>
                 </div>
 
-                <!-- Step 3: Pembayaran (Inactive) -->
-                <div class="step step-inactive">
-                    <div class="step-icon">
-                        <span class="material-icons">payment</span>
+                <div class="step active">
+                    <div class="step-icon active">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
                     </div>
-                    <div class="step-info">
-                        <div class="step-label">Langkah 3</div>
-                        <div class="step-title">Pembayaran</div>
+                    <div class="step-text">
+                        <div class="step-number">Langkah 2</div>
+                        <div class="step-label">Pengiriman</div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                    <div class="step-text">
+                        <div class="step-number">Langkah 3</div>
+                        <div class="step-label">Pembayaran</div>
                     </div>
                 </div>
             </div>
@@ -87,8 +90,8 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn btn-secondary">Kembali</button>
-                <button class="btn btn-primary">Lanjut</button>
+                <button class="btn btn-orange" onclick="window.location.href='/alamat'">Kembali</button>
+                <button class="btn btn-primary" onclick="window.location.href='/pembayaran'">Lanjut</button>
             </div>
         </div>
     </main>

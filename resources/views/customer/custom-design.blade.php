@@ -122,41 +122,12 @@
                                     <div class="dropdown-item" onclick="selectOption('cutting', 'Printable', this)">
                                         <span>Printable</span>
                                     </div>
-                                    <div class="dropdown-item" onclick="selectOption('cutting', 'Direct Transfer Film', this)">
-                                        <span>Direct Transfer Film</span>
-                                    </div>
+
                                 </div>
                             </div>
                             <div class="selected-items" id="selected-cutting"></div>
 
-                            <!-- Special Material Dropdown -->
-                            <div class="dropdown-section">
-                                <div class="dropdown-header" onclick="toggleDropdown('material')">
-                                    <span>Special Material (Add On)</span>
-                                    <span class="dropdown-toggle">▼</span>
-                                </div>
-                                <div class="dropdown-content" id="material">
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Foil', this)">
-                                        <span>Foil</span>
-                                    </div>
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Glitter', this)">
-                                        <span>Glitter</span>
-                                    </div>
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Spectrum', this)">
-                                        <span>Spectrum</span>
-                                    </div>
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Reflective', this)">
-                                        <span>Reflective</span>
-                                    </div>
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Flock', this)">
-                                        <span>Flock</span>
-                                    </div>
-                                    <div class="dropdown-item" onclick="selectOption('material', 'Glow', this)">
-                                        <span>Glow</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="selected-items" id="selected-material"></div>
+
 
                             <!-- Description Box -->
                             <div class="description-box">

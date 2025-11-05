@@ -26,8 +26,8 @@
         <div class="steps-container">
             <div class="step active">
                 <div class="step-icon active">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="10"></circle>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </div>
                 <div class="step-text">
@@ -132,7 +132,7 @@
 
         <!-- Action Buttons -->
         <div class="action-buttons">
-            <button class="btn btn-secondary">Kembali</button>
+            <button class="btn btn-orange" onclick="window.location.href='/keranjang'">Kembali</button>
             <button class="btn btn-primary" onclick="window.location.href='/pemesanan'">Lanjut</button>
         </div>
                 </div>

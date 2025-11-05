@@ -91,9 +91,9 @@
                                 <span class="status {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
                             </td>
                             @if(isset($orderType) && $orderType === 'regular')
-                                <td>Rp.{{ $order->formatted_price }}</td>
+                                <td>Rp.{{ number_format((float) $order->total, 0, ',', '.') }}</td>
                             @else
-                                <td>Rp.{{ $order->formatted_price }}</td>
+                                <td>Rp.{{ number_format((float) $order->total_price, 0, ',', '.') }}</td>
                             @endif
                             <td><a href="{{ route('admin.order.detail', ['id' => $order->id]) }}?type={{ $orderType ?? 'regular' }}" class="detail-link"><i class="fas fa-info-circle detail-icon"></i></a></td>
                             <td class="actions-col">

@@ -93,7 +93,7 @@
                     <div class="flex justify-between items-center pt-4 border-t border-gray-200">
                         <div>
                             <p class="text-sm text-gray-600">Total Pesanan</p>
-                            <p class="text-lg font-bold text-gray-900">Rp {{ $order->formatted_price }}</p>
+                            <p class="text-lg font-bold text-gray-900">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</p>
                         </div>
                         @if($order->status === 'rejected' && $order->admin_notes)
                         <div class="text-right">

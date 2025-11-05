@@ -114,6 +114,14 @@ class CustomerController extends Controller
     }
 
     /**
+     * Display pembayaran page
+     */
+    public function pembayaran()
+    {
+        return view('customer.pembayaran');
+    }
+
+    /**
      * Handle custom design order submission and file uploads
      */
     public function storeCustomDesign(Request $request)
