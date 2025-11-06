@@ -10,6 +10,7 @@
             <a href="{{ route('admin.order-list', request()->only(['search', 'type', 'status', 'days'])) }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pesanan
             </a>
+
         </div>
 
         {{-- Order Detail Card --}}

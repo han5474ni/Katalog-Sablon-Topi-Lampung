@@ -123,6 +123,11 @@ Route::prefix('admin')->group(function () {
         // Product Management
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');
         Route::get('/all-products', [ProductManagementController::class, 'allProducts'])->name('admin.all-products');
+
+        // Chatbot Admin
+        Route::get('/chatbot', function () {
+            return view('admin.chatbot');
+        })->name('admin.chatbot');
         
         Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile');
         Route::post('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');

@@ -1,7 +1,7 @@
-<x-admin-layout title="Custom Order Detail">
+<x-admin-layout title="Detail Pesanan Dibatalkan">
     @push('styles')
         {{-- Pastikan path ini sesuai dengan struktur proyek Anda --}}
-        @vite(['resources/css/admin/order-detail-custom.css'])
+        @vite(['resources/css/admin/order-detail-custom-canceled.css'])
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     @endpush
@@ -15,6 +15,8 @@
             <a href="#">Order List</a> 
             <span class="breadcrumb-separator">></span> 
             Detail
+            <span class="breadcrumb-separator">></span>
+            <span class="breadcrumb-canceled">Dibatalkan</span>
         </h1>
         <div class="date-range-picker">
             <i class="far fa-calendar-alt"></i>
@@ -24,6 +26,12 @@
 
     {{-- Kartu Detail Custom --}}
     <div class="card custom-detail-card">
+        
+        {{-- Stempel Dibatalkan --}}
+        <div class="stamp-container">
+            <div class="stamp-dibatalkan">DIBATALKAN</div>
+        </div>
+
         <div class="card-body">
             <div class="main-content">
                 <table class="custom-details-table">
@@ -54,7 +62,7 @@
                                 Download: <a href="#">[ Unduh File Asli (.png) ]</a>
                             </td>
                         </tr>
-                        {{-- Item Custom 2 (Contoh jika ada > 1) --}}
+                        {{-- Item Custom 2 --}}
                         <tr class="custom-item-divider">
                             <td class="category-col">Posisi Cetak</td>
                             <td>Lengan Kiri (Area A)</td>
@@ -119,27 +127,18 @@
         </div>
     </div>
 
-    {{-- Tombol Tindakan di Footer Halaman --}}
-    <footer class="page-actions-footer">
-        {{-- Tombol ini akan memicu modal --}}
-        <button class="btn btn-reject" id="show-reject-modal-btn">Ditolak</button>
-        <button class="btn btn-approve">Disetujui</button>
-    </footer>
-</div>
+    {{-- Kartu Deskripsi Dibatalkan/Ditolak --}}
+    {{-- (Menggunakan class yang sama dengan halaman 'ditolak' untuk konsistensi) --}}
+    <div class="card deskripsi-ditolak-card">
+        <div class="card-body">
+            <h3 class="deskripsi-title">Deskripsi Ditolak</h3> 
+            {{-- ^ Di gambar Anda, judulnya masih "Ditolak", jika ingin ganti, ubah di sini --}}
+            <p class="deskripsi-text">
+                Gambar/desain yang anda kirim tidak memenuhi syarat (tidak bisa di baca / tidak PNG mohon untuk lakukan perbaikan dan pesan kembali)
+            </p>
+        </div>
+    </div>
 
-{{-- ======================================================= --}}
-{{-- MODAL UNTUK MENOLAK PESANAN (Tambahan)                 --}}
-{{-- ======================================================= --}}
-<div class="modal-overlay" id="reject-modal-overlay"></div>
-<div class="modal" id="reject-modal">
-    <div class="modal-body">
-        <label for="reject-reason" class="modal-label">Silahkan tambahkan deskripsi!</label>
-        <textarea id="reject-reason" class="modal-textarea" placeholder="Silahkan tambahkan keterangan kenapa pesanan di tolak...."></textarea>
-    </div>
-    <div class="modal-footer">
-        <button class="btn btn-subtle" id="modal-cancel-btn">Kembali</button>
-        <button class="btn btn-warning" id="modal-confirm-btn">Selesai</button>
-    </div>
 </div>
 
 </x-admin-layout>

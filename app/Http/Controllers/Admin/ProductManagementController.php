@@ -22,6 +22,14 @@ class ProductManagementController extends Controller
     }
 
     /**
+     * Display the admin all products page
+     */
+    public function allProducts()
+    {
+        return view('admin.all-products');
+    }
+
+    /**
      * Get all products with filters (for AJAX)
      */
     public function getProducts(Request $request)

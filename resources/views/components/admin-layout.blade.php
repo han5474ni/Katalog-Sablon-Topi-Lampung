@@ -30,7 +30,7 @@
                     <i class="fas fa-shopping-bag"></i>
                 </div>
                 <div class="top-navbar__brand">
-                    <h1 class="top-navbar__title">IGI STORE</h1>
+                    <h1 class="top-navbar__title">LGI STORE</h1>
                     <p class="top-navbar__subtitle">Produk Eksklusif Kaos Berkualitas</p>
                 </div>
             </div>
@@ -95,7 +95,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.chatbot') }}" class="sidebar__link {{ request()->routeIs('admin.chatbot') ? 'active' : '' }}">
                         <i class="fas fa-comment"></i>
                         <span>Chatbot</span>
                     </a>
