@@ -65,76 +65,97 @@
         <div class="content-section">
             <h2 class="section-title">Pilih alamat</h2>
 
-            <!-- Address Card 1 -->
-            <div class="address-card selected">
-                <input type="radio" name="address" id="address1" checked>
-                <label for="address1" class="address-label">
-                    <div class="address-header">
-                        <span class="address-name">2118 Kampung baru</span>
+            @if($user->addresses && $user->addresses->count() > 0)
+                @foreach($user->addresses as $address)
+                <!-- Address Card {{ $loop->iteration }} -->
+                <div class="address-card {{ $loop->first ? 'selected' : '' }}">
+                    <input type="radio" name="address" id="address{{ $address->id }}" value="{{ $address->id }}" {{ $loop->first ? 'checked' : '' }}>
+                    <label for="address{{ $address->id }}" class="address-label">
+                        <div class="address-header">
+                            <span class="address-name">{{ $address->label ?? $address->recipient_name }}</span>
+                            @if($address->is_primary)
+                            <span class="badge">UTAMA</span>
+                            @endif
+                        </div>
+                        <div class="address-details">
+                            <p>{{ $address->address }}, {{ $address->city }}, {{ $address->province }} {{ $address->postal_code }}</p>
+                            <p>{{ $address->phone }}</p>
+                        </div>
+                    </label>
+                </div>
+                @endforeach
+                
+                <!-- Edit Address Link -->
+                <div class="mt-4 text-center">
+                    <a href="{{ route('profile') }}" class="text-blue-600 hover:text-blue-700 text-sm font-medium inline-flex items-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                        </svg>
+                        Kelola Alamat di Profil
+                    </a>
+                </div>
+            @else
+                <div class="text-center py-8">
+                    <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center">
+                        <span class="material-icons text-slate-400 text-3xl">location_off</span>
                     </div>
-                    <div class="address-details">
-                        <p>2118 Kampung_baru Balam, Lampung 35624</p>
-                        <p>(209) 555-0104</p>
-                    </div>
-                    <div class="address-actions">
-                        <button class="action-btn edit-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn delete-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </label>
-            </div>
-
-            <!-- Address Card 2 -->
-            <div class="address-card">
-                <input type="radio" name="address" id="address2">
-                <label for="address2" class="address-label">
-                    <div class="address-header">
-                        <span class="address-name">Sukarame</span>
-                        <span class="badge">KANTOR</span>
-                    </div>
-                    <div class="address-details">
-                        <p>2715 Sukarame Balam, Lampung 83475</p>
-                        <p>(704) 555-0127</p>
-                    </div>
-                    <div class="address-actions">
-                        <button class="action-btn edit-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-                            </svg>
-                        </button>
-                        <button class="action-btn delete-btn">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </label>
-            </div>
-
-            <!-- Add Address Button -->
-            <button class="add-address-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>Tambah Alamat</span>
-            </button>
+                    <p class="text-slate-600">Anda belum memiliki alamat pengiriman.</p>
+                    <p class="text-sm text-slate-500 mt-2">Silakan tambahkan alamat di halaman profil.</p>
+                    <a href="{{ route('profile') }}" class="inline-block mt-4 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-medium rounded-lg transition">
+                        Ke Halaman Profil
+                    </a>
+                </div>
+            @endif
         </div>
 
         <!-- Action Buttons -->
         <div class="action-buttons">
             <button class="btn btn-orange" onclick="window.location.href='/keranjang'">Kembali</button>
-            <button class="btn btn-primary" onclick="window.location.href='/pemesanan'">Lanjut</button>
+            <button class="btn btn-primary" id="next-btn" onclick="proceedToShipping()">Lanjut</button>
         </div>
+
+        <script>
+            function proceedToShipping() {
+                const selectedAddress = document.querySelector('input[name="address"]:checked');
+                
+                if (!selectedAddress) {
+                    alert('Silakan pilih alamat terlebih dahulu');
+                    return;
+                }
+                
+                // Save to session via AJAX
+                fetch('{{ route('alamat.select') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        address_id: selectedAddress.value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/pemesanan';
+                    } else {
+                        alert('Gagal menyimpan alamat. Silakan coba lagi.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan. Silakan coba lagi.');
+                });
+            }
+            
+            // Handle address card clicks
+            document.querySelectorAll('.address-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+        </script>
                 </div>
             </div>
         </div>

@@ -8,17 +8,18 @@ let currentFilters = {
 };
 
 let selectedProducts = new Set();
-let selectedColors = [];
-let selectedSizes = [];
 let currentEditId = null;
-let uploadedImages = [];
-let savedColors = []; // Global saved colors
-let selectedSavedColors = new Set(); // Currently selected saved colors
+
+// Close menus when clicking outside
+document.addEventListener('click', function() {
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeEventListeners();
     loadProducts();
-    loadSavedColors();
 });
 
 function initializeEventListeners() {
@@ -69,66 +70,29 @@ function initializeEventListeners() {
     // Bulk archive button
     document.getElementById('bulk-archive-btn').addEventListener('click', bulkArchiveProducts);
 
-    // Add product button
-    document.getElementById('add-product-btn').addEventListener('click', openAddDrawer);
+    // Add product button - open modern drawer
+    document.getElementById('add-product-btn').addEventListener('click', openModernDrawer);
 
     // Export button
     document.getElementById('export-btn').addEventListener('click', exportProducts);
 
-    // Drawer controls
-    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
-    document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
-    document.getElementById('cancel-btn').addEventListener('click', closeDrawer);
-
-    // Form submit
-    document.getElementById('product-form').addEventListener('submit', handleFormSubmit);
-
-    // Color/Size options
-    initializeOptions();
-
-    // Image upload
-    document.getElementById('upload-images-btn').addEventListener('click', () => {
-        document.getElementById('product-images').click();
-    });
-
-    document.getElementById('product-images').addEventListener('change', handleImageUpload);
-
-    // Status toggle
-    document.getElementById('product-status').addEventListener('change', function() {
-        const label = document.querySelector('.status-label');
-        label.textContent = this.checked ? 'Active' : 'Draft';
-    });
-
-    // Custom Design toggle
-    document.getElementById('custom-design-allowed').addEventListener('change', function() {
-        const label = document.querySelector('.custom-design-label');
-        label.textContent = this.checked ? 'Custom Design Diizinkan' : 'Izinkan Custom Design';
-    });
-
-    // Color management
-    initializeColorManagement();
+    // Modern Drawer controls
+    const modernDrawerClose = document.getElementById('modern-drawer-close');
+    const modernDrawerOverlay = document.getElementById('modern-drawer-overlay');
+    const modernCancelBtn = document.getElementById('modern-cancel-btn');
+    
+    if (modernDrawerClose) modernDrawerClose.addEventListener('click', closeModernDrawer);
+    if (modernDrawerOverlay) modernDrawerOverlay.addEventListener('click', closeModernDrawer);
+    if (modernCancelBtn) modernCancelBtn.addEventListener('click', closeModernDrawer);
 }
 
-function initializeOptions() {
-    // Sizes only (colors now handled by color management)
-    document.querySelectorAll('#sizes-group .option-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            this.classList.toggle('active');
-            const value = this.dataset.value;
-            const index = selectedSizes.indexOf(value);
-            if (index > -1) {
-                selectedSizes.splice(index, 1);
-            } else {
-                selectedSizes.push(value);
-            }
-            document.getElementById('sizes-input').value = JSON.stringify(selectedSizes);
-        });
-    });
-}
 
 async function loadProducts() {
     const tbody = document.getElementById('products-tbody');
+    
+    // Cleanup existing carousels
+    cleanupProductCarousels();
+    
     tbody.innerHTML = '<tr><td colspan="8" class="loading-state"><div class="spinner"></div><p>Memuat produk...</p></td></tr>';
 
     try {
@@ -171,13 +135,18 @@ function renderProducts(products) {
     }
 
     tbody.innerHTML = products.map(product => `
-        <tr>
+        <tr data-product-id="${product.id}">
             <td>
                 <input type="checkbox" class="product-checkbox" value="${product.id}" ${selectedProducts.has(product.id) ? 'checked' : ''}>
             </td>
             <td>
-                <div class="product-image">
-                    ${product.image ? `<img src="/storage/${product.image}" alt="${product.name}">` : '<div class="no-image"><i class="fas fa-image"></i></div>'}
+                <div class="product-image-cell" data-product-id="${product.id}">
+                    ${product.variant_images && product.variant_images.length > 0 
+                        ? `<img class="product-carousel-img" src="${product.variant_images[0]}" alt="${product.name}">
+                           ${product.variant_images.length > 1 ? '<div class="image-count-badge">+' + (product.variant_images.length - 1) + '</div>' : ''}`
+                        : product.image 
+                        ? `<img src="/storage/${product.image}" alt="${product.name}">` 
+                        : '<div class="no-image"><i class="fas fa-image"></i></div>'}
                 </div>
             </td>
             <td>
@@ -187,30 +156,83 @@ function renderProducts(products) {
                 </div>
             </td>
             <td>${capitalizeFirst(product.category)}</td>
-            <td>Rp ${formatPrice(product.price)}</td>
             <td>
-                <span class="stock-number ${product.stock > 0 ? 'in-stock' : 'out-of-stock'}">${product.stock}</span>
+                <div class="price-variants-cell">
+                    <div>${product.price_range || 'Rp ' + formatPrice(product.price)}</div>
+                    ${product.variants && product.variants.length > 0 ? `
+                        <small>${product.variants.length} varian</small>
+                    ` : ''}
+                </div>
             </td>
             <td>
-                <span class="badge ${product.is_active ? 'badge-success' : 'badge-warning'}">
-                    ${product.is_active ? 'Active' : 'Draft'}
+                <span class="stock-number ${(product.total_stock || product.stock) > 0 ? 'in-stock' : 'out-of-stock'}">
+                    ${product.total_stock || product.stock}
                 </span>
             </td>
             <td>
-                <div class="table-actions">
+                <div class="status-cell">
+                    <span class="badge ${product.is_active ? 'badge-success' : 'badge-warning'}">
+                        ${product.is_active ? 'Aktif' : 'Draft'}
+                    </span>
                     <label class="switch">
                         <input type="checkbox" ${product.is_active ? 'checked' : ''} onchange="toggleProductStatus(${product.id})">
                         <span class="slider"></span>
                     </label>
-                    <button class="btn btn-subtle" onclick="editProduct(${product.id})" title="Edit">
-                        <i class="fas fa-edit"></i>
+                </div>
+            </td>
+            <td>
+                <div class="dropdown-actions">
+                    <button class="btn-menu" data-product-id="${product.id}">
+                        <i class="fas fa-ellipsis-v"></i>
                     </button>
-                    <button class="btn btn-danger" onclick="deleteProduct(${product.id})" title="Hapus">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="dropdown-menu" id="menu-${product.id}">
+                        ${product.variants && product.variants.length > 0 ? `
+                            <a href="#" data-action="view" data-product-id="${product.id}">
+                                <i class="fas fa-chevron-down"></i> View Varian
+                            </a>
+                        ` : ''}
+                        <a href="#" data-action="edit" data-product-id="${product.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="#" data-action="delete" data-product-id="${product.id}" class="danger">
+                            <i class="fas fa-trash"></i> Hapus
+                        </a>
+                    </div>
                 </div>
             </td>
         </tr>
+        ${product.variants && product.variants.length > 0 ? `
+        ${groupVariantsByColor(product.variants).map(group => `
+            ${group.variants.map(v => `
+                <tr class="variant-data-row" id="variants-${product.id}-item" style="display: none;">
+                    <td style="padding-left: 1rem;">
+                        <input type="checkbox" disabled style="opacity: 0.3;">
+                    </td>
+                    <td>
+                        <div class="product-image-cell">
+                            ${v.image ? `<img src="/storage/${v.image}" alt="Variant" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'no-image\\'><i class=\\'fas fa-image\\'></i></div>'; console.error('Image not found:', '/storage/${v.image}');">` : '<div class="no-image"><i class="fas fa-image"></i></div>'}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="product-name-cell">
+                            <div class="product-name">${getColorName(v.color)} / ${v.size}</div>
+                        </div>
+                    </td>
+                    <td><span style="color: #9ca3af;">-</span></td>
+                    <td>Rp ${formatPrice(v.price)}</td>
+                    <td>
+                        <span class="stock-number ${v.stock > 0 ? 'in-stock' : 'out-of-stock'}">${v.stock}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${v.stock > 0 ? 'badge-success' : 'badge-danger'}">
+                            ${v.stock > 0 ? 'Tersedia' : 'Habis'}
+                        </span>
+                    </td>
+                    <td><span style="color: #9ca3af;">-</span></td>
+                </tr>
+            `).join('')}
+        `).join('')}
+        ` : ''}
     `).join('');
 
     // Attach checkbox listeners
@@ -224,6 +246,136 @@ function renderProducts(products) {
             updateBulkActions();
         });
     });
+
+    // Attach menu button listeners
+    document.querySelectorAll('.btn-menu').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const productId = this.dataset.productId;
+            
+            // Close all other menus
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== `menu-${productId}`) {
+                    menu.classList.remove('show');
+                }
+            });
+            
+            // Toggle current menu
+            const menu = document.getElementById(`menu-${productId}`);
+            menu.classList.toggle('show');
+        });
+    });
+
+    // Attach menu item listeners
+    document.querySelectorAll('.dropdown-menu a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const action = this.dataset.action;
+            const productId = parseInt(this.dataset.productId);
+            
+            // Close menu
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+            
+            // Execute action
+            if (action === 'view') {
+                toggleVariantsView(productId);
+            } else if (action === 'edit') {
+                editProduct(productId);
+            } else if (action === 'delete') {
+                deleteProduct(productId);
+            }
+        });
+    });
+
+    // Initialize image carousels for products with multiple variant images
+    initializeProductImageCarousels(products);
+}
+
+// Initialize carousel for product images with multiple variants
+function initializeProductImageCarousels(products) {
+    products.forEach(product => {
+        if (product.variant_images && product.variant_images.length > 1) {
+            const imageCell = document.querySelector(`.product-image-cell[data-product-id="${product.id}"]`);
+            const img = imageCell?.querySelector('.product-carousel-img');
+            
+            if (img) {
+                let currentIndex = 0;
+                const images = product.variant_images;
+                
+                img.style.transition = 'opacity 0.3s ease';
+                
+                // Create carousel
+                const carouselInterval = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    
+                    img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.src = images[currentIndex];
+                        img.style.opacity = '1';
+                    }, 300);
+                }, 2500);
+                
+                // Store interval for cleanup
+                imageCell.dataset.carouselInterval = carouselInterval;
+            }
+        }
+    });
+}
+
+// Cleanup carousel intervals
+function cleanupProductCarousels() {
+    const imageCells = document.querySelectorAll('.product-image-cell[data-carousel-interval]');
+    imageCells.forEach(cell => {
+        const intervalId = cell.dataset.carouselInterval;
+        if (intervalId) {
+            clearInterval(parseInt(intervalId));
+            delete cell.dataset.carouselInterval;
+        }
+    });
+}
+
+// Toggle variants view (expand/collapse)
+function toggleVariantsView(productId) {
+    // Toggle all related rows
+    const allVariantRows = document.querySelectorAll(`[id^="variants-${productId}"]`);
+    
+    // Check if currently visible
+    const firstRow = allVariantRows[0];
+    const isVisible = firstRow && firstRow.style.display !== 'none';
+    
+    if (isVisible) {
+        // Hide all variant rows
+        allVariantRows.forEach(row => {
+            row.style.display = 'none';
+        });
+        
+        // Change icon to down
+        const viewLink = document.querySelector(`[data-action="view"][data-product-id="${productId}"]`);
+        if (viewLink) {
+            const icon = viewLink.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-chevron-down';
+            }
+        }
+    } else {
+        // Show all variant rows
+        allVariantRows.forEach(row => {
+            row.style.display = 'table-row';
+        });
+        
+        // Change icon to up
+        const viewLink = document.querySelector(`[data-action="view"][data-product-id="${productId}"]`);
+        if (viewLink) {
+            const icon = viewLink.querySelector('i');
+            if (icon) {
+                icon.className = 'fas fa-chevron-up';
+            }
+        }
+    }
 }
 
 function renderPagination(pagination) {
@@ -285,48 +437,47 @@ function updateBulkActions() {
     }
 }
 
-function openAddDrawer() {
+function openModernDrawer() {
     currentEditId = null;
-    resetForm();
-    document.getElementById('drawer-title').textContent = 'Tambah Produk';
-    openDrawer();
-}
-
-function openDrawer() {
-    document.getElementById('drawer-overlay').classList.add('active');
-    document.getElementById('product-drawer').classList.add('active');
-}
-
-function closeDrawer() {
-    document.getElementById('drawer-overlay').classList.remove('active');
-    document.getElementById('product-drawer').classList.remove('active');
-    resetForm();
-}
-
-function resetForm() {
-    document.getElementById('product-form').reset();
-    document.getElementById('product-id').value = '';
-    selectedColors = [];
-    selectedSizes = [];
-    selectedSavedColors.clear();
-    uploadedImages = [];
-    document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('images-preview').innerHTML = '';
-    document.querySelector('.status-label').textContent = 'Active';
-    document.querySelector('.custom-design-label').textContent = 'Izinkan Custom Design';
+    window.currentEditId = null;  // IMPORTANT: Reset global variable
+    console.log('=== ADD NEW PRODUCT ===');
+    console.log('Reset currentEditId to null');
     
-    // Reset color management
-    document.getElementById('color-code-input').value = '';
-    document.getElementById('color-code-input').classList.remove('valid', 'invalid');
-    document.getElementById('add-color-btn').disabled = true;
-    document.getElementById('color-preview').style.backgroundColor = '#f1f5f9';
-    document.getElementById('color-preview').classList.remove('has-color');
-    updateColorsInput();
-    renderSavedColors();
+    // Reset form jika ada manager
+    if (window.modernAddProductManager) {
+        window.modernAddProductManager.resetForm();
+    }
+    document.getElementById('modern-drawer-title').textContent = 'Tambah Produk';
+    document.getElementById('modern-drawer-overlay').classList.add('active');
+    document.getElementById('modern-product-drawer').classList.add('active');
+    
+    // Trigger initial subcategory check after drawer is opened
+    setTimeout(() => {
+        const categorySelect = document.getElementById('modern-product-category');
+        if (categorySelect && window.modernAddProductManager) {
+            window.modernAddProductManager.updateSubcategoryOptions(categorySelect.value);
+        }
+    }, 50);
+}
+
+function closeModernDrawer() {
+    // Reset both local and global edit IDs
+    currentEditId = null;
+    window.currentEditId = null;
+    console.log('Close drawer - Reset currentEditId to null');
+    
+    document.getElementById('modern-drawer-overlay').classList.remove('active');
+    document.getElementById('modern-product-drawer').classList.remove('active');
+    if (window.modernAddProductManager) {
+        window.modernAddProductManager.resetForm();
+    }
 }
 
 async function editProduct(id) {
     try {
+        console.log('=== EDIT PRODUCT ===');
+        console.log('Editing product ID:', id);
+        
         const response = await fetch(`/admin/api/products/${id}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -338,9 +489,19 @@ async function editProduct(id) {
 
         if (result.success) {
             currentEditId = id;
-            fillForm(result.data);
-            document.getElementById('drawer-title').textContent = `Edit: ${result.data.name}`;
-            openDrawer();
+            window.currentEditId = id;  // Also set on window for global access
+            console.log('Set currentEditId:', currentEditId);
+            console.log('Set window.currentEditId:', window.currentEditId);
+            
+            // Open modern drawer
+            document.getElementById('modern-drawer-title').textContent = `Edit: ${result.data.name}`;
+            document.getElementById('modern-drawer-overlay').classList.add('active');
+            document.getElementById('modern-product-drawer').classList.add('active');
+            
+            // Populate form using manager
+            if (window.modernAddProductManager) {
+                window.modernAddProductManager.populateForm(result.data);
+            }
         } else {
             alert('Failed to load product');
         }
@@ -350,124 +511,6 @@ async function editProduct(id) {
     }
 }
 
-function fillForm(product) {
-    document.getElementById('product-id').value = product.id;
-    document.getElementById('product-name').value = product.name;
-    document.getElementById('product-category').value = product.category;
-    document.getElementById('product-price').value = product.price;
-    document.getElementById('product-original-price').value = product.original_price || '';
-    document.getElementById('product-stock').value = product.stock;
-    document.getElementById('product-subcategory').value = product.subcategory || '';
-    document.getElementById('product-description').value = product.description || '';
-    document.getElementById('product-status').checked = product.is_active;
-    document.querySelector('.status-label').textContent = product.is_active ? 'Active' : 'Draft';
-    document.getElementById('custom-design-allowed').checked = product.custom_design_allowed || false;
-    document.querySelector('.custom-design-label').textContent = product.custom_design_allowed ? 'Custom Design Diizinkan' : 'Izinkan Custom Design';
-
-    // Set colors - handle both old format and new saved colors
-    if (product.colors) {
-        selectedSavedColors = new Set(product.colors);
-        updateColorsInput();
-        renderSavedColors();
-    }
-
-    // Set sizes
-    if (product.sizes) {
-        selectedSizes = product.sizes;
-        product.sizes.forEach(size => {
-            const btn = document.querySelector(`#sizes-group .option-btn[data-value="${size}"]`);
-            if (btn) btn.classList.add('active');
-        });
-    }
-}
-
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const formData = new FormData();
-
-    // Basic fields - ensure non-empty values
-    formData.append('name', form.name.value.trim());
-    formData.append('category', form.category.value);
-    formData.append('price', form.price.value || 0);
-    formData.append('stock', form.stock.value || 0);
-    formData.append('description', form.description.value.trim() || '');
-    formData.append('subcategory', form.subcategory.value.trim() || '');
-    formData.append('original_price', form.original_price.value || 0);
-    formData.append('is_active', form.is_active.checked ? '1' : '0');
-    formData.append('custom_design_allowed', form.custom_design_allowed.checked ? '1' : '0');
-
-    // Colors & Sizes - stringify arrays
-    formData.append('colors', JSON.stringify(Array.from(selectedSavedColors)));
-    formData.append('sizes', JSON.stringify(selectedSizes));
-
-    // Images - only if new files selected
-    const imageFiles = document.getElementById('product-images').files;
-    if (imageFiles.length > 0) {
-        for (let i = 0; i < imageFiles.length; i++) {
-            formData.append('images[]', imageFiles[i]);
-        }
-    }
-
-    // Show loading state
-    const saveBtn = document.getElementById('save-btn');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-    saveBtn.disabled = true;
-
-    try {
-        const url = currentEditId 
-            ? `/admin/api/products/${currentEditId}`
-            : '/admin/api/products';
-        
-        // For update, append _method
-        if (currentEditId) {
-            formData.append('_method', 'PUT');
-        }
-
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-        if (!csrfToken) {
-            throw new Error('CSRF token not found');
-        }
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert(result.message || 'Product saved successfully');
-            closeDrawer();
-            loadProducts();
-        } else {
-            // Show validation errors if any
-            if (result.errors) {
-                let errorMsg = 'Validation errors:\n';
-                for (let field in result.errors) {
-                    errorMsg += `- ${result.errors[field].join(', ')}\n`;
-                }
-                alert(errorMsg);
-            } else {
-                alert(result.message || 'Failed to save product');
-            }
-        }
-    } catch (error) {
-        console.error('Error saving product:', error);
-        alert('Error: ' + error.message);
-    } finally {
-        // Restore button state
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
-    }
-}
 
 async function deleteProduct(id) {
     if (!confirm('Are you sure you want to delete this product?')) return;
@@ -556,50 +599,6 @@ async function bulkArchiveProducts() {
     }
 }
 
-function handleImageUpload(e) {
-    const files = e.target.files;
-    const preview = document.getElementById('images-preview');
-    preview.innerHTML = '';
-
-    if (files.length > 5) {
-        alert('Maximum 5 images allowed');
-        e.target.value = '';
-        return;
-    }
-
-    Array.from(files).forEach((file, index) => {
-        // Ubah validasi dari 2MB ke 10MB (akan dikompres otomatis di backend)
-        if (file.size > 10 * 1024 * 1024) {
-            alert(`${file.name} is too large. Max 10MB per file (will be compressed automatically).`);
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const div = document.createElement('div');
-            div.className = 'image-preview-item';
-            div.innerHTML = `
-                <img src="${event.target.result}" alt="Preview">
-                <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
-            `;
-            preview.appendChild(div);
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function removeImage(index) {
-    const fileInput = document.getElementById('product-images');
-    const dt = new DataTransfer();
-    const files = fileInput.files;
-
-    for (let i = 0; i < files.length; i++) {
-        if (i !== index) dt.items.add(files[i]);
-    }
-
-    fileInput.files = dt.files;
-    handleImageUpload({ target: fileInput });
-}
 
 // Export products
 function exportProducts() {
@@ -628,172 +627,57 @@ function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Color Management Functions
-function initializeColorManagement() {
-    const colorInput = document.getElementById('color-code-input');
-    const addColorBtn = document.getElementById('add-color-btn');
-    const colorPreview = document.getElementById('color-preview');
-
-    // Color input validation and preview
-    colorInput.addEventListener('input', function() {
-        const colorCode = this.value.trim();
-        const isValidColor = isValidHexColor(colorCode);
-        
-        // Update input styling
-        this.classList.remove('valid', 'invalid');
-        if (colorCode.length > 0) {
-            this.classList.add(isValidColor ? 'valid' : 'invalid');
-        }
-        
-        // Update preview
-        if (isValidColor) {
-            colorPreview.style.backgroundColor = colorCode;
-            colorPreview.classList.add('has-color');
-        } else {
-            colorPreview.style.backgroundColor = '#f1f5f9';
-            colorPreview.classList.remove('has-color');
-        }
-        
-        // Enable/disable add button
-        addColorBtn.disabled = !isValidColor || savedColors.includes(colorCode);
-    });
-
-    // Add color button
-    addColorBtn.addEventListener('click', function() {
-        const colorCode = colorInput.value.trim().toUpperCase();
-        if (isValidHexColor(colorCode) && !savedColors.includes(colorCode)) {
-            addSavedColor(colorCode);
-            colorInput.value = '';
-            colorPreview.style.backgroundColor = '#f1f5f9';
-            colorPreview.classList.remove('has-color');
-            colorInput.classList.remove('valid');
-            addColorBtn.disabled = true;
-        }
-    });
-
-    // Enter key to add color
-    colorInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !addColorBtn.disabled) {
-            addColorBtn.click();
-        }
-    });
-}
-
-function isValidHexColor(color) {
-    return /^#[0-9A-F]{6}$/i.test(color);
-}
-
-async function loadSavedColors() {
-    try {
-        const response = await fetch('/admin/api/colors', {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            savedColors = result.data;
-            renderSavedColors();
-        } else {
-            console.error('Failed to load colors:', result.message);
-            savedColors = [];
-        }
-    } catch (error) {
-        console.error('Error loading colors:', error);
-        savedColors = [];
-    }
-}
-
-function renderSavedColors() {
-    const container = document.getElementById('saved-colors-container');
-    if (!container) return;
-
-    container.innerHTML = savedColors.map(color => `
-        <div class="saved-color-item ${selectedSavedColors.has(color) ? 'selected' : ''}" 
-             data-color="${color}" 
-             style="background-color: ${color}"
-             onclick="toggleSavedColor('${color}')">
-            <button class="remove-color" onclick="removeSavedColor('${color}')" title="Hapus warna">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `).join('');
-}
-
-async function addSavedColor(colorCode) {
-    if (!savedColors.includes(colorCode)) {
-        try {
-            const response = await fetch('/admin/api/colors', {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ color: colorCode })
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-                savedColors = result.data;
-                renderSavedColors();
-                updateColorsInput();
-            } else {
-                alert('Failed to save color: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error saving color:', error);
-            alert('Error saving color');
-        }
-    }
-}
-
-async function removeSavedColor(colorCode) {
-    event.stopPropagation(); // Prevent triggering toggleSavedColor
+// Group variants by color
+function groupVariantsByColor(variants) {
+    const groups = {};
     
-    if (confirm(`Hapus warna ${colorCode}?`)) {
-        try {
-            const response = await fetch(`/admin/api/colors/${encodeURIComponent(colorCode)}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-                savedColors = result.data;
-                selectedSavedColors.delete(colorCode);
-                renderSavedColors();
-                updateColorsInput();
-            } else {
-                alert('Failed to delete color: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error deleting color:', error);
-            alert('Error deleting color');
+    variants.forEach(variant => {
+        const color = variant.color.toLowerCase();
+        if (!groups[color]) {
+            groups[color] = {
+                color: variant.color,
+                variants: []
+            };
         }
-    }
+        groups[color].variants.push(variant);
+    });
+    
+    return Object.values(groups);
 }
 
-function toggleSavedColor(colorCode) {
-    if (selectedSavedColors.has(colorCode)) {
-        selectedSavedColors.delete(colorCode);
-    } else {
-        selectedSavedColors.add(colorCode);
-    }
-    renderSavedColors();
-    updateColorsInput();
+// Get color name from hex
+function getColorName(hex) {
+    const colorMap = {
+        '#000000': 'Black',
+        '#ffffff': 'White',
+        '#ff0000': 'Red',
+        '#00ff00': 'Green',
+        '#0000ff': 'Blue',
+        '#ffff00': 'Yellow',
+        '#ff00ff': 'Magenta',
+        '#00ffff': 'Cyan',
+        '#808080': 'Gray',
+        '#800000': 'Maroon',
+        '#808000': 'Olive',
+        '#008000': 'Dark Green',
+        '#800080': 'Purple',
+        '#008080': 'Teal',
+        '#000080': 'Navy',
+        '#ffa500': 'Orange',
+        '#ffc0cb': 'Pink',
+        '#a52a2a': 'Brown',
+        '#f0e68c': 'Khaki',
+        '#4b5320': 'Army'
+    };
+    
+    const lowerHex = hex.toLowerCase();
+    return colorMap[lowerHex] || hex;
 }
 
-function updateColorsInput() {
-    const colorsArray = Array.from(selectedSavedColors);
-    document.getElementById('colors-input').value = JSON.stringify(colorsArray);
+// Generate SKU
+function generateSKU(productId, color, size) {
+    const colorCode = color.substring(1, 4).toUpperCase();
+    return `OL-${colorCode}-${size.toUpperCase()}`;
 }
 
 // Global functions for onclick handlers
@@ -801,6 +685,5 @@ window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.toggleProductStatus = toggleProductStatus;
 window.changePage = changePage;
-window.removeImage = removeImage;
-window.toggleSavedColor = toggleSavedColor;
-window.removeSavedColor = removeSavedColor;
+window.loadProducts = loadProducts;
+window.toggleVariantsView = toggleVariantsView;

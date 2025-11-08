@@ -133,7 +133,4 @@
         </div>
     </div>
 
-    @push('scripts')
-    @vite('resources/js/admin/activity-logs.js')
-    @endpush
 </x-admin-layout>

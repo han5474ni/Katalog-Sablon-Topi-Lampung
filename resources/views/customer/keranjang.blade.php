@@ -175,10 +175,10 @@
                                                 {{ $formatCurrency($subtotal) }}
                                             </div>
                                         </div>
-                                        <form method="POST" action="{{ route('checkout') }}" class="inline">
+                                        <form method="POST" action="{{ route('checkout') }}" style="display: inline;">
                                             @csrf
                                             <button id="checkout-btn" type="submit" class="px-8 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-semibold rounded-lg transition flex items-center gap-2">
-                                            Checkout <span id="checkout-count" class="bg-slate-900 text-white text-xs px-2 py-0.5 rounded">({{ $totalItems }})</span>
+                                                Checkout <span id="checkout-count" class="bg-slate-900 text-white text-xs px-2 py-0.5 rounded">({{ $totalItems }})</span>
                                             </button>
                                         </form>
                                     </div>
@@ -250,85 +250,6 @@
         }
     </style>
 
-    <!-- Address Modal -->
-    <div id="address-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all">
-                <div class="p-6">
-                    <div class="text-center">
-                        <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-amber-100 flex items-center justify-center">
-                            <span class="material-icons text-amber-600 text-3xl">location_on</span>
-                        </div>
-                        <h2 class="text-xl font-bold text-slate-900 mb-2">Anda belum memasukin alamat pengiriman !!</h2>
-                        <p class="text-slate-600 text-sm leading-relaxed">Silahkan memasukan alamat pengiriman, untuk melanjutkan checkout</p>
-                    </div>
-                    <div class="flex gap-3 mt-6">
-                        <button id="modal-back-btn" class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">
-                            Kembali
-                        </button>
-                        <button id="modal-continue-btn" class="flex-1 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white font-medium rounded-xl transition">
-                            Lanjutkan
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkoutBtn = document.getElementById('checkout-btn');
-            const addressModal = document.getElementById('address-modal');
-            const modalBackBtn = document.getElementById('modal-back-btn');
-            const modalContinueBtn = document.getElementById('modal-continue-btn');
-            const body = document.body;
-
-            // Show modal when checkout button is clicked
-            checkoutBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                showModal();
-            });
-
-            // Hide modal when back button is clicked
-            modalBackBtn.addEventListener('click', function() {
-                hideModal();
-            });
-
-            // Handle continue button (you can add your logic here)
-            modalContinueBtn.addEventListener('click', function() {
-                // Redirect to address page for checkout
-                window.location.href = '/alamat';
-            });
-
-            // Hide modal when clicking outside the modal content
-            addressModal.addEventListener('click', function(e) {
-                if (e.target === addressModal) {
-                    hideModal();
-                }
-            });
-
-            // Hide modal on Escape key press
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && !addressModal.classList.contains('hidden')) {
-                    hideModal();
-                }
-            });
-
-            function showModal() {
-                addressModal.classList.remove('hidden');
-                body.classList.add('modal-active');
-                // Focus on the continue button for accessibility
-                setTimeout(() => modalContinueBtn.focus(), 100);
-            }
-
-            function hideModal() {
-                addressModal.classList.add('hidden');
-                body.classList.remove('modal-active');
-                // Return focus to checkout button
-                checkoutBtn.focus();
-            }
-        });
-    </script>
 
 </body>
 </html>

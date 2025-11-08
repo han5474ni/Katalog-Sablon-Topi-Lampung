@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProductManagementController;
 use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\ColorManagementController;
+use App\Http\Controllers\Admin\SubcategoryManagementController;
+use App\Http\Controllers\Admin\CustomDesignPriceController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProductController;
@@ -28,9 +30,15 @@ Route::get('/public/detail', [ProductController::class, 'detail'])->name('produc
 // Catalog routes
 Route::get('/catalog/{category}', [CatalogController::class, 'index'])->name('catalog');
 
+// Public API for custom design prices
+Route::get('/api/custom-design-prices', [App\Http\Controllers\Admin\CustomDesignPriceController::class, 'getPrices'])->name('api.custom-design-prices');
+
+// API for product-specific custom design prices (for customer page)
+Route::get('/api/product-custom-design-prices/{productId}', [App\Http\Controllers\Admin\CustomDesignPriceController::class, 'getProductPrices'])->name('api.product-custom-design-prices');
+
 // Customer authenticated routes
 Route::middleware(['auth'])->group(function () {
-    // Profile routes
+    // Profile routes (available for both customer and admin viewing)
     Route::get('/profile', [CustomerProfileController::class, 'index'])->name('profile');
     Route::post('/profile', [CustomerProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/confirm-email/{token}', [CustomerProfileController::class, 'confirmEmailChange'])->name('profile.confirm-email-change');
@@ -38,44 +46,81 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile/avatar', [CustomerProfileController::class, 'deleteAvatar'])->name('profile.delete-avatar');
     Route::post('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.update-password');
     
+    // Address management routes
+    Route::post('/profile/address', [CustomerProfileController::class, 'storeAddress'])->name('profile.address.store');
+    Route::put('/profile/address/{id}', [CustomerProfileController::class, 'updateAddress'])->name('profile.address.update');
+    Route::delete('/profile/address/{id}', [CustomerProfileController::class, 'deleteAddress'])->name('profile.address.delete');
+    Route::post('/profile/address/{id}/set-primary', [CustomerProfileController::class, 'setPrimaryAddress'])->name('profile.address.set-primary');
+    
     Route::get('/dashboard', [CustomerController::class, 'dashboard'])
         ->name('dashboard');
 
-    Route::get('/keranjang', [CustomerController::class, 'keranjang'])
-        ->name('keranjang');
-    Route::post('/keranjang', [CustomerController::class, 'addToCart'])
-        ->name('cart.add');
-    Route::patch('/keranjang/{key}', [CustomerController::class, 'updateCartItem'])
-        ->name('cart.update');
-    Route::delete('/keranjang/{key}', [CustomerController::class, 'removeCartItem'])
-        ->name('cart.remove');
-    Route::delete('/keranjang-bulk', [CustomerController::class, 'removeSelected'])
-        ->name('cart.bulk-remove');
+    // Customer-only routes (cart, checkout, orders, custom design)
+    Route::middleware(['customer.only'])->group(function () {
+        Route::get('/keranjang', [CustomerController::class, 'keranjang'])
+            ->name('keranjang');
+        Route::post('/keranjang', [CustomerController::class, 'addToCart'])
+            ->name('cart.add');
+        Route::patch('/keranjang/{key}', [CustomerController::class, 'updateCartItem'])
+            ->name('cart.update');
+        Route::delete('/keranjang/{key}', [CustomerController::class, 'removeCartItem'])
+            ->name('cart.remove');
+        Route::delete('/keranjang-bulk', [CustomerController::class, 'removeSelected'])
+            ->name('cart.bulk-remove');
+        
+        // Buy Now - Direct order creation
+        Route::post('/buy-now', [CustomerController::class, 'buyNow'])
+            ->name('buy-now');
 
-    Route::post('/checkout', [CustomerController::class, 'checkout'])
-        ->name('checkout');
+        Route::post('/checkout', [CustomerController::class, 'checkout'])
+            ->name('checkout');
 
-    Route::get('/alamat', [CustomerController::class, 'alamat'])
-        ->name('alamat');
+        Route::get('/alamat', [CustomerController::class, 'alamat'])
+            ->name('alamat');
+        Route::post('/alamat/select', [CustomerController::class, 'selectAddress'])
+            ->name('alamat.select');
 
-    Route::get('/pemesanan', [CustomerController::class, 'pemesanan'])
-        ->name('pemesanan');
+        Route::get('/pemesanan', [CustomerController::class, 'pemesanan'])
+            ->name('pemesanan');
+        Route::post('/pemesanan/select', [CustomerController::class, 'selectShipping'])
+            ->name('pemesanan.select');
 
-    Route::get('/pembayaran', [CustomerController::class, 'pembayaran'])
-        ->name('pembayaran');
+        Route::get('/pembayaran', [CustomerController::class, 'pembayaran'])
+            ->name('pembayaran');
+        Route::get('/pembayaran/direct', [CustomerController::class, 'pembayaranDirect'])
+            ->name('pembayaran.direct');
+        Route::post('/pembayaran/generate-va', [CustomerController::class, 'generateVA'])
+            ->name('pembayaran.generate-va');
+        Route::post('/pembayaran/process-order', [CustomerController::class, 'processOrder'])
+            ->name('pembayaran.process');
 
-    Route::get('/order-list', [CustomerController::class, 'orderList'])
-        ->name('order-list');
+        Route::get('/order-list', [CustomerController::class, 'orderList'])
+            ->name('order-list');
+        Route::get('/payment-status', [CustomerController::class, 'paymentStatus'])
+            ->name('payment-status');
+        
+        Route::get('/order-detail/{type}/{id}', [CustomerController::class, 'orderDetail'])
+            ->name('order-detail');
+        
+        Route::post('/order/{type}/{id}/cancel', [CustomerController::class, 'cancelOrder'])
+            ->name('order.cancel');
+
+        // Deprecated Midtrans payment routes removed - System now uses Virtual Account
+        // See CLEANUP_REPORT.md for details
+
+        Route::get('/custom-design', [CustomerController::class, 'customDesign'])
+            ->name('custom-design');
+
+        Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])
+            ->name('custom-design.store');
+    });
+
+    // Download route - accessible by both customer and admin (outside customer.only middleware)
+    Route::get('/custom-design/download/{uploadId}', [CustomerController::class, 'downloadCustomDesignFile'])
+        ->name('custom-design.download');
 
     Route::get('/chatbot', [CustomerController::class, 'chatbot'])
         ->name('chatbot');
-
-    Route::get('/custom-design', [CustomerController::class, 'customDesign'])
-        ->name('custom-design');
-
-        // Route untuk submit custom design order
-        Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])
-            ->name('custom-design.store');
 
     Route::post('/logout', function () {
         Auth::logout();
@@ -105,6 +150,7 @@ Route::prefix('admin')->group(function () {
     Route::middleware('admin')->group(function () {
         Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
+        Route::get('/order-history', [OrderManagementController::class, 'history'])->name('admin.order-history');
         Route::get('/order-list/{id}/detail', [OrderManagementController::class, 'showDetail'])->name('admin.order.detail');
         Route::get('/order-list/export', [OrderManagementController::class, 'export'])->name('admin.order-list.export');
         Route::post('/order-list/{id}/approve', [OrderManagementController::class, 'approve'])->name('admin.order.approve');
@@ -116,6 +162,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/management-users/customer/{id}/export-excel', [UserManagementController::class, 'exportCustomerExcel'])->name('admin.customer-export-excel');
         Route::get('/management-users/export-admins', [UserManagementController::class, 'exportAdmins'])->name('admin.management-users.export-admins');
         Route::get('/management-users/export-customers', [UserManagementController::class, 'exportCustomers'])->name('admin.management-users.export-customers');
+        
+        // Finance & Wallet
+        Route::get('/finance', [App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('admin.finance.index');
+        Route::get('/finance/export', [App\Http\Controllers\Admin\FinanceController::class, 'export'])->name('admin.finance.export');
+        
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
         Route::get('/history', [ActivityLogController::class, 'history'])->name('admin.history');
@@ -128,6 +179,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/chatbot', function () {
             return view('admin.chatbot');
         })->name('admin.chatbot');
+        
+        // Custom Design Prices Management
+        Route::get('/custom-design-prices', [CustomDesignPriceController::class, 'index'])->name('admin.custom-design-prices');
+        Route::post('/custom-design-prices/init', [CustomDesignPriceController::class, 'initializeDefaults'])->name('admin.custom-design-prices.init');
         
         Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile');
         Route::post('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
@@ -163,6 +218,15 @@ Route::prefix('admin')->group(function () {
             Route::post('/colors', [ColorManagementController::class, 'store'])->name('colors.store');
             Route::delete('/colors/{color}', [ColorManagementController::class, 'destroy'])->name('colors.destroy');
             Route::delete('/colors', [ColorManagementController::class, 'clear'])->name('colors.clear');
+            
+            // Subcategory Management API
+            Route::get('/subcategories', [SubcategoryManagementController::class, 'index'])->name('subcategories.index');
+            Route::post('/subcategories', [SubcategoryManagementController::class, 'store'])->name('subcategories.store');
+            Route::delete('/subcategories/{slug}', [SubcategoryManagementController::class, 'destroy'])->name('subcategories.destroy');
+            
+            // Custom Design Prices API
+            Route::put('/custom-design-prices/{id}/price', [CustomDesignPriceController::class, 'updatePrice'])->name('custom-design-prices.update-price');
+            Route::post('/custom-design-prices/{id}/toggle', [CustomDesignPriceController::class, 'toggleStatus'])->name('custom-design-prices.toggle');
         });
         
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');

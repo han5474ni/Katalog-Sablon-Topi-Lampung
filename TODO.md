@@ -1,9 +1,0 @@
-- [x] Tambahkan route '/pembayaran' di routes/web.php
-- [x] Tambahkan method pembayaran() di CustomerController.php
-- [x] Ubah onclick tombol "Lanjut" di Pemesanan.blade.php ke '/pembayaran'
-- [x] Tambahkan margin-top pada .steps-container di Pembayaran.css
-- [x] Tambahkan margin-top pada .progress-steps di Pemesanan.css
-- [x] Ubah bentuk container step di Pemesanan.blade.php agar sama dengan Alamat dan Pembayaran
-- [x] Ubah CSS .progress-steps ke .steps-container di Pemesanan.css
-- [x] Tambahkan popup sukses di Pembayaran.blade.php saat klik "Lanjut"
-- [x] Ubah style popup agar sesuai dengan modal di keranjang

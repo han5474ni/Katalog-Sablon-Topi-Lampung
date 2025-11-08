@@ -40,21 +40,65 @@
     color: var(--gray-800);
 }
 
-.date-range-picker {
+.date-range-display {
     display: flex;
     align-items: center;
     padding: 8px 16px;
     border: 1px solid var(--gray-200);
     border-radius: var(--border-radius);
     background-color: var(--white);
-    cursor: pointer;
     color: var(--gray-700);
     font-size: 0.9rem;
 }
 
-.date-range-picker i {
+.date-range-display i {
     margin-right: 8px;
     color: var(--gray-500);
+}
+
+/* Date Range Filter */
+.date-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--white);
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--gray-200);
+}
+
+.date-input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.date-label {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.date-input {
+    padding: 6px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    background-color: var(--white);
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    min-width: 140px;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.date-separator {
+    color: var(--gray-400);
+    font-weight: 500;
 }
 
 /* Bagian Filter & Kontrol */
@@ -108,6 +152,22 @@
     align-items: center;
     gap: 8px;
     transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-secondary {
+    background-color: var(--gray-500);
+    color: var(--white);
+}
+.btn-secondary:hover {
+    background-color: var(--gray-600);
 }
 
 .btn-success {

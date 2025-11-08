@@ -99,6 +99,45 @@
     color: var(--gray-700);
 }
 
+/* Date Range Filter */
+.date-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--white);
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--gray-200);
+}
+
+.date-label {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.date-input {
+    padding: 6px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    background-color: var(--white);
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    min-width: 140px;
+}
+
+.date-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.date-separator {
+    color: var(--gray-400);
+    font-weight: 500;
+}
+
 .btn {
     padding: 10px 16px;
     border: none;
@@ -107,8 +146,33 @@
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.btn-icon {
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    gap: 0;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+.btn-primary:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-secondary {
+    background-color: var(--gray-500);
+    color: var(--white);
+}
+.btn-secondary:hover {
+    background-color: #4b5563;
 }
 
 .btn-success {
@@ -145,6 +209,26 @@
     flex: 1;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-actions .search-box {
+    flex-grow: 0;
+    width: 250px;
+}
+
+.header-actions .search-box input {
+    width: 100%;
+    padding: 8px 8px 8px 32px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    background-color: var(--white);
+    font-size: 0.9rem;
+}
+
 .card-body { padding: 0; }
 .table-responsive { width: 100%; overflow-x: auto; }
 
@@ -178,7 +262,16 @@
 
 .orders-table tbody tr:last-child td { border-bottom: none; }
 .orders-table tbody tr:hover { background-color: var(--gray-100); }
+
+/* Column Width Adjustments */
 .checkbox-col { width: 1%; }
+
+.product-col { 
+    max-width: 250px;
+    white-space: normal !important;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
 
 /* Styling Status */
 .status {
@@ -220,7 +313,7 @@
 .action-btn:hover { background-color: var(--gray-200); }
 
 .dropdown-content { display: none; position: absolute; right: 0; top: 100%; background-color: var(--white); min-width: 160px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; border-radius: var(--border-radius); overflow: hidden; }
-.action-dropdown:hover .dropdown-content { display: block; }
+.action-dropdown.active .dropdown-content { display: block; }
 .dropdown-content a { color: var(--gray-700); padding: 12px 16px; text-decoration: none; display: block; font-size: 0.9rem; }
 .dropdown-content a:hover { background-color: var(--gray-100); }
 
@@ -273,4 +366,75 @@
 .pagination-btn-disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Payment Status Badges */
+.payment-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 6px;
+    white-space: nowrap;
+}
+
+.payment-badge-paid {
+    background-color: #28a745;
+    color: white;
+}
+
+.payment-badge-va-active {
+    background-color: #ffc107;
+    color: #000;
+    box-shadow: 0 1px 3px rgba(255, 193, 7, 0.3);
+}
+
+/* Status Badge Variations */
+.status-pending {
+    color: #f59e0b;
+    background-color: #fef3c7;
+}
+.status-pending::before { 
+    background-color: #f59e0b; 
+}
+
+.status-approved {
+    color: #10b981;
+    background-color: #d1fae5;
+}
+.status-approved::before { 
+    background-color: #10b981; 
+}
+
+.status-rejected {
+    color: #ef4444;
+    background-color: #fee2e2;
+}
+.status-rejected::before { 
+    background-color: #ef4444; 
+}
+
+.status-cancelled {
+    color: #6b7280;
+    background-color: #f3f4f6;
+}
+.status-cancelled::before { 
+    background-color: #6b7280; 
+}
+
+.status-processing {
+    color: #3b82f6;
+    background-color: #dbeafe;
+}
+.status-processing::before { 
+    background-color: #3b82f6; 
+}
+
+.status-completed {
+    color: #8b5cf6;
+    background-color: #ede9fe;
+}
+.status-completed::before { 
+    background-color: #8b5cf6; 
 }

@@ -147,4 +147,70 @@ class Product extends Model
     {
         return number_format($this->price, 0, ',', '.');
     }
+
+    // Get variant images for carousel
+    public function getVariantImagesAttribute()
+    {
+        $images = [];
+        
+        // Add main product image first if exists
+        if ($this->image) {
+            // Check if image is already a full URL (external)
+            if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+                $images[] = $this->image;
+            } else {
+                $images[] = asset('storage/' . $this->image);
+            }
+        }
+        
+        // Add variant images
+        if ($this->relationLoaded('variants') && $this->variants->count() > 0) {
+            foreach ($this->variants as $variant) {
+                if ($variant->image) {
+                    // Check if variant image is external URL
+                    if (str_starts_with($variant->image, 'http://') || str_starts_with($variant->image, 'https://')) {
+                        $variantImage = $variant->image;
+                    } else {
+                        $variantImage = asset('storage/' . $variant->image);
+                    }
+                    
+                    // Avoid duplicates
+                    if (!in_array($variantImage, $images)) {
+                        $images[] = $variantImage;
+                    }
+                }
+            }
+        }
+        
+        // If no images found, add from images array
+        if (empty($images) && !empty($this->images) && is_array($this->images)) {
+            foreach ($this->images as $img) {
+                // Check if image in array is external URL
+                if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) {
+                    $images[] = $img;
+                } else {
+                    $images[] = asset('storage/' . $img);
+                }
+            }
+        }
+        
+        return $images;
+    }
+
+    // Relationship to ProductVariant
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    // Relationship to CustomDesignPrices (Many-to-Many)
+    public function customDesignPrices()
+    {
+        return $this->belongsToMany(
+            CustomDesignPrice::class,
+            'product_custom_design_prices',
+            'product_id',
+            'custom_design_price_id'
+        )->withPivot('custom_price', 'is_active')->withTimestamps();
+    }
 }

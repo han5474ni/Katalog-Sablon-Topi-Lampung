@@ -9,7 +9,7 @@ class ProductController extends Controller
 {
     public function allProducts(Request $request)
     {
-        $query = Product::active();
+        $query = Product::with('variants')->active();
 
         // Filter promo (dengan diskon) - products with original_price > price
         if ($request->boolean('promo')) {
@@ -53,6 +53,51 @@ class ProductController extends Controller
 
         // Paginate results
         $products = $query->paginate(12)->appends($request->except('page'));
+        
+        // Calculate price range, total stock, and variant images from variants
+        $productsData = collect($products->items())->map(function ($product) {
+            if ($product->variants && $product->variants->count() > 0) {
+                // Get price range
+                $prices = $product->variants->pluck('price')->filter();
+                $minPrice = $prices->min();
+                $maxPrice = $prices->max();
+                
+                // Get total stock
+                $totalStock = $product->variants->sum('stock');
+                
+                // Get variant images for carousel
+                $variantImages = $product->variants
+                    ->filter(function($v) { return !empty($v->image); })
+                    ->map(function($v) {
+                        return asset('storage/' . $v->image);
+                    })
+                    ->values()
+                    ->toArray();
+                
+                // Add computed fields
+                $product->price_min = $minPrice;
+                $product->price_max = $maxPrice;
+                $product->price_range = $minPrice == $maxPrice 
+                    ? "Rp " . number_format($minPrice, 0, ',', '.')
+                    : "Rp " . number_format($minPrice, 0, ',', '.') . " - Rp " . number_format($maxPrice, 0, ',', '.');
+                $product->total_stock = $totalStock;
+                $product->variant_images = $variantImages;
+                $product->variant_count = $product->variants->count();
+            } else {
+                // Fallback to product's own price and stock
+                $product->price_min = $product->price;
+                $product->price_max = $product->price;
+                $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
+                $product->total_stock = $product->stock;
+                $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
+                $product->variant_count = 0;
+            }
+            
+            return $product;
+        });
+        
+        // Update products collection
+        $products->setCollection($productsData);
 
         // Prepare applied filters for view
         $appliedFilters = [
@@ -72,7 +117,7 @@ class ProductController extends Controller
         // Handle AJAX request
         if ($request->ajax()) {
             return response()->json([
-                'products' => $products->items(),
+                'products' => $productsData->toArray(),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
@@ -93,32 +138,103 @@ class ProductController extends Controller
         // Try to get product from database first
         if ($request->has('id')) {
             try {
-                $product = Product::findOrFail($request->id);
+                $product = Product::with('variants')->findOrFail($request->id);
                 
                 // Increment views
                 $product->incrementViews();
+                
+                // Extract unique colors and sizes from variants
+                $availableColors = [];
+                $availableSizes = [];
+                $variantsData = [];
+                
+                if ($product->variants && $product->variants->count() > 0) {
+                    foreach ($product->variants as $variant) {
+                        // Collect unique colors
+                        if ($variant->color && !in_array($variant->color, $availableColors)) {
+                            $availableColors[] = $variant->color;
+                        }
+                        
+                        // Collect unique sizes
+                        if ($variant->size && !in_array($variant->size, $availableSizes)) {
+                            $availableSizes[] = $variant->size;
+                        }
+                        
+                        // Format variant data
+                        $variantsData[] = [
+                            'id' => $variant->id,
+                            'color' => $variant->color,
+                            'size' => $variant->size,
+                            'price' => $variant->price,
+                            'original_price' => $variant->original_price,
+                            'stock' => $variant->stock,
+                            'image' => $variant->image ? asset('storage/' . $variant->image) : null,
+                        ];
+                    }
+                }
+                
+                // Use variant colors/sizes if available, otherwise fallback to product colors/sizes
+                $colors = !empty($availableColors) ? $availableColors : ($product->colors ?: []);
+                $sizes = !empty($availableSizes) ? $availableSizes : ($product->sizes ?: []);
+                
+                // Build gallery from variant images (each variant image represents a color/size combination)
+                $gallery = [];
+                if ($product->variants && $product->variants->count() > 0) {
+                    foreach ($product->variants as $variant) {
+                        if ($variant->image) {
+                            $gallery[] = [
+                                'url' => asset('storage/' . $variant->image),
+                                'color' => $variant->color,
+                                'size' => $variant->size,
+                            ];
+                        }
+                    }
+                }
+                
+                // If no variant images, use product images
+                if (empty($gallery)) {
+                    if ($product->image) {
+                        $gallery[] = ['url' => asset('storage/' . $product->image), 'color' => null, 'size' => null];
+                    }
+                    if ($product->images && is_array($product->images)) {
+                        foreach ($product->images as $img) {
+                            $gallery[] = ['url' => asset('storage/' . $img), 'color' => null, 'size' => null];
+                        }
+                    }
+                }
+                
+                // Calculate price range from variants
+                $priceMin = $product->price;
+                $priceMax = $product->price;
+                if (!empty($variantsData)) {
+                    $prices = array_column($variantsData, 'price');
+                    $priceMin = min($prices);
+                    $priceMax = max($prices);
+                }
                 
                 // Format for view
                 $productData = [
                     'id' => $product->id,
                     'name' => $product->name,
-                    'price' => $product->price, // Pass raw numeric price
-                    'original_price' => $product->original_price ? number_format($product->original_price, 0, ',', '.') : null,
-                    'image' => $product->image ? asset('storage/' . $product->image) : $request->query('image', 'https://via.placeholder.com/400'),
-                    // Provide gallery/images when available
-                    'gallery' => $product->images ?? [],
+                    'price' => $product->price, // Base price
+                    'price_min' => $priceMin,
+                    'price_max' => $priceMax,
+                    'image' => $product->image ? asset('storage/' . $product->image) : '',
+                    'gallery' => $gallery,
+                    'variants' => $variantsData,
                     'description' => $product->description ?: 'This product is crafted with superior quality and attention to detail.',
-                    'colors' => $product->colors ?: [],
-                    'sizes' => $product->sizes ?: [],
+                    'colors' => $colors,
+                    'sizes' => $sizes,
                     'stock' => $product->stock,
                     'category' => $product->category,
-                    // Expose flag whether custom design is allowed for this product
+                    'subcategory' => $product->subcategory,
                     'custom_design_allowed' => (bool) ($product->custom_design_allowed ?? false),
                 ];
 
                 // Ambil rekomendasi produk (produk lain dari kategori yang sama)
                 $recommendations = Product::where('category', $product->category)
                     ->where('id', '!=', $product->id)
+                    ->where('is_active', true)
                     ->limit(4)
                     ->get()
                     ->map(function ($rec) {
@@ -126,7 +242,7 @@ class ProductController extends Controller
                             'id' => $rec->id,
                             'name' => $rec->name,
                             'price' => $rec->formatted_price,
-                            'image' => $rec->image ? asset('storage/' . $rec->image) : 'https://via.placeholder.com/300',
+                            'image' => $rec->image ? asset('storage/' . $rec->image) : '',
                             'custom_design_allowed' => (bool) $rec->custom_design_allowed,
                         ];
                     });
@@ -151,13 +267,16 @@ class ProductController extends Controller
             'custom_design_allowed' => false,
         ];
 
-        // Ambil rekomendasi produk untuk fallback (produk populer)
-        $recommendations = Product::limit(4)->get()->map(function ($rec) {
+        // If query parameters exist (fallback for direct links)
+        $recommendations = Product::where('is_active', true)
+            ->limit(4)
+            ->get()
+            ->map(function ($rec) {
             return [
                 'id' => $rec->id,
                 'name' => $rec->name,
                 'price' => $rec->formatted_price,
-                'image' => $rec->image ? asset('storage/' . $rec->image) : 'https://via.placeholder.com/300',
+                'image' => $rec->image ? asset('storage/' . $rec->image) : '',
                 'custom_design_allowed' => (bool) $rec->custom_design_allowed,
             ];
         });

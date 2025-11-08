@@ -9,14 +9,11 @@
 
 <div class="order-list-container">
     {{-- Filter dan Kontrol --}}
-    <form method="GET" action="{{ route('admin.order-list') }}" class="controls-section">
-        <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan" />
-        </div>
+    <form method="GET" action="{{ route('admin.order-list') }}" id="filter-form" class="controls-section">
         <select name="type" class="filter-select" onchange="this.form.submit()">
-            <option value="regular" {{ request('type', 'regular') == 'regular' ? 'selected' : '' }}>Pesanan Reguler</option>
-            <option value="custom" {{ request('type', 'regular') == 'custom' ? 'selected' : '' }}>Custom Design</option>
+            <option value="all" {{ request('type', 'all') == 'all' ? 'selected' : '' }}>Semua Pesanan</option>
+            <option value="regular" {{ request('type', 'all') == 'regular' ? 'selected' : '' }}>Pesanan Reguler</option>
+            <option value="custom" {{ request('type', 'all') == 'custom' ? 'selected' : '' }}>Custom Design</option>
         </select>
         <select name="status" class="filter-select" onchange="this.form.submit()">
             <option value="">Semua Status</option>
@@ -27,22 +24,43 @@
             <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
             <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
         </select>
-        <select name="days" class="filter-select" onchange="this.form.submit()">
-            <option value="7" {{ request('days', 30) == 7 ? 'selected' : '' }}>Rentang : 7 hari</option>
-            <option value="30" {{ request('days', 30) == 30 ? 'selected' : '' }}>Rentang : 30 hari</option>
-            <option value="60" {{ request('days', 30) == 60 ? 'selected' : '' }}>Rentang : 60 hari</option>
-            <option value="90" {{ request('days', 30) == 90 ? 'selected' : '' }}>Rentang : 90 hari</option>
+        <select name="payment_status" class="filter-select" onchange="this.form.submit()">
+            <option value="">Status Pembayaran</option>
+            <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>✓ Dibayar</option>
+            <option value="va_active" {{ request('payment_status') == 'va_active' ? 'selected' : '' }}>⏳ VA Aktif</option>
         </select>
+        
+        <div class="date-range-filter">
+            <label for="start-date" class="date-label">Dari:</label>
+            <input type="date" name="start_date" id="start-date" class="date-input" value="{{ request('start_date') }}" />
+            <span class="date-separator">-</span>
+            <label for="end-date" class="date-label">Sampai:</label>
+            <input type="date" name="end_date" id="end-date" class="date-input" value="{{ request('end_date') }}" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-icon" title="Filter">
+            <i class="fas fa-filter"></i>
+        </button>
+        
+        <a href="{{ route('admin.order-list') }}" class="btn btn-secondary btn-icon" title="Reset Filter">
+            <i class="fas fa-redo"></i>
+        </a>
     </form>
 
     {{-- Kartu Daftar Pesanan --}}
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Pesanan Terbaru</h3>
-            <a href="{{ route('admin.order-list.export', request()->all()) }}" class="btn btn-success">
-                <i class="fas fa-file-excel"></i>
-                Export Excel
-            </a>
+            <div class="header-actions">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan" form="filter-form" />
+                </div>
+                <a href="{{ route('admin.order-list.export', request()->all()) }}" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i>
+                    Export Excel
+                </a>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -50,7 +68,7 @@
                     <thead>
                         <tr>
                             <th class="checkbox-col"><input type="checkbox" id="select-all" /></th>
-                            <th>PRODUK</th>
+                            <th class="product-col">PRODUK</th>
                             <th>ID PESANAN</th>
                             <th>TANGGAL</th>
                             <th>NAMA PELANGGAN</th>
@@ -62,10 +80,17 @@
                     </thead>
                     <tbody>
                         @forelse($orders as $order)
+                        @php
+                            $isCustom = $order instanceof \App\Models\CustomDesignOrder;
+                            $currentOrderType = $isCustom ? 'custom' : 'regular';
+                        @endphp
                         <tr>
                             <td class="checkbox-col"><input type="checkbox" class="row-checkbox" /></td>
-                            @if(isset($orderType) && $orderType === 'regular')
-                                <td>
+                            <td class="product-col">
+                                @if($isCustom)
+                                    <span class="badge" style="background: #9333ea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-right: 4px;">Custom</span>
+                                    {{ $order->product_name ?? 'Produk Tidak Tersedia' }}
+                                @else
                                     @if($order->items && is_array($order->items) && count($order->items) > 0)
                                         @php
                                             $productNames = collect($order->items)->pluck('name')->filter()->unique()->take(2);
@@ -77,39 +102,50 @@
                                     @else
                                         Produk Tidak Tersedia
                                     @endif
-                                </td>
-                            @else
-                                <td>{{ $order->product_name ?? 'Produk Tidak Tersedia' }}</td>
-                            @endif
+                                @endif
+                            </td>
                             <td>#{{ $order->id }}</td>
                             <td>{{ $order->created_at->format('M d, Y') }}</td>
                             <td>{{ $order->user->name ?? 'Customer' }}</td>
                             <td>
-                                @php
-                                    $statusClass = 'status-' . strtolower(str_replace(' ', '-', $order->status));
-                                @endphp
-                                <span class="status {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
+                                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                                    @php
+                                        $statusClass = 'status-' . strtolower(str_replace(' ', '-', $order->status));
+                                    @endphp
+                                    <span class="status {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
+                                    
+                                    {{-- Payment Status Badge --}}
+                                    @if(isset($order->payment_status))
+                                        @if($order->payment_status === 'paid')
+                                            <span class="payment-badge payment-badge-paid">✓ Dibayar</span>
+                                        @elseif($order->payment_status === 'va_active')
+                                            <span class="payment-badge payment-badge-va-active">⏳ VA Aktif</span>
+                                        @endif
+                                    @endif
+                                </div>
                             </td>
-                            @if(isset($orderType) && $orderType === 'regular')
-                                <td>Rp.{{ number_format((float) $order->total, 0, ',', '.') }}</td>
-                            @else
-                                <td>Rp.{{ number_format((float) $order->total_price, 0, ',', '.') }}</td>
-                            @endif
-                            <td><a href="{{ route('admin.order.detail', ['id' => $order->id]) }}?type={{ $orderType ?? 'regular' }}" class="detail-link"><i class="fas fa-info-circle detail-icon"></i></a></td>
+                            <td>
+                                @if($isCustom)
+                                    Rp.{{ number_format((float) $order->total_price, 0, ',', '.') }}
+                                @else
+                                    Rp.{{ number_format((float) $order->total, 0, ',', '.') }}
+                                @endif
+                            </td>
+                            <td><a href="{{ route('admin.order.detail', ['id' => $order->id]) }}?type={{ $currentOrderType }}" class="detail-link"><i class="fas fa-info-circle detail-icon"></i></a></td>
                             <td class="actions-col">
                                 <div class="action-dropdown">
                                     <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
                                     <div class="dropdown-content">
                                         @if($order->status === 'pending')
-                                            <form method="POST" action="{{ route('admin.order.approve', ['id' => $order->id, 'type' => $orderType ?? 'regular']) }}" style="display: inline;">
+                                            <form method="POST" action="{{ route('admin.order.approve', $order->id) }}?type={{ $currentOrderType }}" style="display: inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menyetujui pesanan ini?')">
                                                 @csrf
-                                                <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin menyetujui pesanan ini?')">Disetujui</button>
+                                                <button type="submit" class="dropdown-item" style="width: 100%;">Disetujui</button>
                                             </form>
-                                            <a href="#" onclick="showRejectModal({{ $order->id }}, '{{ $orderType ?? 'regular' }}')" class="dropdown-item">Ditolak</a>
+                                            <button type="button" class="dropdown-item" onclick="showRejectModal({{ $order->id }}, '{{ $currentOrderType }}')">Ditolak</button>
                                         @else
-                                            <a href="#" onclick="changeStatus({{ $order->id }}, 'processing', '{{ $orderType ?? 'regular' }}')" class="dropdown-item">Diproses</a>
-                                            <a href="#" onclick="changeStatus({{ $order->id }}, 'completed', '{{ $orderType ?? 'regular' }}')" class="dropdown-item">Selesai</a>
-                                            <a href="#" onclick="changeStatus({{ $order->id }}, 'cancelled', '{{ $orderType ?? 'regular' }}')" class="dropdown-item">Dibatalkan</a>
+                                            <button type="button" onclick="changeStatus({{ $order->id }}, 'processing', '{{ $currentOrderType }}'); return false;" class="dropdown-item">Diproses</button>
+                                            <button type="button" onclick="changeStatus({{ $order->id }}, 'completed', '{{ $currentOrderType }}'); return false;" class="dropdown-item">Selesai</button>
+                                            <button type="button" onclick="changeStatus({{ $order->id }}, 'cancelled', '{{ $currentOrderType }}'); return false;" class="dropdown-item">Dibatalkan</button>
                                         @endif
                                     </div>
                                 </div>
@@ -162,15 +198,16 @@
                 <h3>Tolak Pesanan</h3>
                 <span class="close" onclick="closeRejectModal()">&times;</span>
             </div>
-            <form id="rejectForm" method="POST">
+            <form id="rejectForm" method="POST" action="">
                 @csrf
                 <div class="modal-body">
                     <label for="rejectReason">Alasan Penolakan:</label>
-                    <textarea id="rejectReason" name="reason" required maxlength="500" placeholder="Masukkan alasan penolakan pesanan..."></textarea>
+                    <textarea id="rejectReason" name="reason" required minlength="5" maxlength="500" placeholder="Masukkan alasan penolakan pesanan (minimal 5 karakter)..."></textarea>
+                    <small id="reasonError" style="color: red; display: none;">Alasan penolakan harus diisi minimal 5 karakter</small>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" onclick="closeRejectModal()" class="btn btn-secondary">Batal</button>
-                    <button type="submit" class="btn btn-danger">Tolak Pesanan</button>
+                    <button type="button" onclick="closeRejectModal()" class="btn btn-secondary" id="rejectCancelBtn">Batal</button>
+                    <button type="submit" class="btn btn-danger" id="rejectSubmitBtn">Tolak Pesanan</button>
                 </div>
             </form>
         </div>
@@ -193,13 +230,36 @@
     @push('scripts')
         <script>
             function showRejectModal(orderId, orderType) {
-                document.getElementById('rejectForm').action = `/admin/order-list/${orderId}/reject?type=${orderType}`;
+                const form = document.getElementById('rejectForm');
+                const actionUrl = `/admin/order-list/${orderId}/reject?type=${orderType}`;
+                
+                console.log('Opening reject modal for order:', orderId, 'type:', orderType);
+                console.log('Setting form action to:', actionUrl);
+                
+                form.action = actionUrl;
                 document.getElementById('rejectModal').style.display = 'block';
+                document.getElementById('rejectReason').value = '';
+                document.getElementById('reasonError').style.display = 'none';
+                
+                // Reset button state
+                const submitBtn = document.getElementById('rejectSubmitBtn');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Tolak Pesanan';
+                
+                setTimeout(() => {
+                    document.getElementById('rejectReason').focus();
+                }, 100);
             }
 
             function closeRejectModal() {
                 document.getElementById('rejectModal').style.display = 'none';
                 document.getElementById('rejectReason').value = '';
+                document.getElementById('reasonError').style.display = 'none';
+                
+                // Reset button state
+                const submitBtn = document.getElementById('rejectSubmitBtn');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Tolak Pesanan';
             }
 
             function changeStatus(orderId, status, orderType) {
@@ -401,6 +461,111 @@
             }
 
             // Close modal when clicking outside
+            // Toggle dropdown on click (fix for hover issue)
+            document.addEventListener('DOMContentLoaded', function() {
+                const actionButtons = document.querySelectorAll('.action-btn');
+                
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const dropdown = this.closest('.action-dropdown');
+                        
+                        // Close all other dropdowns
+                        document.querySelectorAll('.action-dropdown').forEach(d => {
+                            if (d !== dropdown) d.classList.remove('active');
+                        });
+                        
+                        // Toggle current dropdown
+                        dropdown.classList.toggle('active');
+                    });
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    // Don't close if clicking inside a modal
+                    if (e.target.closest('.modal')) {
+                        return;
+                    }
+                    // Don't close if clicking inside dropdown content
+                    if (e.target.closest('.dropdown-content')) {
+                        return;
+                    }
+                    // Don't close if clicking on action button
+                    if (e.target.closest('.action-btn')) {
+                        return;
+                    }
+                    document.querySelectorAll('.action-dropdown').forEach(d => {
+                        d.classList.remove('active');
+                    });
+                });
+                
+                // Handle form submissions - close dropdown after form is submitted
+                document.querySelectorAll('.dropdown-content form').forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        // Form will submit normally, dropdown will close when page reloads
+                    });
+                });
+                
+                // Prevent dropdown from closing when clicking inside
+                document.querySelectorAll('.dropdown-content').forEach(content => {
+                    content.addEventListener('click', function(e) {
+                        // Don't interfere with buttons that open modals
+                        if (e.target.onclick && e.target.onclick.toString().includes('showRejectModal')) {
+                            return;
+                        }
+                        // Don't stop propagation for buttons - let them work normally
+                        if (e.target.tagName !== 'BUTTON') {
+                            e.stopPropagation();
+                        }
+                    });
+                });
+                
+                // Handle reject form submission with validation and loading state
+                const rejectForm = document.getElementById('rejectForm');
+                if (rejectForm) {
+                    rejectForm.addEventListener('submit', function(e) {
+                        const reason = document.getElementById('rejectReason').value.trim();
+                        const reasonError = document.getElementById('reasonError');
+                        const submitBtn = document.getElementById('rejectSubmitBtn');
+                        const cancelBtn = document.getElementById('rejectCancelBtn');
+                        
+                        // Validate reason
+                        if (reason.length < 5) {
+                            e.preventDefault();
+                            reasonError.style.display = 'block';
+                            document.getElementById('rejectReason').focus();
+                            return false;
+                        }
+                        
+                        // Hide error if shown
+                        reasonError.style.display = 'none';
+                        
+                        // Check if form action is set
+                        if (!this.action || this.action === window.location.href || this.action.endsWith('/admin/order-list')) {
+                            e.preventDefault();
+                            alert('Error: Form action tidak di-set dengan benar. Silakan coba lagi.');
+                            console.error('Form action invalid:', this.action);
+                            return false;
+                        }
+                        
+                        console.log('Submitting reject form to:', this.action);
+                        console.log('Rejection reason:', reason);
+                        
+                        // Disable buttons to prevent double submission
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                        }
+                        if (cancelBtn) {
+                            cancelBtn.disabled = true;
+                        }
+                        
+                        // Form will submit normally after this
+                        return true;
+                    });
+                }
+            });
+
             window.onclick = function(event) {
                 const rejectModal = document.getElementById('rejectModal');
                 const detailModal = document.getElementById('orderDetailModal');

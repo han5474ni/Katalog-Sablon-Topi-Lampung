@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beranda - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/guest/home.css', 'resources/css/components/footer.css', 'resources/js/guest/home.js', 'resources/js/guest/product-slider.js'])
+    @vite(['resources/css/components/product-card.css', 'resources/css/guest/home.css', 'resources/css/components/footer.css', 'resources/js/guest/home.js', 'resources/js/guest/product-slider.js', 'resources/js/guest/product-card-carousel.js'])
 </head>
 <body>
     <!-- Header -->
@@ -54,29 +54,7 @@
             <div class="product-slider" id="arrivals-slider">
                 <div class="product-grid slider-track">
                 @forelse($newArrivals as $product)
-                    <div class="product-card" 
-                         data-product-id="{{ $product->id }}" 
-                         data-product-name="{{ $product->name }}" 
-                         data-product-price="{{ $product->formatted_price }}" 
-                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}"
-                         tabindex="0">
-                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}" 
-                             alt="{{ $product->name }}" 
-                             class="product-image" loading="lazy" decoding="async" width="300" height="300">
-                        @if(!empty($product->custom_design_allowed) && $product->custom_design_allowed)
-                            <div class="product-ribbon small" aria-hidden="true">CUSTOM</div>
-                        @endif
-                        <div class="product-name">{{ $product->name }}</div>
-                        <div class="product-price">Rp {{ $product->formatted_price }}</div>
-                        <div class="product-actions" role="group" aria-label="Aksi produk">
-                            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                                <i class="fas fa-comments" aria-hidden="true"></i>
-                            </button>
-                            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
-                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <x-product-card :product="$product" />
                 @empty
                     <div class="no-products">
                         <p>Belum ada produk baru.</p>
@@ -101,26 +79,7 @@
             <div class="product-slider" id="selling-slider">
                 <div class="product-grid slider-track">
                 @forelse($topSelling as $product)
-                    <div class="product-card" 
-                         data-product-id="{{ $product->id }}" 
-                         data-product-name="{{ $product->name }}" 
-                         data-product-price="{{ $product->formatted_price }}" 
-                         data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}"
-                         tabindex="0">
-                        <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300' }}" 
-                             alt="{{ $product->name }}" 
-                             class="product-image" loading="lazy" decoding="async" width="300" height="300">
-                        <div class="product-name">{{ $product->name }}</div>
-                        <div class="product-price">Rp {{ $product->formatted_price }}</div>
-                        <div class="product-actions" role="group" aria-label="Aksi produk">
-                            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                                <i class="fas fa-comments" aria-hidden="true"></i>
-                            </button>
-                            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
-                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <x-product-card :product="$product" :showRibbon="false" />
                 @empty
                     <div class="no-products">
                         <p>Belum ada produk best seller.</p>

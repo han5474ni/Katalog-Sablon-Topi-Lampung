@@ -107,6 +107,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.finance.index') }}" class="sidebar__link {{ request()->routeIs('admin.finance.*') ? 'active' : '' }}">
+                        <i class="fas fa-wallet"></i>
+                        <span>Finance & Wallet</span>
+                    </a>
+                </li>
+                <li>
                     <a href="#" class="sidebar__link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Analytic Reports</span>
@@ -125,9 +131,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
-                        <i class="fas fa-wallet"></i>
-                        <span>Finance and Wallet</span>
+                    <a href="{{ route('admin.custom-design-prices') }}" class="sidebar__link {{ request()->routeIs('admin.custom-design-prices') ? 'active' : '' }}">
+                        <i class="fas fa-palette"></i>
+                        <span>Custom Design Prices</span>
                     </a>
                 </li>
             </ul>
@@ -211,7 +217,7 @@
                     
                     <div class="page-header__date-range">
                         <i class="fas fa-calendar"></i>
-                        <span>{{ now()->format('F d, Y') }} - {{ now()->addDays(25)->format('F d, Y') }}</span>
+                        <span>{{ now()->format('F d, Y') }}</span>
                     </div>
                 </div>
             </div>

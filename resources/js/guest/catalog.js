@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Filter dropdown toggle functionality
+    initializeFilterToggles();
+    
     // Profile popup functionality
     const profileIcon = document.getElementById('profile-icon');
     const profilePopup = document.getElementById('profile-popup');
@@ -83,8 +86,19 @@ document.addEventListener('DOMContentLoaded', function() {
             .map(el => el.dataset.color);
         const selectedSizes = Array.from(document.querySelectorAll('.size-option.active'))
             .map(el => el.textContent.trim());
+        const selectedCategories = Array.from(document.querySelectorAll('input[name="categories[]"]:checked'))
+            .map(el => el.value);
         const searchQuery = document.getElementById('search-input')?.value || '';
         const sortBy = document.getElementById('sort-select')?.value || 'most_popular';
+        
+        // Get price range values
+        const minPrice = document.getElementById('price-range-min')?.value || 0;
+        const maxPrice = document.getElementById('price-range-max')?.value || 2500000;
+        
+        // Get quick filters
+        const withPromo = document.querySelector('input[name="promo"]:checked') ? '1' : null;
+        const readyStock = document.querySelector('input[name="ready"]:checked') ? '1' : null;
+        const customDesign = document.querySelector('input[name="custom"]:checked') ? '1' : null;
 
         // Build query parameters
         const params = new URLSearchParams(window.location.search);
@@ -105,6 +119,44 @@ document.addEventListener('DOMContentLoaded', function() {
             params.set('sizes', selectedSizes.join(','));
         } else {
             params.delete('sizes');
+        }
+        
+        if (selectedCategories.length > 0) {
+            params.set('categories', selectedCategories.join(','));
+        } else {
+            params.delete('categories');
+        }
+        
+        // Price range
+        if (minPrice > 0) {
+            params.set('min_price', minPrice);
+        } else {
+            params.delete('min_price');
+        }
+        
+        if (maxPrice < 2500000) {
+            params.set('max_price', maxPrice);
+        } else {
+            params.delete('max_price');
+        }
+        
+        // Quick filters
+        if (withPromo) {
+            params.set('promo', withPromo);
+        } else {
+            params.delete('promo');
+        }
+        
+        if (readyStock) {
+            params.set('ready', readyStock);
+        } else {
+            params.delete('ready');
+        }
+        
+        if (customDesign) {
+            params.set('custom', customDesign);
+        } else {
+            params.delete('custom');
         }
         
         params.set('sort', sortBy);
@@ -148,26 +200,55 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         grid.innerHTML = products.map(product => {
-            const imageUrl = product.image ? `/storage/${product.image}` : 'https://via.placeholder.com/300x300?text=No+Image';
+            // Priority: variant_images[0] > product.image > placeholder
+            let imageUrl = '';
+            if (product.variant_images && product.variant_images.length > 0) {
+                imageUrl = product.variant_images[0];
+            } else if (product.image) {
+                imageUrl = `/storage/${product.image}`;
+            }
+            
+            const variantImagesJson = JSON.stringify(product.variant_images || []).replace(/'/g, '&#39;');
+            const customRibbon = product.custom_design_allowed ? '<div class="product-ribbon" aria-hidden="true">CUSTOM</div>' : '';
+            const imageHtml = imageUrl 
+                ? `<img class="product-image" src="${imageUrl}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image-placeholder\\'><i class=\\'fas fa-image\\'></i></div>';">`
+                : `<div class="no-image-placeholder"><i class="fas fa-image"></i></div>`;
+            
             return `
                 <div class="product-card"
                      data-product-id="${product.id}"
+                     data-product-slug="${product.slug || ''}"
                      data-product-name="${product.name}"
                      data-product-price="${product.formatted_price}"
-                     data-product-image="${imageUrl}">
-                    <div class="product-image-container">
-                        <img class="product-image" src="${imageUrl}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                        <button class="wishlist-btn" type="button" aria-label="Tambah ke favorit">
-                            <i class="fas fa-heart"></i>
-                        </button>
+                     data-product-image="${imageUrl}"
+                     data-variant-images='${variantImagesJson}'>
+                    <div class="product-image-container" data-product-id="${product.id}">
+                        ${imageHtml}
+                        ${customRibbon}
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>
                         <p class="product-price">Rp ${product.formatted_price}</p>
+                        <div class="product-actions" role="group" aria-label="Aksi produk">
+                            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                <i class="fas fa-comments" aria-hidden="true"></i>
+                            </button>
+                            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="${product.id}">
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
         }).join('');
+        
+        // Re-initialize carousels and click handlers using product-card-carousel.js functions
+        if (typeof window.initializeProductCarousels === 'function') {
+            window.initializeProductCarousels();
+        }
+        if (typeof window.initializeProductCardClicks === 'function') {
+            window.initializeProductCardClicks();
+        }
     }
 
     // Update pagination
@@ -248,18 +329,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Product card click handler - redirect to detail page
+    // Note: Product card click is handled by product-card-carousel.js
+    // But we still need action button handlers here for chat and cart functionality
     document.addEventListener('click', function(e) {
-        const productCard = e.target.closest('.product-card');
+        const chatBtn = e.target.closest('.action-chat');
+        const cartBtn = e.target.closest('.action-cart');
         
-        if (productCard) {
-            const productId = productCard.getAttribute('data-product-id');
-            const productName = productCard.getAttribute('data-product-name');
-            const productPrice = productCard.getAttribute('data-product-price');
-            const productImage = productCard.getAttribute('data-product-image');
-
-            if (productId && productName && productPrice && productImage) {
-                window.location.href = `/public/detail?id=${productId}&name=${encodeURIComponent(productName)}&price=${productPrice}&image=${encodeURIComponent(productImage)}`;
+        if (chatBtn) {
+            e.stopPropagation(); // Prevent card click
+            window.location.href = '/chatbot';
+        } else if (cartBtn) {
+            e.stopPropagation(); // Prevent card click
+            const productId = cartBtn.getAttribute('data-product-id') || 
+                             cartBtn.closest('.product-card')?.getAttribute('data-product-id');
+            if (productId) {
+                // Add to cart logic here
+                console.log('Add to cart:', productId);
+                alert(`Produk ditambahkan ke keranjang! (ID: ${productId})`);
             }
         }
     });
@@ -297,6 +383,85 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Price range slider functionality
+    const priceRangeMin = document.getElementById('price-range-min');
+    const priceRangeMax = document.getElementById('price-range-max');
+    const minPriceInput = document.getElementById('min-price');
+    const maxPriceInput = document.getElementById('max-price');
+    
+    function formatRupiah(value) {
+        return 'Rp ' + parseInt(value).toLocaleString('id-ID');
+    }
+    
+    function parseRupiah(value) {
+        return parseInt(value.replace(/[^0-9]/g, '')) || 0;
+    }
+    
+    if (priceRangeMin && priceRangeMax && minPriceInput && maxPriceInput) {
+        // Update input fields when sliders change
+        priceRangeMin.addEventListener('input', function() {
+            const minVal = parseInt(this.value);
+            const maxVal = parseInt(priceRangeMax.value);
+            
+            if (minVal > maxVal - 50000) {
+                this.value = maxVal - 50000;
+            }
+            
+            minPriceInput.value = formatRupiah(this.value);
+        });
+        
+        priceRangeMax.addEventListener('input', function() {
+            const minVal = parseInt(priceRangeMin.value);
+            const maxVal = parseInt(this.value);
+            
+            if (maxVal < minVal + 50000) {
+                this.value = minVal + 50000;
+            }
+            
+            maxPriceInput.value = formatRupiah(this.value);
+        });
+        
+        // Apply filters when sliders are released
+        priceRangeMin.addEventListener('change', function() {
+            applyFilters();
+        });
+        
+        priceRangeMax.addEventListener('change', function() {
+            applyFilters();
+        });
+        
+        // Update sliders when input fields change
+        minPriceInput.addEventListener('blur', function() {
+            const value = parseRupiah(this.value);
+            const maxVal = parseInt(priceRangeMax.value);
+            
+            if (value < 0) this.value = formatRupiah(0);
+            if (value > maxVal - 50000) this.value = formatRupiah(maxVal - 50000);
+            
+            priceRangeMin.value = parseRupiah(this.value);
+            applyFilters();
+        });
+        
+        maxPriceInput.addEventListener('blur', function() {
+            const value = parseRupiah(this.value);
+            const minVal = parseInt(priceRangeMin.value);
+            
+            if (value > 2500000) this.value = formatRupiah(2500000);
+            if (value < minVal + 50000) this.value = formatRupiah(minVal + 50000);
+            
+            priceRangeMax.value = parseRupiah(this.value);
+            applyFilters();
+        });
+    }
+    
+    // Category and quick filter checkboxes - auto-apply
+    const filterCheckboxes = document.querySelectorAll('input[name="categories[]"], input[name="promo"], input[name="ready"], input[name="custom"]');
+    filterCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            applyFilters();
+        });
+    });
+    
     // Initial pagination handlers (if exists on page load)
     attachPaginationHandlers();
 
@@ -319,3 +484,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Initialize filter toggles
+function initializeFilterToggles() {
+    const filterTitleRows = document.querySelectorAll('.filter-title-row');
+    
+    filterTitleRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.classList.toggle('collapsed');
+        });
+    });
+}

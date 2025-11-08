@@ -103,6 +103,11 @@ class AllProductsManager {
             
             if (data.success) {
                 this.products = data.data;
+                // Debug: Log first product to check variant_images
+                if (this.products.length > 0) {
+                    console.log('Sample product data:', this.products[0]);
+                    console.log('Has variant_images:', this.products[0].variant_images);
+                }
                 this.renderProducts();
                 this.updateResultsCount(data.pagination.total);
                 this.renderPagination(data.pagination);
@@ -126,6 +131,9 @@ class AllProductsManager {
 
         this.hideEmptyState();
         
+        // Clean up existing carousel intervals
+        this.cleanupCarousels(container);
+        
         const template = this.currentView === 'grid' 
             ? document.getElementById('product-card-template')
             : document.getElementById('product-list-template');
@@ -141,17 +149,100 @@ class AllProductsManager {
         });
     }
 
+    cleanupCarousels(container) {
+        // Clear all carousel intervals before re-rendering
+        const imageContainers = container.querySelectorAll('[data-carousel-interval]');
+        imageContainers.forEach(container => {
+            const intervalId = container.dataset.carouselInterval;
+            if (intervalId) {
+                clearInterval(parseInt(intervalId));
+                delete container.dataset.carouselInterval;
+            }
+        });
+    }
+
     populateProductTemplate(template, product) {
         const element = template.querySelector('[data-id]');
         if (!element) return;
 
         element.dataset.id = product.id;
 
-        // Product image
+        // Product image with carousel for variant images
+        const imageContainer = element.querySelector('.product-image-container') || element.querySelector('.list-image');
         const image = element.querySelector('.main-image');
-        if (image) {
-            image.src = product.image ? `/storage/${product.image}` : '/images/placeholder-product.jpg';
-            image.alt = product.name;
+        
+        if (image && imageContainer) {
+            // Check if product has variant images
+            if (product.variant_images && product.variant_images.length > 1) {
+                // Multiple variant images - create carousel
+                let currentIndex = 0;
+                const images = product.variant_images;
+                
+                // Set initial image
+                image.src = images[0];
+                image.alt = product.name;
+                image.style.transition = 'opacity 0.3s ease';
+                
+                // Add indicator dots
+                const dotsContainer = document.createElement('div');
+                dotsContainer.className = 'carousel-dots';
+                const dots = [];
+                images.forEach((_, index) => {
+                    const dot = document.createElement('span');
+                    dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+                    dotsContainer.appendChild(dot);
+                    dots.push(dot);
+                });
+                imageContainer.appendChild(dotsContainer);
+                
+                // Carousel function
+                const updateCarousel = () => {
+                    currentIndex = (currentIndex + 1) % images.length;
+                    
+                    // Fade out
+                    image.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        // Change image
+                        image.src = images[currentIndex];
+                        
+                        // Update dots
+                        dots.forEach((dot, i) => {
+                            dot.classList.toggle('active', i === currentIndex);
+                        });
+                        
+                        // Fade in
+                        image.style.opacity = '1';
+                    }, 300);
+                };
+                
+                // Start carousel
+                const carouselInterval = setInterval(updateCarousel, 2500);
+                
+                // Store interval ID for cleanup
+                imageContainer.dataset.carouselInterval = carouselInterval;
+                
+            } else if (product.variant_images && product.variant_images.length === 1) {
+                // Single variant image
+                image.src = product.variant_images[0];
+                image.alt = product.name;
+            } else if (product.image) {
+                // Fallback to default product image
+                image.src = `/storage/${product.image}`;
+                image.alt = product.name;
+            } else {
+                // No image available - use placeholder
+                image.src = '/images/placeholder-product.jpg';
+                image.alt = product.name;
+                image.onerror = () => {
+                    // If placeholder also fails, show icon
+                    image.style.display = 'none';
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'no-image-placeholder';
+                    placeholder.innerHTML = '<i class="fas fa-image"></i>';
+                    imageContainer.appendChild(placeholder);
+                };
+            }
         }
 
         // Product name

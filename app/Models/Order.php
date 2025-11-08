@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Notifications\Notifiable;
 
 class Order extends Model
 {
+    use Notifiable;
     protected $fillable = [
         'user_id',
         'customer_address_id',
@@ -27,6 +28,11 @@ class Order extends Model
         'processing_at',
         'completed_at',
         'cancelled_at',
+        'approved_at',
+        'rejected_at',
+        'payment_deadline',
+        'va_number',
+        'va_generated_at',
     ];
 
     protected $casts = [
@@ -39,7 +45,28 @@ class Order extends Model
         'processing_at' => 'datetime',
         'completed_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'rejected_at' => 'datetime',
+        'payment_deadline' => 'datetime',
+        'va_generated_at' => 'datetime',
     ];
+
+    /**
+     * Boot method untuk auto-generate order number
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($order) {
+            if (empty($order->order_number)) {
+                // Format: ORD-YYYYMMDD-XXXX
+                $date = date('Ymd');
+                $count = static::whereDate('created_at', today())->count() + 1;
+                $order->order_number = 'ORD-' . $date . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
@@ -56,14 +83,9 @@ class Order extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function items(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
-    }
-
     public function getFormattedTotalAttribute(): string
     {
-        return 'Rp ' . number_format($this->total, 0, ',', '.');
+        return 'Rp ' . number_format((float)$this->total, 0, ',', '.');
     }
 
     public function getStatusLabelAttribute(): string
@@ -101,11 +123,12 @@ class Order extends Model
 
     public function getFormattedPriceAttribute(): string
     {
-        return number_format($this->total, 0, ',', '.');
+        return number_format((float)$this->total, 0, ',', '.');
     }
 
     public function getItemsTotalQuantityAttribute(): int
     {
-        return $this->items()->sum('quantity');
+        // Calculate total quantity from JSON items array
+        return collect($this->items)->sum('quantity');
     }
 }

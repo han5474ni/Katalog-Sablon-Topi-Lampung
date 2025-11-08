@@ -13,6 +13,7 @@ export default defineConfig({
                 // Components
                 'resources/css/components/navbar.css',
                 'resources/css/components/footer.css',
+                'resources/css/components/product-card.css',
                 'resources/js/components/navbar.js',
                 
                 // Admin
@@ -24,13 +25,17 @@ export default defineConfig({
                 'resources/css/admin/management-order.css',
                 'resources/css/admin/user-management.css',
                 'resources/css/admin/product-management.css',
+                'resources/css/admin/modern-add-product.css',
                 'resources/css/admin/all-products.css',
+                'resources/css/admin/chatbot.css',
+                'resources/css/admin/order-list.css',
                 'resources/js/admin/login.js',
                 'resources/js/admin/layout.js',
                 'resources/js/admin/all-products.js',
                 'resources/js/admin/dashboard-charts.js',
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
+                'resources/js/admin/modern-add-product.js',
                 
                 // Auth
                 'resources/css/auth/forgot-password.css',
@@ -42,27 +47,30 @@ export default defineConfig({
                 'resources/css/guest/login.css',
                 'resources/css/guest/product-detail.css',
                 'resources/css/guest/catalog.css',
+                'resources/css/guest/catalog-inline.css',
                 'resources/css/guest/custom-design.css',
                 'resources/css/guest/alamat.css',
                 'resources/css/guest/Pemesanan.css',
+                'resources/css/guest/other-info.css',
+                'resources/css/guest/chatbot.css',
                 'resources/js/guest/home.js',
                 'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
-                'resources/css/guest/all-products.css',
                 'resources/js/guest/product-slider.js',
                 'resources/js/guest/product-detail.js',
                 'resources/js/guest/catalog.js',
+                'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
-                
-                // Components
-                'resources/css/components/footer.css',
                 
                 // Customer
                 'resources/css/customer/shared.css',
                 'resources/css/customer/profile-form.css',
+                'resources/css/customer/all-product.css',
+                'resources/css/customer/Pembayaran.css',
                 'resources/js/customer/chatbot.js',
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
+                'resources/js/customer/notifications.js',
             ],
             refresh: true,
         }),

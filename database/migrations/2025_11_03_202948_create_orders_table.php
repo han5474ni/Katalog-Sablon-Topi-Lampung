@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('customer_address_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('payment_method_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('customer_address_id')->nullable(); // Comment foreign key temporarily
+            $table->unsignedBigInteger('payment_method_id')->nullable(); // Comment foreign key temporarily
             $table->string('order_number')->unique();
             $table->json('items');
             $table->decimal('subtotal', 12, 2);

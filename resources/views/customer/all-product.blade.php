@@ -6,7 +6,7 @@
     <title>LGI Store - Semua Produk</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css', 'resources/css/customer/all-product.css'])
+    @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css', 'resources/css/customer/all-product.css', 'resources/css/components/product-card.css', 'resources/js/guest/catalog.js', 'resources/js/guest/product-card-carousel.js'])
 </head>
 <body>
     @php
@@ -67,31 +67,31 @@
                             </div>
                             <div class="filter-checkbox-list">
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-topi" name="kategori" value="topi" {{ in_array('topi', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-topi" name="categories[]" value="topi" {{ in_array('topi', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-topi">Topi</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-celana" name="kategori" value="celana" {{ in_array('celana', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-celana" name="categories[]" value="celana" {{ in_array('celana', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-celana">Celana</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-polo" name="kategori" value="polo" {{ in_array('polo', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-polo" name="categories[]" value="polo" {{ in_array('polo', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-polo">Polo</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-jaket" name="kategori" value="jaket" {{ in_array('jaket', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-jaket" name="categories[]" value="jaket" {{ in_array('jaket', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-jaket">Jaket</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-jersey" name="kategori" value="jersey" {{ in_array('jersey', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-jersey" name="categories[]" value="jersey" {{ in_array('jersey', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-jersey">Jersey</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-kaos" name="kategori" value="kaos" {{ in_array('kaos', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-kaos" name="categories[]" value="kaos" {{ in_array('kaos', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-kaos">Kaos</label>
                                 </div>
                                 <!-- <div class="checkbox-item">
-                                    <input type="checkbox" id="kategori-lainlain" name="kategori" value="lain-lain" {{ in_array('lain-lain', $selectedCategories, true) ? 'checked' : '' }}>
+                                    <input type="checkbox" id="kategori-lainlain" name="categories[]" value="lain-lain" {{ in_array('lain-lain', $selectedCategories, true) ? 'checked' : '' }}>
                                     <label for="kategori-lainlain">Lain-lain</label>
                                 </div> -->
                             </div>
@@ -123,47 +123,33 @@
 
                 <main class="products-main">
                     <div class="products-header">
-                        <h2>Semua Produk</h2>
-                        <div class="sort-info">
-                            <small id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} Produk.</small>
-                            <div class="sort-select">
-                                <span>Urut berdasarkan:</span>
-                                <div class="select-wrapper">
-                                    <select id="sort-select">
-                                        <option value="most_popular" {{ request('sort') == 'most_popular' ? 'selected' : '' }}>Paling Populer</option>
-                                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
-                                        <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga: Terendah ke Tertinggi</option>
-                                        <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga: Tertinggi ke Terendah</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down"></i>
-                                </div>
+                        <button class="filter-toggle-btn mobile-only" id="filter-toggle-mobile">
+                            <span>Filters</span>
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        
+                        <div class="header-center">
+                            <h2>Semua Produk</h2>
+                            <small class="products-count" id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} Produk</small>
+                        </div>
+                        
+                        <div class="header-right">
+                            <label for="sort-select">Urut berdasarkan:</label>
+                            <div class="select-wrapper">
+                                <select id="sort-select">
+                                    <option value="most_popular" {{ request('sort') == 'most_popular' ? 'selected' : '' }}>Paling Populer</option>
+                                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Harga: Rendah ke Tinggi</option>
+                                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Harga: Tinggi ke Rendah</option>
+                                </select>
+                                <i class="fas fa-chevron-down"></i>
                             </div>
                         </div>
                     </div>
 
                     <div class="products-grid" id="products-grid">
                         @forelse($products as $product)
-                            <div class="product-card"
-                                 data-product-id="{{ $product->id }}"
-                                 data-product-name="{{ $product->name }}"
-                                 data-product-price="{{ $product->formatted_price ?? number_format($product->price, 0, ',', '.') }}"
-                                 data-product-image="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}">
-                                <div class="product-image">
-                                    <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/300x300?text=No+Image' }}"
-                                         alt="{{ $product->name }}"
-                                         onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
-                                    @if($product->custom_design_allowed)
-                                        <div class="product-ribbon">CUSTOM</div>
-                                    @endif
-                                </div>
-                                <div class="product-info">
-                                    <h6 class="product-name">{{ $product->name }}</h6>
-                                    <div class="product-price">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
-                                </div>
-                                <div class="compare-icon">
-                                    <i class="fas fa-comments"></i>
-                                </div>
-                            </div>
+                            <x-product-card :product="$product" />
                         @empty
                             <div class="no-products" style="grid-column: 1 / -1;">
                                 <i class="fas fa-inbox"></i>
@@ -318,13 +304,13 @@
                     ready: document.getElementById('ready-stok')?.checked || false,
                     custom: document.getElementById('kustomisasi')?.checked || false,
                     categories: [],
-                    min_price: document.getElementById('min-price')?.value || '',
-                    max_price: document.getElementById('max-price')?.value || '',
+                    min_price: document.getElementById('price-range-min')?.value || 0,
+                    max_price: document.getElementById('price-range-max')?.value || 2500000,
                     sort: document.getElementById('sort-select')?.value || 'most_popular'
                 };
 
                 // Get selected categories
-                const categoryCheckboxes = document.querySelectorAll('input[name="kategori"]:checked');
+                const categoryCheckboxes = document.querySelectorAll('input[name="categories[]"]:checked');
                 categoryCheckboxes.forEach(cb => {
                     selectedFilters.categories.push(cb.value);
                 });
@@ -408,33 +394,59 @@
 
                 let html = '';
                 products.forEach(product => {
-                    const imageUrl = product.image ? `/storage/${product.image}` : 'https://via.placeholder.com/300x300?text=No+Image';
-                    const customRibbon = product.custom_design_allowed ? '<div class="product-ribbon">CUSTOM</div>' : '';
+                    // Priority: variant_images[0] > product.image > placeholder
+                    let imageUrl = '';
+                    if (product.variant_images && product.variant_images.length > 0) {
+                        imageUrl = product.variant_images[0];
+                    } else if (product.image) {
+                        imageUrl = `/storage/${product.image}`;
+                    }
+                    
+                    const variantImagesJson = JSON.stringify(product.variant_images || []).replace(/'/g, '&#39;');
+                    const customRibbon = product.custom_design_allowed ? '<div class="product-ribbon" aria-hidden="true">CUSTOM</div>' : '';
+                    const imageHtml = imageUrl 
+                        ? `<img class="product-image" src="${imageUrl}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image-placeholder\\'><i class=\\'fas fa-image\\'></i></div>';">`
+                        : `<div class="no-image-placeholder"><i class="fas fa-image"></i></div>`;
+                    
+                    const formattedPrice = product.formatted_price || 'Rp ' + parseInt(product.price).toLocaleString('id-ID');
 
                     html += `
                         <div class="product-card"
                              data-product-id="${product.id}"
+                             data-product-slug="${product.slug || ''}"
                              data-product-name="${product.name}"
-                             data-product-price="${product.formatted_price || 'Rp ' + parseInt(product.price).toLocaleString('id-ID')}"
-                             data-product-image="${imageUrl}">
-                            <div class="product-image">
-                                <img src="${imageUrl}"
-                                     alt="${product.name}"
-                                     onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
+                             data-product-price="${formattedPrice}"
+                             data-product-image="${imageUrl}"
+                             data-variant-images='${variantImagesJson}'>
+                            <div class="product-image-container" data-product-id="${product.id}">
+                                ${imageHtml}
                                 ${customRibbon}
                             </div>
                             <div class="product-info">
-                                <h6 class="product-name">${product.name}</h6>
-                                <div class="product-price">Rp ${parseInt(product.price).toLocaleString('id-ID')}</div>
-                            </div>
-                            <div class="compare-icon">
-                                <i class="fas fa-comments"></i>
+                                <h3 class="product-title">${product.name}</h3>
+                                <p class="product-price">${formattedPrice}</p>
+                                <div class="product-actions" role="group" aria-label="Aksi produk">
+                                    <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                        <i class="fas fa-comments" aria-hidden="true"></i>
+                                    </button>
+                                    <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="${product.id}">
+                                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
                 });
 
                 productsGrid.innerHTML = html;
+                
+                // Re-initialize carousels and click handlers using product-card-carousel.js functions
+                if (typeof window.initializeProductCarousels === 'function') {
+                    window.initializeProductCarousels();
+                }
+                if (typeof window.initializeProductCardClicks === 'function') {
+                    window.initializeProductCardClicks();
+                }
             }
 
             // Function to update pagination

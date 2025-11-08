@@ -3,164 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Life Graphic T-Shirt - Product Detail</title>
-    @vite(['resources/css/guest/catalog.css','resources/css/guest/all-products.css', 'resources/css/components/footer.css'])
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Semua Produk - LGI STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite(['resources/css/guest/catalog.css', 'resources/css/guest/catalog-inline.css', 'resources/css/components/footer.css', 'resources/css/components/product-card.css', 'resources/js/guest/catalog.js', 'resources/js/guest/product-card-carousel.js'])
 </head>
 <body>
     <x-navbar />
 
-    <div class="breadcrumb">
-        <a href="#">< Kembali ke Polo</a>
-    </div>
+    <section class="catalog-breadcrumb">
+        <div class="breadcrumb-container">
+            <a href="{{ route('home') }}" class="breadcrumb-back">
+                <i class="fas fa-chevron-left"></i>
+                Kembali ke beranda
+            </a>
+        </div>
+    </section>
 
-    <div class="container">
-        <div class="product-section">
-            <div class="product-images">
-                <div class="thumbnail-list">
-                    <div class="thumbnail active">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=1" alt="Thumbnail 1">
-                    </div>
-                    <div class="thumbnail">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=2" alt="Thumbnail 2">
-                    </div>
-                    <div class="thumbnail">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=3" alt="Thumbnail 3">
-                    </div>
-                </div>
-                <div class="main-image">
-                    <img src="https://via.placeholder.com/400x400/6b6b47/ffffff?text=One+Life" alt="One Life Graphic T-Shirt">
-                </div>
-            </div>
+    <section class="catalog-section">
+        <div class="container">
+            <div class="content-wrapper-new">
+                <aside class="sidebar">
+                    <div class="filter-container">
+                        <!-- Quick Filters First -->
+                        <div class="filter-section">
+                            <div class="filter-checkbox-list">
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="promo" value="1">
+                                    <span>Dengan diskon</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="ready" value="1">
+                                    <span>Ready stok</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="custom" value="1">
+                                    <span>Kustomisasi</span>
+                                </label>
+                            </div>
+                        </div>
 
-            <div class="product-info">
-                <h1 class="product-title">One Life Graphic T-Shirt</h1>
-                <p class="product-price">Rp 375.000</p>
-                <p class="product-description">Kaos eksklusif dengan desain grafis "One Life" yang terinspirasi dari gaya streetwear modern. Dibuat dengan bahan katun premium 24s, memberikan kenyamanan maksimal sekaligus tampilan yang stylish untuk segala kesempatan.</p>
+                        <!-- Category Filter -->
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Kategori</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="filter-checkbox-list">
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="topi">
+                                    <span>Topi</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="celana">
+                                    <span>Celana</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="polo">
+                                    <span>Polo</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="jaket">
+                                    <span>Jaket</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="jersey">
+                                    <span>Jersey</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="kaos">
+                                    <span>Kaos</span>
+                                </label>
+                            </div>
+                        </div>
 
-                <div class="option-group">
-                    <p class="option-label">Pilih Warna</p>
-                    <div class="color-options">
-                        <div class="color-option color-olive active" title="Olive"></div>
-                        <div class="color-option color-teal" title="Teal"></div>
-                        <div class="color-option color-navy" title="Navy"></div>
+                        <!-- Price Range -->
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Harga</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="price-range-wrapper">
+                                <div class="price-inputs">
+                                    <input type="text" class="price-input" id="min-price" placeholder="Rp 0" value="Rp 0">
+                                    <span class="price-separator">-</span>
+                                    <input type="text" class="price-input" id="max-price" placeholder="Rp 2.500.000" value="Rp 2.500.000">
+                                </div>
+                                <div class="price-slider-container">
+                                    <input type="range" id="price-range-min" min="0" max="2500000" value="0">
+                                    <input type="range" id="price-range-max" min="0" max="2500000" value="2500000">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </aside>
 
-                <div class="option-group">
-                    <p class="option-label">Pilih Ukuran</p>
-                    <div class="size-options">
-                        <div class="size-option">S</div>
-                        <div class="size-option active">M</div>
-                        <div class="size-option">L</div>
-                        <div class="size-option">XL</div>
+                <main class="products-section">
+                    <div class="products-header-inline">
+                        <div class="header-title-section">
+                            <h1 class="page-title-inline">Semua Produk</h1>
+                            <span class="products-count-inline" id="products-count">Menampilkan 1-{{ $products->count() }} dari {{ $products->total() }} Produk</span>
+                        </div>
+                        <div class="header-sort-section">
+                            <label for="sort-select">Urut berdasarkan:</label>
+                            <select class="sort-select" id="sort-select">
+                                <option value="most_popular">Paling Populer</option>
+                                <option value="newest">Terbaru</option>
+                                <option value="price_asc">Harga Terendah</option>
+                                <option value="price_desc">Harga Tertinggi</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="quantity-cart">
-                    <div class="quantity-selector">
-                        <button class="quantity-btn" type="button">-</button>
-                        <span class="quantity-value">1</span>
-                        <button class="quantity-btn" type="button">+</button>
+                    <div class="products-grid" id="products-grid">
+                        @forelse($products as $product)
+                            <x-product-card :product="$product" />
+                        @empty
+                            <div class="no-products">
+                                <i class="fas fa-inbox"></i>
+                                <p>Tidak ada produk ditemukan</p>
+                            </div>
+                        @endforelse
                     </div>
-                    <button class="add-to-cart" type="button">Tambahkan ke Keranjang</button>
-                </div>
+
+                    @if($products->hasPages())
+                        <div class="pagination" id="pagination-container">
+                            @if ($products->onFirstPage())
+                                <button class="pagination-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </button>
+                            @else
+                                <a href="{{ $products->previousPageUrl() }}" class="pagination-btn pagination-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </a>
+                            @endif
+
+                            <div class="pagination-numbers">
+                                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                    @if ($page == $products->currentPage())
+                                        <button class="pagination-number active">{{ $page }}</button>
+                                    @else
+                                        <a href="{{ $url }}" class="pagination-number pagination-link">{{ $page }}</a>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            @if ($products->hasMorePages())
+                                <a href="{{ $products->nextPageUrl() }}" class="pagination-btn pagination-link">
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            @else
+                                <button class="pagination-btn" disabled>
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                </main>
             </div>
         </div>
-
-        <div class="tabs">
-            <div class="tab active">Deskripsi</div>
-            <div class="tab">Detail Produk</div>
-            <div class="tab">Ulasan</div>
-        </div>
-
-        <div class="tab-content">
-            <div class="detail-section">
-                <h3 class="detail-title">Deskripsi Produk</h3>
-                <p class="detail-text">Kaos ini dirancang untuk para pecinta gaya hidup aktif dengan sentuhan urban. Grafis "One Life" menunjukkan sikap berani dan optimis, membuat Anda tampil percaya diri di setiap momen.</p>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">Material dan Perawatan</h3>
-                <ul class="detail-list">
-                    <li>100% katun combed 24s premium</li>
-                    <li>Tahan lama dan tidak mudah melar</li>
-                    <li>Teknik sablon plastisol berkualitas tinggi</li>
-                    <li>Disarankan cuci tangan dengan air dingin</li>
-                </ul>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">Panduan Ukuran</h3>
-                <p class="detail-text">Tersedia dalam ukuran S hingga XL. Silakan cek tabel ukuran untuk memastikan kenyamanan terbaik bagi Anda.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="recommendations">
-        <h2 class="recommendations-title">Rekomendasi Produk Lain</h2>
-        <div class="product-grid">
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/2a3a5a/ffffff?text=Streetwear" alt="Streetwear Series">
-                <div class="product-card-info">
-                    <p class="product-card-title">Streetwear Series Hoodie</p>
-                    <p class="product-card-price">Rp 425.000</p>
-                    <div class="product-actions" role="group" aria-label="Aksi produk">
-                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                            <i class="fas fa-comments" aria-hidden="true"></i>
-                        </button>
-                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
-                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/4a6b6b/ffffff?text=Minimal" alt="Minimal Logo Tee">
-                <div class="product-card-info">
-                    <p class="product-card-title">Minimal Logo Tee</p>
-                    <p class="product-card-price">Rp 295.000</p>
-                    <div class="product-actions" role="group" aria-label="Aksi produk">
-                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                            <i class="fas fa-comments" aria-hidden="true"></i>
-                        </button>
-                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
-                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/6b6b47/ffffff?text=Classic" alt="Classic Varsity Jacket">
-                <div class="product-card-info">
-                    <p class="product-card-title">Classic Varsity Jacket</p>
-                    <p class="product-card-price">Rp 650.000</p>
-                    <div class="product-actions" role="group" aria-label="Aksi produk">
-                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                            <i class="fas fa-comments" aria-hidden="true"></i>
-                        </button>
-                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
-                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/152d5a/ffffff?text=Limited" alt="Limited Edition Cap">
-                <div class="product-card-info">
-                    <p class="product-card-title">Limited Edition Cap</p>
-                    <p class="product-card-price">Rp 175.000</p>
-                    <div class="product-actions" role="group" aria-label="Aksi produk">
-                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
-                            <i class="fas fa-comments" aria-hidden="true"></i>
-                        </button>
-                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang">
-                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <x-guest-footer />
 </body>

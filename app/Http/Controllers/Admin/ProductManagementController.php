@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +36,7 @@ class ProductManagementController extends Controller
     public function getProducts(Request $request)
     {
         try {
-            $query = Product::query();
+            $query = Product::with('variants');
 
             // Filter by search query
             if ($request->filled('search')) {
@@ -71,7 +72,7 @@ class ProductManagementController extends Controller
             }
 
             // Sorting
-            $sortBy = $request->get('sortBy', 'created_at');
+            $sortBy = $request->get('sortBy', 'id');
             $sortOrder = $request->get('sortOrder', 'desc');
             $query->orderBy($sortBy, $sortOrder);
 
@@ -79,9 +80,51 @@ class ProductManagementController extends Controller
             $perPage = $request->get('perPage', 10);
             $products = $query->paginate($perPage);
 
+            // Calculate price range, total stock, and variant images from variants
+            $productsData = collect($products->items())->map(function ($product) {
+                if ($product->variants && $product->variants->count() > 0) {
+                    // Get price range
+                    $prices = $product->variants->pluck('price')->filter();
+                    $minPrice = $prices->min();
+                    $maxPrice = $prices->max();
+                    
+                    // Get total stock
+                    $totalStock = $product->variants->sum('stock');
+                    
+                    // Get variant images for carousel
+                    $variantImages = $product->variants
+                        ->filter(function($v) { return !empty($v->image); })
+                        ->map(function($v) {
+                            return asset('storage/' . $v->image);
+                        })
+                        ->values()
+                        ->toArray();
+                    
+                    // Add computed fields
+                    $product->price_min = $minPrice;
+                    $product->price_max = $maxPrice;
+                    $product->price_range = $minPrice == $maxPrice 
+                        ? "Rp " . number_format($minPrice, 0, ',', '.')
+                        : "Rp " . number_format($minPrice, 0, ',', '.') . " - Rp " . number_format($maxPrice, 0, ',', '.');
+                    $product->total_stock = $totalStock;
+                    $product->variant_images = $variantImages;
+                    $product->variant_count = $product->variants->count();
+                } else {
+                    // Fallback to product's own price and stock
+                    $product->price_min = $product->price;
+                    $product->price_max = $product->price;
+                    $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
+                    $product->total_stock = $product->stock;
+                    $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
+                    $product->variant_count = 0;
+                }
+                
+                return $product;
+            });
+
             return response()->json([
                 'success' => true,
-                'data' => $products->items(),
+                'data' => $productsData->toArray(),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
@@ -105,7 +148,7 @@ class ProductManagementController extends Controller
     public function show($id)
     {
         try {
-            $product = Product::findOrFail($id);
+            $product = Product::with(['variants', 'customDesignPrices'])->findOrFail($id);
             
             return response()->json([
                 'success' => true,
@@ -126,7 +169,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
+            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana,lainnya',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -136,6 +179,8 @@ class ProductManagementController extends Controller
             'sizes' => 'nullable|string',  // JSON string from frontend
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240', // Naikkan limit ke 10MB, akan dikompres otomatis
+            'variant_images' => 'nullable|array',
+            'variant_images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -159,6 +204,12 @@ class ProductManagementController extends Controller
                 'is_active' => $request->get('is_active', true),
                 'custom_design_allowed' => $request->get('custom_design_allowed', false),
             ];
+            
+            // Enforce: Kategori lainnya, topi, celana tidak bisa custom design
+            $noCustomDesignCategories = ['lainnya', 'topi', 'celana'];
+            if (in_array($request->category, $noCustomDesignCategories)) {
+                $data['custom_design_allowed'] = false;
+            }
             
             // Generate slug from name
             $data['slug'] = Str::slug($request->name);
@@ -210,6 +261,48 @@ class ProductManagementController extends Controller
 
             $product = Product::create($data);
 
+            // Handle variants
+            if ($request->filled('variants')) {
+                $variants = json_decode($request->variants, true);
+                
+                // Debug logging
+                \Log::info('Variants data:', ['variants' => $variants]);
+                \Log::info('Has variant_images:', ['has' => $request->hasFile('variant_images')]);
+                if ($request->hasFile('variant_images')) {
+                    \Log::info('Variant images:', ['images' => array_keys($request->file('variant_images'))]);
+                }
+                
+                if (is_array($variants)) {
+                    foreach ($variants as $index => $variantData) {
+                        $variant = [
+                            'product_id' => $product->id,
+                            'color' => $variantData['color'],
+                            'size' => $variantData['size'],
+                            'price' => $variantData['price'] ?? 0,
+                            'original_price' => $variantData['original_price'] ?? null,
+                            'stock' => $variantData['stock'] ?? 0,
+                        ];
+
+                        // Handle variant image - check both array formats
+                        if ($request->hasFile('variant_images')) {
+                            $variantImages = $request->file('variant_images');
+                            if (isset($variantImages[$index]) && $variantImages[$index]) {
+                                \Log::info("Processing image for variant $index");
+                                $variant['image'] = $this->compressAndStoreImage($variantImages[$index], 'variants');
+                                \Log::info("Image saved:", ['path' => $variant['image']]);
+                            } else {
+                                \Log::info("No image found for variant $index");
+                            }
+                        }
+
+                        ProductVariant::create($variant);
+                    }
+                }
+            }
+
+            // Load variants relationship
+            $product->load('variants');
+
             return response()->json([
                 'success' => true,
                 'message' => 'Product created successfully',
@@ -230,7 +323,7 @@ class ProductManagementController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'category' => 'required|in:topi,kaos,sablon,jaket,jersey,tas',
+            'category' => 'required|in:topi,kaos,polo,jaket,jersey,celana,lainnya',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
@@ -239,7 +332,9 @@ class ProductManagementController extends Controller
             'colors' => 'nullable|string', // JSON string from frontend
             'sizes' => 'nullable|string',  // JSON string from frontend
             'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240', // Naikkan limit ke 10MB, akan dikompres otomatis
+            'images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240',
+            'variant_images' => 'nullable|array',
+            'variant_images.*' => 'image|mimes:jpeg,jpg,png,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -251,7 +346,8 @@ class ProductManagementController extends Controller
         }
 
         try {
-            $product = Product::findOrFail($id);
+            // Use lockForUpdate to prevent race conditions
+            $product = Product::lockForUpdate()->findOrFail($id);
             
             // Prepare data
             $data = [
@@ -265,6 +361,12 @@ class ProductManagementController extends Controller
                 'is_active' => $request->get('is_active', $product->is_active),
                 'custom_design_allowed' => $request->get('custom_design_allowed', $product->custom_design_allowed ?? false),
             ];
+            
+            // Enforce: Kategori lainnya, topi, celana tidak bisa custom design
+            $noCustomDesignCategories = ['lainnya', 'topi', 'celana'];
+            if (in_array($request->category, $noCustomDesignCategories)) {
+                $data['custom_design_allowed'] = false;
+            }
 
             // Update slug if name changed
             if ($request->name !== $product->name) {
@@ -318,12 +420,93 @@ class ProductManagementController extends Controller
                 $data['is_active'] = false;
             }
 
-            $product->update($data);
+            // Update product within transaction
+            \DB::transaction(function () use ($product, $data, $request) {
+                $product->update($data);
+
+                // Handle custom design prices
+                if ($request->filled('custom_design_prices') && $data['custom_design_allowed']) {
+                    $customPrices = json_decode($request->custom_design_prices, true);
+                    
+                    if (is_array($customPrices) && count($customPrices) > 0) {
+                        // Prepare sync data with pivot attributes
+                        $syncData = [];
+                        foreach ($customPrices as $priceItem) {
+                            $syncData[$priceItem['custom_design_price_id']] = [
+                                'custom_price' => $priceItem['custom_price'] ?? 0,
+                                'is_active' => $priceItem['is_active'] ?? true,
+                            ];
+                        }
+                        
+                        // Sync (will add new, update existing, remove unselected)
+                        $product->customDesignPrices()->sync($syncData);
+                    } else {
+                        // Clear all if no prices selected
+                        $product->customDesignPrices()->detach();
+                    }
+                } elseif (!$data['custom_design_allowed']) {
+                    // Clear custom design prices if custom design is disabled
+                    $product->customDesignPrices()->detach();
+                }
+
+                // Handle variants update
+                if ($request->filled('variants')) {
+                    // Get old variants to preserve images
+                    $oldVariants = $product->variants()->get()->keyBy(function($item) {
+                        return $item->color . '-' . $item->size;
+                    });
+                    
+                    // Delete old variant images from storage if needed
+                    foreach ($oldVariants as $oldVariant) {
+                        if ($oldVariant->image && Storage::disk('public')->exists($oldVariant->image)) {
+                            // We'll only delete if not being reused
+                        }
+                    }
+                    
+                    // Delete old variants
+                    $product->variants()->delete();
+                    
+                    $variants = json_decode($request->variants, true);
+                    
+                    if (is_array($variants)) {
+                        foreach ($variants as $index => $variantData) {
+                            $variant = [
+                                'product_id' => $product->id,
+                                'color' => $variantData['color'],
+                                'size' => $variantData['size'],
+                                'price' => $variantData['price'] ?? 0,
+                                'original_price' => $variantData['original_price'] ?? null,
+                                'stock' => $variantData['stock'] ?? 0,
+                            ];
+
+                            // Check if new image uploaded
+                            $hasNewImage = false;
+                            if ($request->hasFile('variant_images')) {
+                                $variantImages = $request->file('variant_images');
+                                if (isset($variantImages[$index]) && $variantImages[$index]) {
+                                    $variant['image'] = $this->compressAndStoreImage($variantImages[$index], 'variants');
+                                    $hasNewImage = true;
+                                }
+                            }
+                            
+                            // If no new image, try to keep old image
+                            if (!$hasNewImage) {
+                                $key = $variantData['color'] . '-' . $variantData['size'];
+                                if (isset($oldVariants[$key]) && $oldVariants[$key]->image) {
+                                    $variant['image'] = $oldVariants[$key]->image;
+                                }
+                            }
+
+                            ProductVariant::create($variant);
+                        }
+                    }
+                }
+            });
 
             return response()->json([
                 'success' => true,
                 'message' => 'Product updated successfully',
-                'data' => $product->fresh()
+                'data' => $product->fresh('variants')
             ]);
         } catch (\Exception $e) {
             return response()->json([

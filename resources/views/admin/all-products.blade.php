@@ -104,7 +104,7 @@
 <!-- Product Card Template -->
 <template id="product-card-template">
     <div class="product-card" data-id="">
-        <div class="product-image">
+        <div class="product-image-container">
             <img src="" alt="" class="main-image">
             <div class="product-overlay">
                 <button class="btn-icon view-btn" title="Lihat Detail">
