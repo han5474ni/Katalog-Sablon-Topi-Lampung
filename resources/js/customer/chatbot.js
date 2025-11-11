@@ -1,15 +1,14 @@
 /**
- * Chatbot Page - JavaScript
+ * Chatbot - JavaScript
  * Handles chat functionality and interactions
  */
 
 // DOM Elements
-const chatMessages = document.getElementById('chat-messages');
-const messageInput = document.getElementById('message-input');
-const sendButton = document.getElementById('send-button');
-const typingIndicator = document.getElementById('typing-indicator');
-const menuToggle = document.getElementById('menu-toggle');
-const sidebar = document.querySelector('.chat-sidebar');
+const chatMessages = document.getElementById('chatbotMessages');
+const messageInput = document.getElementById('chatbotInput');
+const sendButton = document.getElementById('chatbotSend');
+const chatbotTrigger = document.getElementById('chatbotTrigger');
+const chatbotPopup = document.getElementById('chatbotPopup');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,120 +19,106 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize Event Listeners
 function initializeEventListeners() {
+    // Chatbot trigger button
+    if (chatbotTrigger) {
+        chatbotTrigger.addEventListener('click', toggleChatbot);
+    }
+
     // Send message on button click
-    sendButton.addEventListener('click', handleSendMessage);
+    if (sendButton) {
+        sendButton.addEventListener('click', handleSendMessage);
+    }
 
     // Send message on Enter key (without Shift)
-    messageInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
+    if (messageInput) {
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+    }
+
+    // Quick reply buttons
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('quick-reply-btn')) {
+            const reply = e.target.getAttribute('data-reply');
+            handleQuickReply(reply);
         }
     });
 
-    // Auto-resize textarea
-    messageInput.addEventListener('input', autoResizeTextarea);
-
-    // Mobile menu toggle
-    menuToggle?.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
+    // Close chatbot on outside click
+    document.addEventListener('click', (e) => {
+        if (chatbotPopup && chatbotTrigger && !chatbotPopup.contains(e.target) && !chatbotTrigger.contains(e.target)) {
+            chatbotPopup.classList.remove('active');
+        }
     });
 
-    // Quick action buttons
-    document.querySelectorAll('.quick-action-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const text = e.currentTarget.textContent.trim();
-            handleQuickAction(text);
-        });
-    });
-
-    // History items
-    document.querySelectorAll('.history-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            document.querySelectorAll('.history-item').forEach(i => {
-                i.classList.remove('history-item-active');
-            });
-            e.currentTarget.classList.add('history-item-active');
-        });
-    });
-
-    // New chat button
-    document.querySelector('.new-chat-btn')?.addEventListener('click', () => {
-        if (confirm('Mulai percakapan baru? Chat saat ini akan disimpan ke riwayat.')) {
-            startNewChat();
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && chatbotPopup && chatbotPopup.classList.contains('active')) {
+            chatbotPopup.classList.remove('active');
         }
     });
 }
 
+// Toggle Chatbot
+function toggleChatbot() {
+    if (chatbotPopup) {
+        chatbotPopup.classList.toggle('active');
+    }
+}
+
 // Handle Send Message
 function handleSendMessage() {
-    const message = messageInput.value.trim();
-    
+    const message = messageInput?.value?.trim();
+
     if (!message) return;
 
     // Add user message
     addMessage(message, 'user');
 
     // Clear input
-    messageInput.value = '';
-    autoResizeTextarea();
-
-    // Show typing indicator
-    showTypingIndicator();
+    if (messageInput) {
+        messageInput.value = '';
+    }
 
     // Simulate bot response
     setTimeout(() => {
-        hideTypingIndicator();
         const botResponse = generateBotResponse(message);
         addMessage(botResponse, 'bot');
-    }, 1500 + Math.random() * 1000);
+    }, 1000 + Math.random() * 1000);
 }
 
 // Add Message to Chat
 function addMessage(text, sender) {
-    const messageGroup = document.createElement('div');
-    messageGroup.className = 'message-group';
+    if (!chatMessages) return;
 
     const message = document.createElement('div');
-    message.className = `message message-${sender}`;
+    message.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
 
-    const time = new Date().toLocaleTimeString('id-ID', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const time = new Date().toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit'
     });
 
     if (sender === 'bot') {
         message.innerHTML = `
-            <div class="message-avatar">
-                <span class="material-icons">support_agent</span>
-            </div>
+            <div class="message-avatar"></div>
             <div class="message-content">
-                <div class="message-bubble">
-                    <p>${text}</p>
-                </div>
-                <span class="message-time">${time}</span>
+                <div class="message-bubble">${text}</div>
             </div>
         `;
     } else {
         message.innerHTML = `
             <div class="message-content">
-                <div class="message-bubble">
-                    <p>${text}</p>
-                </div>
-                <span class="message-time">${time}</span>
+                <div class="message-bubble">${text}</div>
             </div>
-            <div class="message-avatar">
-                <span class="material-icons">account_circle</span>
-            </div>
+            <div class="message-avatar"></div>
         `;
     }
 
-    messageGroup.appendChild(message);
-    
-    // Insert before typing indicator
-    const typingIndicator = document.getElementById('typing-indicator');
-    chatMessages.insertBefore(messageGroup, typingIndicator);
-
+    chatMessages.appendChild(message);
     scrollToBottom();
 }
 
@@ -141,8 +126,18 @@ function addMessage(text, sender) {
 function generateBotResponse(userMessage) {
     const lowerMessage = userMessage.toLowerCase();
 
-    // Simple keyword-based responses
-    if (lowerMessage.includes('harga') || lowerMessage.includes('berapa')) {
+    // Quick reply responses
+    if (lowerMessage.includes('minta ukuran')) {
+        return 'Kami menyediakan berbagai ukuran mulai dari S hingga XXL. Untuk ukuran yang lebih akurat, Anda bisa cek tabel ukuran di halaman detail produk. Apakah Anda ingin saya bantu cek ukuran untuk produk tertentu?';
+    } else if (lowerMessage.includes('minta budget')) {
+        return 'Harga produk kami mulai dari Rp 50.000 hingga Rp 500.000 tergantung jenis dan custom design. Untuk budget spesifik Anda, bisa beritahu saya kisaran harganya dan saya akan rekomendasikan produk yang sesuai!';
+    } else if (lowerMessage.includes('rekomendasi lagi')) {
+        return 'Berdasarkan produk populer saat ini, saya rekomendasikan jersey klub lokal dan topi snapback custom. Ada kategori produk tertentu yang ingin Anda eksplor lebih lanjut?';
+    } else if (lowerMessage.includes('diskon 10%')) {
+        return '🎉 Khusus hari ini! Dapatkan diskon 10% untuk semua produk dengan minimal pembelian Rp 200.000. Gunakan kode: WELCOME10 saat checkout. Tertarik dengan produk apa dulu?';
+
+    // Other keyword-based responses
+    } else if (lowerMessage.includes('harga') || lowerMessage.includes('berapa')) {
         return 'Untuk informasi harga lengkap, Anda bisa mengunjungi halaman katalog kami atau saya bisa membantu mencari produk spesifik yang Anda cari. Produk apa yang ingin Anda ketahui harganya?';
     } else if (lowerMessage.includes('pesan') || lowerMessage.includes('order')) {
         return 'Untuk melakukan pemesanan, Anda bisa menambahkan produk ke keranjang dan lanjut ke checkout. Apakah Anda memerlukan bantuan dalam proses pemesanan?';
@@ -157,10 +152,22 @@ function generateBotResponse(userMessage) {
     }
 }
 
+// Handle Quick Reply
+function handleQuickReply(reply) {
+    // Add user message
+    addMessage(reply, 'user');
+
+    // Simulate bot response based on quick reply
+    setTimeout(() => {
+        const botResponse = generateBotResponse(reply);
+        addMessage(botResponse, 'bot');
+    }, 1000 + Math.random() * 1000);
+}
+
 // Quick Action Handler
 function handleQuickAction(action) {
     let message = '';
-    
+
     if (action.includes('Keranjang')) {
         message = 'Saya ingin cek keranjang belanja saya';
     } else if (action.includes('Status Pesanan')) {
@@ -177,80 +184,11 @@ function handleQuickAction(action) {
     }
 }
 
-// Show Typing Indicator
-function showTypingIndicator() {
-    if (typingIndicator) {
-        typingIndicator.style.display = 'block';
-        scrollToBottom();
-    }
-}
-
-// Hide Typing Indicator
-function hideTypingIndicator() {
-    if (typingIndicator) {
-        typingIndicator.style.display = 'none';
-    }
-}
-
-// Auto Resize Textarea
-function autoResizeTextarea() {
-    messageInput.style.height = 'auto';
-    messageInput.style.height = messageInput.scrollHeight + 'px';
-}
-
 // Scroll to Bottom
 function scrollToBottom() {
-    setTimeout(() => {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, 100);
-}
-
-// Start New Chat
-function startNewChat() {
-    // Clear messages (keep welcome message)
-    const messageGroups = chatMessages.querySelectorAll('.message-group');
-    messageGroups.forEach((group, index) => {
-        if (index > 0) { // Keep first welcome message
-            group.remove();
-        }
-    });
-
-    // Clear input
-    messageInput.value = '';
-    autoResizeTextarea();
-
-    // Add to history
-    const historyList = document.querySelector('.history-list');
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    
-    const newHistoryItem = document.createElement('div');
-    newHistoryItem.className = 'history-item';
-    newHistoryItem.innerHTML = `
-        <span class="material-icons">chat_bubble_outline</span>
-        <div class="history-info">
-            <div class="history-title">Percakapan ${timeStr}</div>
-            <div class="history-time">Baru saja</div>
-        </div>
-    `;
-    
-    // Remove active from all
-    document.querySelectorAll('.history-item').forEach(item => {
-        item.classList.remove('history-item-active');
-    });
-    
-    // Add new item
-    historyList.insertBefore(newHistoryItem, historyList.firstChild);
-    
-    // Focus input
-    messageInput.focus();
-}
-
-// Close sidebar on outside click (mobile)
-document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 1024) {
-        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-            sidebar.classList.remove('active');
-        }
+    if (chatMessages) {
+        setTimeout(() => {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 100);
     }
-});
+}

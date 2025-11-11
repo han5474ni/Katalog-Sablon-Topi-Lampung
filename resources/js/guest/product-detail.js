@@ -405,8 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatBtn = document.querySelector('.chat-btn');
     if (chatBtn) {
         chatBtn.addEventListener('click', () => {
-            // Redirect to chatbot or open chat interface
-            window.location.href = '/chatbot';
+            // Redirect to chatpage (chat bot versi pindah halaman)
+            window.location.href = '/chatpage';
         });
     }
 

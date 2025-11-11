@@ -36,6 +36,13 @@ Route::get('/api/custom-design-prices', [App\Http\Controllers\Admin\CustomDesign
 // API for product-specific custom design prices (for customer page)
 Route::get('/api/product-custom-design-prices/{productId}', [App\Http\Controllers\Admin\CustomDesignPriceController::class, 'getProductPrices'])->name('api.product-custom-design-prices');
 
+// Public chat routes (accessible without authentication)
+Route::get('/chatbot', [CustomerController::class, 'chatbot'])
+    ->name('chatbot');
+
+Route::get('/chatpage', [CustomerController::class, 'chatpage'])
+    ->name('chatpage');
+
 // Customer authenticated routes
 Route::middleware(['auth'])->group(function () {
     // Profile routes (available for both customer and admin viewing)
@@ -45,13 +52,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [CustomerProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
     Route::delete('/profile/avatar', [CustomerProfileController::class, 'deleteAvatar'])->name('profile.delete-avatar');
     Route::post('/profile/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.update-password');
-    
+
     // Address management routes
     Route::post('/profile/address', [CustomerProfileController::class, 'storeAddress'])->name('profile.address.store');
     Route::put('/profile/address/{id}', [CustomerProfileController::class, 'updateAddress'])->name('profile.address.update');
     Route::delete('/profile/address/{id}', [CustomerProfileController::class, 'deleteAddress'])->name('profile.address.delete');
     Route::post('/profile/address/{id}/set-primary', [CustomerProfileController::class, 'setPrimaryAddress'])->name('profile.address.set-primary');
-    
+
     Route::get('/dashboard', [CustomerController::class, 'dashboard'])
         ->name('dashboard');
 
@@ -67,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('cart.remove');
         Route::delete('/keranjang-bulk', [CustomerController::class, 'removeSelected'])
             ->name('cart.bulk-remove');
-        
+
         // Buy Now - Direct order creation
         Route::post('/buy-now', [CustomerController::class, 'buyNow'])
             ->name('buy-now');
@@ -98,10 +105,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('order-list');
         Route::get('/payment-status', [CustomerController::class, 'paymentStatus'])
             ->name('payment-status');
-        
+
         Route::get('/order-detail/{type}/{id}', [CustomerController::class, 'orderDetail'])
             ->name('order-detail');
-        
+
         Route::post('/order/{type}/{id}/cancel', [CustomerController::class, 'cancelOrder'])
             ->name('order.cancel');
 
@@ -118,9 +125,6 @@ Route::middleware(['auth'])->group(function () {
     // Download route - accessible by both customer and admin (outside customer.only middleware)
     Route::get('/custom-design/download/{uploadId}', [CustomerController::class, 'downloadCustomDesignFile'])
         ->name('custom-design.download');
-
-    Route::get('/chatbot', [CustomerController::class, 'chatbot'])
-        ->name('chatbot');
 
     Route::post('/logout', function () {
         Auth::logout();

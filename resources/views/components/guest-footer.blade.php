@@ -41,7 +41,37 @@
     </div>
 </footer>
 
-<!-- Chat Button -->
-<div class="chat-btn">
-    <i class="fas fa-comment"></i>
+<!-- Chat Popup Modal -->
+<div class="chat-popup" id="chat-popup">
+    <div class="chat-popup-overlay"></div>
+    <div class="chat-popup-content">
+        <div class="chat-popup-header">
+            <h3>Hubungi Kami</h3>
+            <button class="chat-popup-close" aria-label="Tutup chat">&times;</button>
+        </div>
+        <div class="chat-popup-body">
+            <p>Halo! Ada yang bisa kami bantu? Pilih cara menghubungi kami:</p>
+            <div class="chat-options">
+                <a href="https://wa.me/6282178396916?text=Halo, saya tertarik dengan produk LGI Store" class="chat-option whatsapp" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </a>
+                <a href="https://instagram.com/lgi_store" class="chat-option instagram" target="_blank">
+                    <i class="fab fa-instagram"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="tel:+6282178396916" class="chat-option phone">
+                    <i class="fas fa-phone"></i>
+                    <span>Telepon</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Floating Chat Button -->
+<button class="chat-btn" id="chat-btn" aria-label="Buka chat">
+    <i class="fas fa-comment-dots"></i>
+</button>
+
+

@@ -12,8 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modify enum to include 'approved' and 'rejected' statuses
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        // For SQLite, we need to recreate the table since SQLite doesn't support MODIFY COLUMN
+        Schema::table('orders', function (Blueprint $table) {
+            $table->enum('status', ['pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled'])->default('pending')->change();
+        });
     }
 
     /**
@@ -22,6 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         // Revert to original enum values
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'processing', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'");
+        Schema::table('orders', function (Blueprint $table) {
+            $table->enum('status', ['pending', 'processing', 'completed', 'cancelled'])->default('pending')->change();
+        });
     }
 };

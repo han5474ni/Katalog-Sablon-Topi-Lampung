@@ -12,18 +12,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Update orders table payment_status enum
-        DB::statement("ALTER TABLE orders MODIFY payment_status ENUM('unpaid','va_active','paid','failed','refunded') NOT NULL DEFAULT 'unpaid'");
-        
+        // For SQLite, use Schema::table with change() method
+        Schema::table('orders', function (Blueprint $table) {
+            $table->enum('payment_status', ['unpaid', 'va_active', 'paid', 'failed', 'refunded'])->default('unpaid')->change();
+        });
+
         // Check if custom_design_orders has payment_status column
-        $columns = DB::select("SHOW COLUMNS FROM custom_design_orders WHERE Field = 'payment_status'");
-        
-        if (empty($columns)) {
-            // Add payment_status column if it doesn't exist
-            DB::statement("ALTER TABLE custom_design_orders ADD COLUMN payment_status ENUM('unpaid','va_active','paid','failed','refunded') NOT NULL DEFAULT 'unpaid' AFTER status");
+        if (!Schema::hasColumn('custom_design_orders', 'payment_status')) {
+            Schema::table('custom_design_orders', function (Blueprint $table) {
+                $table->enum('payment_status', ['unpaid', 'va_active', 'paid', 'failed', 'refunded'])->default('unpaid')->after('status');
+            });
         } else {
-            // Update existing column
-            DB::statement("ALTER TABLE custom_design_orders MODIFY payment_status ENUM('unpaid','va_active','paid','failed','refunded') NOT NULL DEFAULT 'unpaid'");
+            Schema::table('custom_design_orders', function (Blueprint $table) {
+                $table->enum('payment_status', ['unpaid', 'va_active', 'paid', 'failed', 'refunded'])->default('unpaid')->change();
+            });
         }
     }
 
@@ -33,9 +35,13 @@ return new class extends Migration
     public function down(): void
     {
         // Revert orders table
-        DB::statement("ALTER TABLE orders MODIFY payment_status ENUM('unpaid','paid','failed','refunded') NOT NULL DEFAULT 'unpaid'");
-        
+        Schema::table('orders', function (Blueprint $table) {
+            $table->enum('payment_status', ['unpaid', 'paid', 'failed', 'refunded'])->default('unpaid')->change();
+        });
+
         // Revert custom_design_orders table
-        DB::statement("ALTER TABLE custom_design_orders MODIFY payment_status ENUM('unpaid','paid','failed','refunded') NOT NULL DEFAULT 'unpaid'");
+        Schema::table('custom_design_orders', function (Blueprint $table) {
+            $table->enum('payment_status', ['unpaid', 'paid', 'failed', 'refunded'])->default('unpaid')->change();
+        });
     }
 };

@@ -105,10 +105,63 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Chat button click handler - redirect to chatbot page
-const chatBtn = document.querySelector('.chat-btn');
+// Chat popup functionality
+const chatBtn = document.getElementById('chat-btn');
+const chatPopup = document.getElementById('chat-popup');
+const chatPopupClose = document.querySelector('.chat-popup-close');
+const chatPopupOverlay = document.querySelector('.chat-popup-overlay');
+
+// Function to show chat popup
+function showChatPopup() {
+    if (chatPopup) {
+        chatPopup.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+    }
+}
+
+// Function to hide chat popup
+function hideChatPopup() {
+    if (chatPopup) {
+        chatPopup.classList.remove('show');
+        document.body.style.overflow = ''; // Restore scroll
+    }
+}
+
+// Chat button click handler - show popup
 if (chatBtn) {
-    chatBtn.addEventListener('click', function() {
-        window.location.href = '/chatbot';
+    chatBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showChatPopup();
     });
+}
+
+// Close popup when clicking close button
+if (chatPopupClose) {
+    chatPopupClose.addEventListener('click', function() {
+        hideChatPopup();
+    });
+}
+
+// Close popup when clicking overlay
+if (chatPopupOverlay) {
+    chatPopupOverlay.addEventListener('click', function() {
+        hideChatPopup();
+    });
+}
+
+// Close popup on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && chatPopup && chatPopup.classList.contains('show')) {
+        hideChatPopup();
+    }
+});
+
+// Prevent popup from closing when clicking inside content
+if (chatPopup) {
+    const chatPopupContent = document.querySelector('.chat-popup-content');
+    if (chatPopupContent) {
+        chatPopupContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
 }

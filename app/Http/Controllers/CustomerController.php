@@ -75,6 +75,14 @@ class CustomerController extends Controller
     }
 
     /**
+     * Display chatpage page
+     */
+    public function chatpage()
+    {
+        return view('customer.chatpage');
+    }
+
+    /**
      * Buy Now - Create order directly without cart
      */
     public function buyNow(Request $request)

@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->timestamp('approved_at')->nullable()->after('cancelled_at');
-            $table->timestamp('rejected_at')->nullable()->after('approved_at');
+            if (!Schema::hasColumn('orders', 'approved_at')) {
+                $table->timestamp('approved_at')->nullable()->after('cancelled_at');
+            }
+            if (!Schema::hasColumn('orders', 'rejected_at')) {
+                $table->timestamp('rejected_at')->nullable()->after('approved_at');
+            }
         });
     }
 
