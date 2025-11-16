@@ -366,5 +366,56 @@
         }
     </script>
 
+    <!-- Chatbot Trigger Button -->
+    <button class="chatbot-trigger" id="chatbotTrigger">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
+
+    <!-- Chatbot Popup -->
+    <div class="chatbot-popup" id="chatbotPopup">
+        <!-- Chatbot Header -->
+        <div class="chatbot-header">
+            <div class="chatbot-avatar"></div>
+            <div class="chatbot-info">
+                <div class="chatbot-name">LGI STORE</div>
+                <div class="chatbot-status">Online - Balas Cepat</div>
+            </div>
+        </div>
+
+        <div class="chatbot-container">
+            <!-- Chatbot Messages -->
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot-message">
+                    <div class="message-avatar"></div>
+                    <div class="message-content">
+                        <div class="message-bubble">Hallo saya asisten belanja, mau cari produk apa hari ini?</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chatbot Input -->
+            <div class="chatbot-input-wrapper">
+                <div class="quick-replies">
+                    <button class="quick-reply-btn" data-reply="Minta ukuran">Minta ukuran</button>
+                    <button class="quick-reply-btn" data-reply="Minta budget">Minta budget</button>
+                    <button class="quick-reply-btn" data-reply="Rekomendasi lagi">Rekomendasi lagi</button>
+                    <button class="quick-reply-btn" data-reply="Diskon 10%">Diskon 10%</button>
+                </div>
+                <div class="chatbot-input-container">
+                    <input
+                        type="text"
+                        class="chatbot-input"
+                        id="chatbotInput"
+                        placeholder="Ketik balasan..."
+                    >
+                    <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @vite(['resources/css/guest/chatbot.css', 'resources/js/customer/chatbot.js'])
 </body>
 </html>

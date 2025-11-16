@@ -29,10 +29,10 @@
             <span class="material-icons mr-3">palette</span>
             Desain Kustom
         </a>
-        <a href="{{ route('chatbot') }}"
-           class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'chatbot' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
+        <a href="{{ route('chatpage') }}"
+           class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'chatpage' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
             <span class="material-icons mr-3">chat</span>
-            Bantuan
+            Chatbot
         </a>
         <a href="{{ route('profile') }}"
            class="flex items-center p-3 rounded-lg mb-2 {{ $active === 'profile' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">

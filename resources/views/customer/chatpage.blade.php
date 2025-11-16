@@ -5,34 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chat - LGI Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/guest/chatpage.css', 'resources/js/customer/chatbot.js'])
+    @vite(['resources/css/guest/chatpage.css', 'resources/css/customer/shared.css', 'resources/js/customer/chatbot.js'])
 </head>
-<body class="chatpage-body">
-    <!-- Header -->
-    <header class="chatpage-header">
-        <div class="chatpage-container">
-            <div class="chatpage-header-content">
-                <a href="{{ route('home') }}" class="chatpage-back-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Kembali ke Beranda</span>
-                </a>
-                <div class="chatpage-title">
-                    <div class="chatpage-avatar">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="chatpage-info">
-                        <h1>LGI STORE</h1>
-                        <span class="chatpage-status">Online - Balas Cepat</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+<body class="bg-slate-50">
+    <div class="flex h-screen">
+        <x-customer-sidebar active="chatpage" />
 
-    <!-- Chat Container -->
-    <div class="chatpage-container">
-        <div class="chatpage-chat">
+        <div class="flex-1 overflow-auto">
+            <x-customer-header title="Chatbot" />
+
+            <!-- Chat Container -->
+            <div class="p-4 md:p-8">
+                <div class="chatpage-container">
+                    <div class="chatpage-chat">
             <!-- Chat Messages -->
             <div class="chatpage-messages" id="chatbotMessages">
                 <div class="message bot-message">
@@ -93,6 +81,9 @@
                         <i class="fas fa-circle"></i>
                         LGI Store sedang mengetik...
                     </span>
+                </div>
+            </div>
+                    </div>
                 </div>
             </div>
         </div>
