@@ -71,6 +71,9 @@ export default defineConfig({
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
                 'resources/js/customer/notifications.js',
+
+                'resources/css/components/chatbot.css',
+                'resources/js/chatbot/product-chatbot.js'
             ],
             refresh: true,
         }),

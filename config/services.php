@@ -48,4 +48,11 @@ return [
         'is_sanitized' => env('MIDTRANS_IS_SANITIZED', true),
         'is_3ds' => env('MIDTRANS_IS_3DS', true),
     ],
+
+    // 'n8n' => [
+    // 'webhook' => env('N8N_WEBHOOK_URL', 'http://localhost:5678/webhook-test/chatbot'),
+    // ],
+    'n8n' => [
+    'webhook_url' => env('N8N_WEBHOOK_URL', 'http://localhost:5678/webhook/chatbot'),
+    ],
 ];

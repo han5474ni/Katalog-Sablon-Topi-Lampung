@@ -187,12 +187,6 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">📦</div>
                     <p>Belum ada data harga. Klik "Initialize Default Prices" untuk memulai.</p>
-                    <form action="{{ route('admin.custom-design-prices.init') }}" method="POST" style="margin-top: 20px;">
-                        @csrf
-                        <button type="submit" class="save-btn" style="padding: 12px 24px; font-size: 16px;">
-                            <i class="fas fa-magic"></i> Initialize Default Prices
-                        </button>
-                    </form>
                 </div>
             @else
                 <table class="price-table">
@@ -253,12 +247,6 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">📦</div>
                     <p>Belum ada data harga. Klik "Initialize Default Prices" untuk memulai.</p>
-                    <form action="{{ route('admin.custom-design-prices.init') }}" method="POST" style="margin-top: 20px;">
-                        @csrf
-                        <button type="submit" class="save-btn" style="padding: 12px 24px; font-size: 16px;">
-                            <i class="fas fa-magic"></i> Initialize Default Prices
-                        </button>
-                    </form>
                 </div>
             @else
                 <table class="price-table">

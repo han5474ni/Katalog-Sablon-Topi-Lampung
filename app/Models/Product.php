@@ -213,4 +213,9 @@ class Product extends Model
             'custom_design_price_id'
         )->withPivot('custom_price', 'is_active')->withTimestamps();
     }
+
+    public function chatConversations()
+    {
+        return $this->hasMany(ChatConversation::class);
+    }
 }
