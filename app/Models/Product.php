@@ -85,6 +85,12 @@ class Product extends Model
         });
     }
 
+    // Relationship to ProductVariant
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
     public function scopeFilterByColors($query, array $colors)
     {
         return $query->where(function($q) use ($colors) {
@@ -195,12 +201,6 @@ class Product extends Model
         }
         
         return $images;
-    }
-
-    // Relationship to ProductVariant
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
     }
 
     // Relationship to CustomDesignPrices (Many-to-Many)

@@ -13,7 +13,32 @@ class ChatConversation extends Model
         'user_id', 
         'product_id', 
         'status', 
-        'subject'
+        'subject',
+        'admin_id',
+        'is_escalated',
+        'escalated_at',
+        'escalation_reason',
+        'taken_over_by_admin',
+        'taken_over_at',
+        'needs_admin_response',
+        'needs_response_since',
+        'is_admin_active',
+        'keywords',
+        'subcategory_id',
+        'chat_source',
+        'expires_at'
+    ];
+
+    protected $casts = [
+        'is_escalated' => 'boolean',
+        'taken_over_by_admin' => 'boolean',
+        'needs_admin_response' => 'boolean',
+        'is_admin_active' => 'boolean',
+        'keywords' => 'array',
+        'escalated_at' => 'datetime',
+        'taken_over_at' => 'datetime',
+        'needs_response_since' => 'datetime',
+        'expires_at' => 'datetime'
     ];
 
     public function user()
@@ -26,13 +51,42 @@ class ChatConversation extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
+
     public function messages()
     {
-        return $this->hasMany(ChatMessage::class);
+        return $this->hasMany(ChatMessage::class, 'conversation_id', 'id');
     }
 
     public function latestMessage()
     {
-        return $this->hasOne(ChatMessage::class)->latest();
+        return $this->hasOne(ChatMessage::class, 'conversation_id', 'id')->latest();
+    }
+
+    /**
+     * Check if conversation is currently being handled by admin
+     */
+    public function isActivelyHandledByAdmin(): bool
+    {
+        return $this->taken_over_by_admin && $this->admin_id !== null;
+    }
+
+    /**
+     * Get admin handling this conversation
+     */
+    public function getHandlingAdmin()
+    {
+        return $this->admin;
+    }
+
+    /**
+     * Check if customer needs immediate admin response
+     */
+    public function isWaitingForAdminResponse(): bool
+    {
+        return $this->needs_admin_response && $this->is_escalated;
     }
 }

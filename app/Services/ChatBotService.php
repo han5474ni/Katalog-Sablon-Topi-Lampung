@@ -249,6 +249,159 @@ class ChatBotService
     }
 
     /**
+     * Get fresh stock information including available colors and sizes
+     * This method filters colors and sizes to only show those with stock > 0
+     * 
+     * @param int $productId
+     * @return array
+     */
+    public function getProductStockInfo($productId)
+    {
+        try {
+            $product = Product::with('variants')->findOrFail($productId);
+            
+            $availableColors = [];
+            $availableSizes = [];
+            $totalVariantStock = 0;
+            $availableVariantCount = 0;
+            
+            // DEBUG: Log product data
+            Log::info('🔍 getProductStockInfo: Querying product', [
+                'product_id' => $productId,
+                'product_name' => $product->name,
+                'has_variants' => $product->variants ? count($product->variants) : 0,
+                'base_stock' => $product->stock,
+                'base_colors' => $product->colors,
+                'base_sizes' => $product->sizes
+            ]);
+            
+            // Process variants to get available colors and sizes
+            if ($product->variants && count($product->variants) > 0) {
+                foreach ($product->variants as $variant) {
+                    if (!isset($variant->stock)) continue; // Skip if no stock value
+                    
+                    $variantStock = intval($variant->stock);
+                    $totalVariantStock += $variantStock;
+                    
+                    Log::debug('Variant stock check', [
+                        'variant_id' => $variant->id,
+                        'color' => $variant->color,
+                        'size' => $variant->size,
+                        'stock' => $variantStock
+                    ]);
+                    
+                    if ($variantStock > 0) {
+                        $availableVariantCount++;
+                        
+                        // Add color if not already in list
+                        if ($variant->color) {
+                            $cleanColor = trim($variant->color);
+                            if (!in_array($cleanColor, $availableColors)) {
+                                $availableColors[] = $cleanColor;
+                                Log::debug('Color added', ['color' => $cleanColor]);
+                            }
+                        }
+                        
+                        // Add size if not already in list
+                        if ($variant->size) {
+                            $cleanSize = trim($variant->size);
+                            if (!in_array($cleanSize, $availableSizes)) {
+                                $availableSizes[] = $cleanSize;
+                                Log::debug('Size added', ['size' => $cleanSize]);
+                            }
+                        }
+                    }
+                }
+                
+                Log::info('✓ Variants processed successfully', [
+                    'total_variant_stock' => $totalVariantStock,
+                    'available_variants' => $availableVariantCount,
+                    'available_colors_count' => count($availableColors),
+                    'available_sizes_count' => count($availableSizes),
+                    'available_colors' => $availableColors,
+                    'available_sizes' => $availableSizes
+                ]);
+            } else {
+                Log::info('⚠ No variants found, will use fallback colors/sizes');
+            }
+            
+            // If no variants with stock, fall back to product colors/sizes
+            if (empty($availableColors) && $product->colors) {
+                $availableColors = is_array($product->colors) ? 
+                    array_map('trim', $product->colors) : 
+                    [trim($product->colors)];
+                Log::info('Using fallback colors from Product', ['colors' => $availableColors]);
+            }
+            
+            if (empty($availableSizes) && $product->sizes) {
+                $availableSizes = is_array($product->sizes) ? 
+                    array_map('trim', $product->sizes) : 
+                    [trim($product->sizes)];
+                Log::info('Using fallback sizes from Product', ['sizes' => $availableSizes]);
+            }
+            
+            return [
+                'success' => true,
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'stock' => $product->stock,  // Base product stock
+                'total_variant_stock' => $totalVariantStock,  // Total from all variants
+                'colors' => $availableColors,  // Only colors with stock > 0
+                'sizes' => $availableSizes,  // Only sizes with stock > 0
+                'color_count' => count($availableColors),
+                'size_count' => count($availableSizes),
+                'total_variants' => $product->variants ? count($product->variants) : 0,
+                'available_variants' => $availableVariantCount,
+                'is_in_stock' => $product->stock > 0 || $totalVariantStock > 0
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('❌ Error getting product stock info: ' . $e->getMessage(), [
+                'product_id' => $productId,
+                'exception' => $e
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => 'Produk tidak ditemukan atau terjadi error',
+                'product_id' => $productId,
+                'exception_message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Prepare product data for N8N webhook with fresh stock information
+     * 
+     * @param array $productData - Basic product data from request
+     * @return array - Enhanced product data with fresh stock info
+     */
+    public function enrichProductDataWithFreshStock(array $productData): array
+    {
+        // Jika ada product_id, query fresh stock data
+        if (isset($productData['id'])) {
+            $stockInfo = $this->getProductStockInfo($productData['id']);
+            
+            if ($stockInfo['success']) {
+                // Update product data dengan fresh stock info
+                $productData['stock'] = $stockInfo['stock'];
+                $productData['total_variant_stock'] = $stockInfo['total_variant_stock'];
+                $productData['colors'] = $stockInfo['colors'];
+                $productData['sizes'] = $stockInfo['sizes'];
+                $productData['is_in_stock'] = $stockInfo['is_in_stock'];
+                $productData['metadata'] = [
+                    'stock_queried_at' => now()->toIso8601String(),
+                    'available_colors_count' => $stockInfo['color_count'],
+                    'available_sizes_count' => $stockInfo['size_count'],
+                    'available_variants' => $stockInfo['available_variants']
+                ];
+            }
+        }
+        
+        return $productData;
+    }
+
+    /**
      * TEST METHOD: Direct n8n test tanpa database operations
      */
     public function testN8nConnection($testMessage = 'test connection')
@@ -336,6 +489,271 @@ class ChatBotService
             return [
                 'success' => false,
                 'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Send message when admin takes over conversation
+     * This disables bot responses and uses admin manual responses instead
+     */
+    public function handleAdminTakeover($conversationId, $adminId)
+    {
+        try {
+            $conversation = ChatConversation::find($conversationId);
+            
+            if (!$conversation) {
+                return [
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ];
+            }
+
+            $conversation->update([
+                'taken_over_by_admin' => true,
+                'admin_id' => $adminId,
+                'is_admin_active' => true,
+                'taken_over_at' => now()
+            ]);
+
+            // Create system notification
+            ChatMessage::create([
+                'conversation_id' => $conversationId,
+                'sender_type' => 'system',
+                'message' => '👤 Admin sedang membantu Anda. Chatbot otomatis dinonaktifkan.',
+                'metadata' => [
+                    'system_notification' => true,
+                    'type' => 'admin_takeover',
+                    'admin_id' => $adminId
+                ]
+            ]);
+
+            Log::info('Admin takeover handled', [
+                'conversation_id' => $conversationId,
+                'admin_id' => $adminId
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Admin telah mengambil alih konversasi'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error handling admin takeover: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal mengambil alih konversasi'
+            ];
+        }
+    }
+
+    /**
+     * Send admin response to customer
+     */
+    public function sendAdminResponse($conversationId, $adminId, $message)
+    {
+        try {
+            $conversation = ChatConversation::find($conversationId);
+            
+            if (!$conversation) {
+                return [
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ];
+            }
+
+            // Save admin message
+            $adminMessage = ChatMessage::create([
+                'conversation_id' => $conversationId,
+                'sender_type' => 'admin',
+                'message' => $message,
+                'is_admin_reply' => true,
+                'is_read_by_user' => false
+            ]);
+
+            // Update conversation
+            $conversation->update([
+                'taken_over_by_admin' => true,
+                'admin_id' => $adminId,
+                'is_admin_active' => true,
+                'needs_admin_response' => false,
+                'needs_response_since' => null
+            ]);
+
+            Log::info('Admin response sent', [
+                'conversation_id' => $conversationId,
+                'message_id' => $adminMessage->id,
+                'admin_id' => $adminId
+            ]);
+
+            return [
+                'success' => true,
+                'message' => $adminMessage,
+                'conversation' => $conversation
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error sending admin response: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim pesan'
+            ];
+        }
+    }
+
+    /**
+     * Notify customer that they need immediate admin response
+     * This shows a notification to admin that customer needs help
+     */
+    public function notifyCustomerNeedsResponse($conversationId, $reason = null)
+    {
+        try {
+            $conversation = ChatConversation::find($conversationId);
+            
+            if (!$conversation) {
+                return [
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ];
+            }
+
+            $conversation->update([
+                'is_escalated' => true,
+                'escalated_at' => now(),
+                'needs_admin_response' => true,
+                'needs_response_since' => now(),
+                'escalation_reason' => $reason ?? 'Customer requested immediate admin response'
+            ]);
+
+            // Create system notification
+            ChatMessage::create([
+                'conversation_id' => $conversationId,
+                'sender_type' => 'system',
+                'message' => '🔔 Admin sedang diberitahu untuk membantu Anda',
+                'metadata' => [
+                    'system_notification' => true,
+                    'type' => 'escalation_notification',
+                    'reason' => $reason
+                ]
+            ]);
+
+            Log::info('Customer needs response notification sent', [
+                'conversation_id' => $conversationId,
+                'reason' => $reason
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Admin telah diberitahu'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error notifying needs response: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim notifikasi'
+            ];
+        }
+    }
+
+    /**
+     * Toggle chatbot enabled/disabled status for a conversation
+     */
+    public function toggleChatbotStatus($conversationId, $enabled = true)
+    {
+        try {
+            $conversation = ChatConversation::find($conversationId);
+            
+            if (!$conversation) {
+                return [
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ];
+            }
+
+            $conversation->update([
+                'is_admin_active' => !$enabled  // is_admin_active means manual, not bot
+            ]);
+
+            $status = $enabled ? 'enabled' : 'disabled';
+            
+            ChatMessage::create([
+                'conversation_id' => $conversationId,
+                'sender_type' => 'system',
+                'message' => "Chatbot otomatis telah di-{$status}",
+                'metadata' => [
+                    'system_notification' => true,
+                    'type' => 'chatbot_toggle',
+                    'status' => $status
+                ]
+            ]);
+
+            Log::info('Chatbot status toggled', [
+                'conversation_id' => $conversationId,
+                'enabled' => $enabled
+            ]);
+
+            return [
+                'success' => true,
+                'message' => "Chatbot telah di-{$status}",
+                'status' => $status
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error toggling chatbot status: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal mengubah status chatbot'
+            ];
+        }
+    }
+
+    /**
+     * Release conversation back to bot
+     */
+    public function releaseConversationToBot($conversationId)
+    {
+        try {
+            $conversation = ChatConversation::find($conversationId);
+            
+            if (!$conversation) {
+                return [
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ];
+            }
+
+            $conversation->update([
+                'taken_over_by_admin' => false,
+                'is_admin_active' => false,
+                'admin_id' => null,
+                'taken_over_at' => null
+            ]);
+
+            ChatMessage::create([
+                'conversation_id' => $conversationId,
+                'sender_type' => 'system',
+                'message' => 'Chatbot otomatis telah mengambil alih kembali',
+                'metadata' => [
+                    'system_notification' => true,
+                    'type' => 'bot_resumed'
+                ]
+            ]);
+
+            Log::info('Conversation released back to bot', [
+                'conversation_id' => $conversationId
+            ]);
+
+            return [
+                'success' => true,
+                'message' => 'Conversation released to bot'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error('Error releasing conversation to bot: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Gagal melepaskan ke bot'
             ];
         }
     }

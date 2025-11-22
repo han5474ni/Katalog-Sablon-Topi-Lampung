@@ -38,6 +38,14 @@
         .admin-message {
             background: #28a745;
             color: white;
+            margin-left: auto;
+        }
+        .system-message {
+            background: #f1c40f;
+            color: #333;
+            text-align: center;
+            margin: 10px auto;
+            font-size: 0.85em;
         }
         .template-question {
             cursor: pointer;
@@ -65,9 +73,14 @@
                             - {{ $productData['name'] }}
                         @endif
                     </h5>
-                    <a href="{{ route('chat.history') }}" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-history"></i> History
-                    </a>
+                    <div>
+                        <a href="{{ route('chat.history') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-history"></i> History
+                        </a>
+                        <button type="button" class="btn btn-sm btn-warning" id="requestAdminBtn">
+                            <i class="fas fa-headset"></i> Minta Bantuan Admin
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="card-body">
@@ -110,17 +123,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const conversationId = {{ $conversation->id }};
+        let pollInterval = null;
+        let lastMessageTime = null;
         
-        // Load chat history
+        // Load chat history dari server dan localStorage
         function loadChatHistory() {
             fetch(`/chat/conversation/${conversationId}`)
                 .then(response => response.json())
                 .then(data => {
-                    displayMessages(data.messages);
+                    if (data && data.messages) {
+                        // Store in localStorage
+                        localStorage.setItem(`chat_history_${conversationId}`, JSON.stringify(data.messages));
+                        displayMessages(data.messages);
+                        
+                        // Update last message time
+                        if (data.messages.length > 0) {
+                            lastMessageTime = new Date(data.messages[data.messages.length - 1].created_at);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading history:', error);
+                    // Fallback to localStorage
+                    const cached = localStorage.getItem(`chat_history_${conversationId}`);
+                    if (cached) {
+                        displayMessages(JSON.parse(cached));
+                    }
                 });
         }
 
-        // Display messages
+        // Display messages with support for all sender types
         function displayMessages(messages) {
             const chatMessages = document.getElementById('chatMessages');
             chatMessages.innerHTML = '';
@@ -137,15 +169,55 @@
 
             messages.forEach(message => {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.sender_type}-message`;
+                
+                // Determine message class based on sender_type
+                let senderClass = 'bot-message'; // default
+                if (message.sender_type === 'user') {
+                    senderClass = 'user-message';
+                } else if (message.sender_type === 'admin') {
+                    senderClass = 'admin-message';
+                } else if (message.sender_type === 'system') {
+                    senderClass = 'system-message';
+                }
+                
+                messageDiv.className = `message ${senderClass}`;
+                
+                // Add sender label for admin messages
+                let senderLabel = '';
+                if (message.sender_type === 'admin') {
+                    senderLabel = '<small style="display: block; margin-bottom: 5px; opacity: 0.8;">👤 Admin</small>';
+                } else if (message.sender_type === 'system') {
+                    senderLabel = '<small style="display: block; margin-bottom: 5px; opacity: 0.8;">ℹ️ Sistem</small>';
+                }
+                
                 messageDiv.innerHTML = `
+                    ${senderLabel}
                     <div class="message-content">${message.message}</div>
-                    <small class="message-time">${new Date(message.created_at).toLocaleTimeString()}</small>
+                    <small class="message-time">${new Date(message.created_at).toLocaleTimeString('id-ID')}</small>
                 `;
                 chatMessages.appendChild(messageDiv);
             });
 
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Poll for new messages
+        function pollForNewMessages() {
+            fetch(`/chat/conversation/${conversationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.messages) {
+                        // Store in localStorage
+                        localStorage.setItem(`chat_history_${conversationId}`, JSON.stringify(data.messages));
+                        
+                        // Check if there are new messages
+                        const currentMessages = document.querySelectorAll('.message');
+                        if (data.messages.length > currentMessages.length) {
+                            displayMessages(data.messages);
+                        }
+                    }
+                })
+                .catch(error => console.error('Error polling messages:', error));
         }
 
         // Send template question
@@ -161,18 +233,21 @@
             const formData = new FormData(this);
             const message = formData.get('message');
 
+            if (!message.trim()) return;
+
             // Add user message immediately
             const chatMessages = document.getElementById('chatMessages');
             const userMessageDiv = document.createElement('div');
             userMessageDiv.className = 'message user-message';
             userMessageDiv.innerHTML = `
                 <div class="message-content">${message}</div>
-                <small class="message-time">${new Date().toLocaleTimeString()}</small>
+                <small class="message-time">${new Date().toLocaleTimeString('id-ID')}</small>
             `;
             chatMessages.appendChild(userMessageDiv);
 
             // Clear input
             this.reset();
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
             // Send to server
             fetch('/chat/send-message', {
@@ -189,25 +264,31 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Add bot response
-                    const botMessageDiv = document.createElement('div');
-                    botMessageDiv.className = 'message bot-message';
-                    botMessageDiv.innerHTML = `
-                        <div class="message-content">${data.bot_response.message}</div>
-                        <small class="message-time">${new Date().toLocaleTimeString()}</small>
-                    `;
-                    chatMessages.appendChild(botMessageDiv);
-                    
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    // Reload chat history to get all messages including bot/admin responses
+                    setTimeout(() => loadChatHistory(), 500);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message system-message';
+                errorDiv.innerHTML = `
+                    <div class="message-content">❌ Gagal mengirim pesan. Silakan coba lagi.</div>
+                `;
+                chatMessages.appendChild(errorDiv);
             });
         });
 
         // Load initial chat history
         loadChatHistory();
+
+        // Poll for new messages every 1.5 seconds (faster for real-time feel)
+        pollInterval = setInterval(pollForNewMessages, 1500);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (pollInterval) clearInterval(pollInterval);
+        });
     </script>
 </body>
 </html>

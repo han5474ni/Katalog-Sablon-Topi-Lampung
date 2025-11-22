@@ -168,27 +168,22 @@ class ProductChatBot {
         sendButton.disabled = true;
 
         try {
-            // Prepare payload with real product data
+            // ENHANCED: Send only product ID, let backend query fresh stock data
             const payload = {
                 message: message,
                 conversation_id: productData.id,
-                user_id: 1, // You can get from Auth if available
+                user_id: 1,
                 product: {
                     id: productData.id,
                     name: productData.name,
                     price: productData.price,
                     price_min: productData.price_min,
-                    price_max: productData.price_max,
-                    stock: productData.stock,
-                    colors: productData.colors,
-                    sizes: productData.sizes,
-                    custom_allowed: productData.custom_allowed,
-                    description: productData.description,
-                    category: productData.category
+                    price_max: productData.price_max
+                    // ← Jangan kirim colors, sizes, stock - biarkan backend query fresh data!
                 }
             };
 
-            console.log('Sending payload to n8n:', payload);
+            console.log('Sending payload to backend:', payload);
 
             const response = await fetch('/test-chat-send', {
                 method: 'POST',
@@ -203,9 +198,17 @@ class ProductChatBot {
             console.log('Received response:', data);
 
             if (data.success) {
-                this.addMessage(data.bot_response.message);
+                const botMessage = data.bot_response.message || 'Maaf, ada kesalahan saat memproses respons.';
+                this.addMessage(botMessage);
+                
+                // Log if fresh stock data was queried
+                if (data.metadata?.stock_query_executed) {
+                    console.log('✓ Fresh stock data was queried and included in response');
+                    console.log('Stock metadata:', data.metadata.fresh_stock_data);
+                }
             } else {
                 this.addMessage('Maaf, sedang ada gangguan. Silakan coba lagi nanti.');
+                console.error('Response error:', data.error);
             }
 
         } catch (error) {

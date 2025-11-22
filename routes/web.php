@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\ColorManagementController;
 use App\Http\Controllers\Admin\SubcategoryManagementController;
 use App\Http\Controllers\Admin\CustomDesignPriceController;
+use App\Http\Controllers\Admin\AdminChatController;
+use App\Http\Controllers\Admin\ChatbotSettingsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProductController;
@@ -210,6 +212,30 @@ Route::get('/test-chat-interface', function () {
 Route::post('/test-chat-send', [ChatController::class, 'testSendMessage']);
 Route::get('/test-chat-quick', [ChatController::class, 'quickTest']);
 
+// ===== API Routes untuk Stock & Product Info (untuk future use) =====
+Route::prefix('api')->group(function () {
+    // Get fresh stock information untuk product spesifik
+    // Usage: GET /api/product/{id}/stock
+    Route::get('/product/{id}/stock', function ($id) {
+        try {
+            $chatBotService = app(\App\Services\ChatBotService::class);
+            $stockInfo = $chatBotService->getProductStockInfo($id);
+            
+            if ($stockInfo['success']) {
+                return response()->json($stockInfo, 200);
+            } else {
+                return response()->json($stockInfo, 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Internal server error'
+            ], 500);
+        }
+    });
+});
+
+
 
 
 
@@ -238,6 +264,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/history', [ChatController::class, 'getChatHistory'])->name('chat.history');
         Route::get('/conversation/{conversationId}', [ChatController::class, 'getConversation'])->name('chat.conversation');
         Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat.send');
+        Route::post('/conversation/{conversationId}/request-admin', [ChatController::class, 'requestAdminResponse'])->name('chat.request-admin');
     });
 });
 
@@ -380,10 +407,31 @@ Route::prefix('admin')->group(function () {
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');
         Route::get('/all-products', [ProductManagementController::class, 'allProducts'])->name('admin.all-products');
 
-        // Chatbot Admin
-        Route::get('/chatbot', function () {
-            return view('admin.chatbot');
-        })->name('admin.chatbot');
+        // Chatbot Admin Management
+        Route::prefix('chatbot')->name('chatbot.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\AdminChatController::class, 'index'])->name('index');
+            Route::get('/conversation/{id}', [App\Http\Controllers\Admin\AdminChatController::class, 'getConversation'])->name('conversation.show');
+            Route::post('/conversation/{id}/take-over', [App\Http\Controllers\Admin\AdminChatController::class, 'takeOverConversation'])->name('conversation.takeover');
+            Route::post('/conversation/{id}/send-message', [App\Http\Controllers\Admin\AdminChatController::class, 'sendAdminMessage'])->name('conversation.send');
+            Route::post('/conversation/{id}/escalate', [App\Http\Controllers\Admin\AdminChatController::class, 'escalateConversation'])->name('conversation.escalate');
+            Route::post('/conversation/{id}/needs-response', [App\Http\Controllers\Admin\AdminChatController::class, 'markNeedsAdminResponse'])->name('conversation.needs-response');
+            Route::post('/conversation/{id}/close', [App\Http\Controllers\Admin\AdminChatController::class, 'closeConversation'])->name('conversation.close');
+            Route::post('/conversation/{id}/release', [App\Http\Controllers\Admin\AdminChatController::class, 'releaseConversation'])->name('conversation.release');
+            Route::post('/conversation/{id}/mark-read', [App\Http\Controllers\Admin\AdminChatController::class, 'markConversationAsRead'])->name('conversation.mark-read');
+            
+            // Chatbot Settings
+            Route::get('/settings', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'index'])->name('settings');
+            Route::post('/settings/toggle-global', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'toggleGlobal'])->name('settings.toggle-global');
+            Route::post('/settings/toggle-product/{productId}', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'toggleProduct'])->name('settings.toggle-product');
+            Route::post('/settings/reset', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'reset'])->name('settings.reset');
+            
+            // API endpoints
+            Route::get('/api/unread-count', [App\Http\Controllers\Admin\AdminChatController::class, 'getUnreadCount'])->name('api.unread-count');
+            Route::get('/api/needs-attention', [App\Http\Controllers\Admin\AdminChatController::class, 'getConversationsNeedingAttention'])->name('api.needs-attention');
+            Route::get('/api/settings', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getSettings'])->name('api.settings');
+            Route::get('/api/products', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getProductsList'])->name('api.products');
+            Route::get('/api/product/{productId}/status', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getProductStatus'])->name('api.product-status');
+        });
         
         // Custom Design Prices Management
         Route::get('/custom-design-prices', [CustomDesignPriceController::class, 'index'])->name('admin.custom-design-prices');
