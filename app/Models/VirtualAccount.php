@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Order;
 
 class VirtualAccount extends Model
 {
@@ -35,6 +36,14 @@ class VirtualAccount extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the order that owns this VA
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 
     /**

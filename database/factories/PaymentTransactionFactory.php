@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\PaymentTransaction;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\PaymentMethod;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PaymentTransactionFactory extends Factory
@@ -15,13 +14,14 @@ class PaymentTransactionFactory extends Factory
     public function definition()
     {
         return [
-            'order_id' => Order::factory(),
             'user_id' => User::factory(),
-            'payment_method_id' => PaymentMethod::factory(),
+            'order_type' => 'regular',
+            'order_id' => Order::factory(),
+            'payment_method' => $this->faker->randomElement(['va', 'ewallet', 'credit_card']),
+            'payment_channel' => $this->faker->randomElement(['bca', 'bni', 'gopay', 'ovo']),
             'amount' => $this->faker->numberBetween(50000, 1000000),
-            'status' => $this->faker->randomElement(['pending', 'processing', 'success', 'failed']),
-            'reference_number' => 'REF-' . strtoupper($this->faker->unique()->bothify('???###')),
-            'transaction_date' => $this->faker->dateTime(),
+            'status' => $this->faker->randomElement(['pending', 'paid', 'failed', 'expired']),
+            'notes' => $this->faker->optional()->sentence(),
         ];
     }
 }

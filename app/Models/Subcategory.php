@@ -11,7 +11,16 @@ class Subcategory extends Model
     
     protected $fillable = [
         'name',
+        'description',
         'slug',
         'category',
     ];
+
+    /**
+     * Get the products for this subcategory
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

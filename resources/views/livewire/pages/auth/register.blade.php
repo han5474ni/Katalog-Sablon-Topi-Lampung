@@ -41,11 +41,8 @@ $register = function () {
         // Trigger event registered
         event(new Registered($user));
 
-        // Flash success message
-        session()->flash('success', 'Akun berhasil dibuat! Silakan login untuk melanjutkan.');
-        
         // Redirect ke dashboard
-        return redirect()->route('dashboard');
+        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
         // Validation error akan ditangani otomatis oleh Livewire
@@ -55,7 +52,6 @@ $register = function () {
         \Log::error('Registration error: ' . $e->getMessage());
         
         session()->flash('error', 'Gagal membuat akun. Silakan coba lagi. Error: ' . $e->getMessage());
-        return null;
     }
 };
 ?>

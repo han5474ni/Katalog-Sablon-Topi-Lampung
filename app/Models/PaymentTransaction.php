@@ -38,6 +38,14 @@ class PaymentTransaction extends Model
     }
 
     /**
+     * Get the order associated with the transaction
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
      * Get the virtual account associated with the transaction
      */
     public function virtualAccount(): BelongsTo

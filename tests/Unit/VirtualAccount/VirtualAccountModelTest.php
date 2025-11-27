@@ -12,6 +12,8 @@ class VirtualAccountModelTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -24,17 +26,18 @@ class VirtualAccountModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bca',
-            'account_number' => '3572123456789',
-            'account_name' => 'TOKO ONLINE XYZ',
+            'va_number' => '3572123456789',
             'amount' => 500000,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
         $this->assertDatabaseHas('virtual_accounts', [
             'bank_code' => 'bca',
-            'account_number' => '3572123456789',
+            'va_number' => '3572123456789',
         ]);
     }
 
@@ -44,12 +47,13 @@ class VirtualAccountModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bni',
-            'account_number' => '7654321098765',
-            'account_name' => 'TEST VA',
+            'va_number' => '7654321098765',
             'amount' => 250000,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
         $this->assertTrue($va->order->is($order));
@@ -61,49 +65,52 @@ class VirtualAccountModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'mandiri',
-            'account_number' => '1234567890123',
-            'account_name' => 'AMOUNT TEST',
+            'va_number' => '1234567890123',
             'amount' => 1500000.50,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
         $this->assertEquals(1500000.50, $va->fresh()->amount);
     }
 
     /** @test */
-    public function virtual_account_status_can_be_active()
+    public function virtual_account_status_can_be_pending()
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bca',
-            'account_number' => '1111111111111',
-            'account_name' => 'ACTIVE VA',
+            'va_number' => '1111111111111',
             'amount' => 300000,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
-        $this->assertEquals('active', $va->status);
+        $this->assertEquals('pending', $va->status);
     }
 
     /** @test */
-    public function virtual_account_status_can_be_inactive()
+    public function virtual_account_status_can_be_cancelled()
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bca',
-            'account_number' => '2222222222222',
-            'account_name' => 'INACTIVE VA',
+            'va_number' => '2222222222222',
             'amount' => 400000,
-            'status' => 'inactive',
+            'status' => 'cancelled',
+            'expired_at' => now()->addDays(1),
         ]);
 
-        $this->assertEquals('inactive', $va->status);
+        $this->assertEquals('cancelled', $va->status);
     }
 
     /** @test */
@@ -112,12 +119,13 @@ class VirtualAccountModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bca',
-            'account_number' => '3333333333333',
-            'account_name' => 'UPDATE TEST',
+            'va_number' => '3333333333333',
             'amount' => 500000,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
         $va->update(['status' => 'paid']);
@@ -130,12 +138,13 @@ class VirtualAccountModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $va = VirtualAccount::create([
+            'user_id' => $this->user->id,
             'order_id' => $order->id,
             'bank_code' => 'bni',
-            'account_number' => '9999999999999',
-            'account_name' => 'TIMESTAMP TEST',
+            'va_number' => '9999999999999',
             'amount' => 600000,
-            'status' => 'active',
+            'status' => 'pending',
+            'expired_at' => now()->addDays(1),
         ]);
 
         $this->assertNotNull($va->created_at);
@@ -146,19 +155,20 @@ class VirtualAccountModelTest extends TestCase
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
-        $banks = ['bca', 'bni', 'mandiri', 'permata', 'cimb'];
+        $banks = ['bca', 'bni', 'mandiri', 'permata'];
 
         foreach ($banks as $index => $bank) {
             VirtualAccount::create([
+                'user_id' => $this->user->id,
                 'order_id' => $order->id,
                 'bank_code' => $bank,
-                'account_number' => '1000000000000' . $index,
-                'account_name' => 'BANK ' . strtoupper($bank),
+                'va_number' => '1000000000000' . $index,
                 'amount' => 500000,
-                'status' => 'active',
+                'status' => 'pending',
+                'expired_at' => now()->addDays(1),
             ]);
         }
 
-        $this->assertEquals(5, VirtualAccount::where('order_id', $order->id)->count());
+        $this->assertEquals(4, VirtualAccount::where('order_id', $order->id)->count());
     }
 }

@@ -11,6 +11,8 @@ class ActivityLogModelTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -21,16 +23,17 @@ class ActivityLogModelTest extends TestCase
     public function activity_log_can_be_created()
     {
         $log = ActivityLog::create([
+            'user_type' => 'App\\Models\\User',
             'user_id' => $this->user->id,
             'action' => 'create',
-            'model' => 'Product',
-            'model_id' => 1,
+            'subject_type' => 'Product',
+            'subject_id' => 1,
             'description' => 'Created new product',
         ]);
 
         $this->assertDatabaseHas('activity_logs', [
             'action' => 'create',
-            'model' => 'Product',
+            'subject_type' => 'Product',
         ]);
     }
 
@@ -38,10 +41,11 @@ class ActivityLogModelTest extends TestCase
     public function activity_log_tracks_user()
     {
         $log = ActivityLog::create([
+            'user_type' => 'App\\Models\\User',
             'user_id' => $this->user->id,
             'action' => 'update',
-            'model' => 'Order',
-            'model_id' => 5,
+            'subject_type' => 'Order',
+            'subject_id' => 5,
             'description' => 'Updated order status',
         ]);
 
@@ -57,8 +61,8 @@ class ActivityLogModelTest extends TestCase
             ActivityLog::create([
                 'user_id' => $this->user->id,
                 'action' => $action,
-                'model' => 'Test',
-                'model_id' => 1,
+                'subject_type' => 'Test',
+                'subject_id' => 1,
                 'description' => 'Test ' . $action,
             ]);
         }
@@ -77,13 +81,13 @@ class ActivityLogModelTest extends TestCase
         $log = ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'update',
-            'model' => 'Order',
-            'model_id' => 1,
+            'subject_type' => 'Order',
+            'subject_id' => 1,
             'description' => 'Order updated',
-            'changes' => json_encode($changes),
+            'properties' => $changes,
         ]);
 
-        $this->assertIsString($log->changes);
+        $this->assertIsArray($log->properties);
     }
 
     /** @test */
@@ -92,8 +96,8 @@ class ActivityLogModelTest extends TestCase
         $log = ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'view',
-            'model' => 'Report',
-            'model_id' => 1,
+            'subject_type' => 'Report',
+            'subject_id' => 1,
             'description' => 'Viewed report',
         ]);
 
@@ -106,18 +110,18 @@ class ActivityLogModelTest extends TestCase
         ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'create',
-            'model' => 'Product',
-            'model_id' => 1,
+            'subject_type' => 'Product',
+            'subject_id' => 1,
         ]);
 
         ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'create',
-            'model' => 'Order',
-            'model_id' => 1,
+            'subject_type' => 'Order',
+            'subject_id' => 1,
         ]);
 
-        $products = ActivityLog::where('model', 'Product')->get();
+        $products = ActivityLog::where('subject_type', 'Product')->get();
         $this->assertEquals(1, $products->count());
     }
 
@@ -129,15 +133,15 @@ class ActivityLogModelTest extends TestCase
         ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'update',
-            'model' => 'Order',
-            'model_id' => 1,
+            'subject_type' => 'Order',
+            'subject_id' => 1,
         ]);
 
         ActivityLog::create([
             'user_id' => $user2->id,
             'action' => 'update',
-            'model' => 'Order',
-            'model_id' => 2,
+            'subject_type' => 'Order',
+            'subject_id' => 2,
         ]);
 
         $userLogs = ActivityLog::where('user_id', $this->user->id)->get();
@@ -151,8 +155,8 @@ class ActivityLogModelTest extends TestCase
             ActivityLog::create([
                 'user_id' => $this->user->id,
                 'action' => 'export',
-                'model' => 'Report',
-                'model_id' => $i + 1,
+                'subject_type' => 'Report',
+                'subject_id' => $i + 1,
                 'description' => 'Exported report ' . ($i + 1),
             ]);
         }
@@ -169,8 +173,8 @@ class ActivityLogModelTest extends TestCase
         $log = ActivityLog::create([
             'user_id' => $this->user->id,
             'action' => 'create',
-            'model' => 'Order',
-            'model_id' => 1,
+            'subject_type' => 'Order',
+            'subject_id' => 1,
             'description' => $description,
         ]);
 

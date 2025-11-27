@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('user_type'); // 'Admin' or 'User'
+            $table->string('user_type')->default('User'); // 'Admin' or 'User'
             $table->unsignedBigInteger('user_id');
             $table->string('action'); // 'create', 'update', 'delete', 'login', 'logout'
             $table->string('subject_type')->nullable(); // Model class name

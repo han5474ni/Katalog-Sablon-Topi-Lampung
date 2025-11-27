@@ -13,6 +13,8 @@ class PaymentModelTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected $user;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -52,12 +54,12 @@ class PaymentModelTest extends TestCase
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
         $transaction = PaymentTransaction::create([
-            'order_id' => $order->id,
             'user_id' => $this->user->id,
+            'order_id' => $order->id,
+            'payment_method' => 'va',
+            'payment_channel' => 'bca',
             'amount' => 500000,
-            'payment_method' => 'bank_transfer',
             'status' => 'pending',
-            'reference_number' => 'TXN-001-2024',
         ]);
 
         $this->assertDatabaseHas('payment_transactions', [
@@ -75,8 +77,8 @@ class PaymentModelTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $transaction->update(['status' => 'success']);
-        $this->assertEquals('success', $transaction->fresh()->status);
+        $transaction->update(['status' => 'paid']);
+        $this->assertEquals('paid', $transaction->fresh()->status);
     }
 
     /** @test */
@@ -108,28 +110,14 @@ class PaymentModelTest extends TestCase
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
         $transaction = PaymentTransaction::create([
-            'order_id' => $order->id,
             'user_id' => $this->user->id,
+            'order_id' => $order->id,
+            'payment_method' => 'va',
             'amount' => 1500000.50,
             'status' => 'pending',
         ]);
 
         $this->assertEquals(1500000.50, $transaction->fresh()->amount);
-    }
-
-    /** @test */
-    public function payment_transaction_can_have_reference_number()
-    {
-        $order = Order::factory()->create(['user_id' => $this->user->id]);
-        $transaction = PaymentTransaction::create([
-            'order_id' => $order->id,
-            'user_id' => $this->user->id,
-            'reference_number' => 'REF-BCA-123456',
-            'amount' => 500000,
-            'status' => 'pending',
-        ]);
-
-        $this->assertEquals('REF-BCA-123456', $transaction->fresh()->reference_number);
     }
 
     /** @test */
@@ -158,7 +146,7 @@ class PaymentModelTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $statuses = ['pending', 'processing', 'success', 'failed'];
+        $statuses = ['pending', 'paid', 'expired'];
 
         foreach ($statuses as $status) {
             $transaction->update(['status' => $status]);
