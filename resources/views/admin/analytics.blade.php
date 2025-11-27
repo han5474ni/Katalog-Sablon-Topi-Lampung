@@ -53,7 +53,7 @@
 
         <!-- 2. SALES TREND CHART -->
         <div class="chart-container">
-            <h3 class="chart-title">📈 Sales Trend</h3>
+            <h3 class="chart-title">Sales Trend</h3>
             <div class="chart-wrapper">
                 <canvas id="salesTrendChart"></canvas>
             </div>
@@ -62,7 +62,7 @@
         <!-- 3. ORDER STATUS & DISTRIBUTION -->
         <div class="charts-row">
             <div class="chart-container">
-                <h3 class="chart-title">📊 Order Status Distribution</h3>
+                <h3 class="chart-title">Order Status Distribution</h3>
                 <div class="chart-wrapper">
                     <canvas id="orderStatusChart"></canvas>
                 </div>
@@ -110,7 +110,7 @@
         <div class="charts-row">
             <!-- Customer Distribution Pie Chart -->
             <div class="chart-container">
-                <h3 class="chart-title">📊 Customer Distribution</h3>
+                <h3 class="chart-title">Customer Distribution</h3>
                 <div class="chart-wrapper" style="position: relative; height: 300px;">
                     <canvas id="customerDistributionChart"></canvas>
                 </div>
@@ -118,7 +118,7 @@
 
             <!-- RFM Analysis Bar Chart -->
             <div class="chart-container">
-                <h3 class="chart-title">💎 Top 5 Customers (RFM)</h3>
+                <h3 class="chart-title">Top 5 Customers (RFM)</h3>
                 <div class="chart-wrapper" style="position: relative; height: 300px;">
                     <canvas id="rfmChart"></canvas>
                 </div>
@@ -127,7 +127,7 @@
 
         <!-- Top Customers Table -->
         <div class="chart-container">
-            <h3 class="chart-title">👥 Top 10 Customers (Monetary Value)</h3>
+            <h3 class="chart-title">Top 10 Customers (Monetary Value)</h3>
             <div style="overflow-x: auto; display: block; width: 100%;">
                 <table class="customer-table">
                     <thead>
@@ -147,7 +147,7 @@
         </div>
         
         <div class="chart-container">
-            <h3 class="chart-title">🔄 Conversion Funnel</h3>
+            <h3 class="chart-title">Conversion Funnel</h3>
             <p style="color: #6b7280; font-size: 12px; margin: 0 0 20px 0;">Visitor journey through purchase process</p>
             <div id="funnel-stages">
                 <div class="loading">Loading funnel data...</div>
