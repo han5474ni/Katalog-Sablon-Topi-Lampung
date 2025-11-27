@@ -14,10 +14,13 @@ class ChatMessageFactory extends Factory
     public function definition()
     {
         return [
-            'conversation_id' => ChatConversation::factory(),
-            'sender_id' => User::factory(),
+            'chat_conversation_id' => ChatConversation::factory(),
+            'user_id' => User::factory(),
             'message' => $this->faker->paragraph(),
             'sender_type' => $this->faker->randomElement(['customer', 'admin']),
+            'is_admin_reply' => $this->faker->boolean(),
+            'is_read_by_user' => $this->faker->boolean(),
+            'is_read_by_admin' => $this->faker->boolean(),
         ];
     }
 }

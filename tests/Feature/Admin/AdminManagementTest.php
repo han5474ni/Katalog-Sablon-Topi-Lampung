@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\CustomDesignOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -55,27 +56,25 @@ class AdminManagementTest extends TestCase
     /** @test */
     public function admin_can_approve_custom_design()
     {
-        $order = Order::factory()->create([
-            'is_custom_design' => true,
-            'custom_design_status' => 'pending',
+        $design = CustomDesignOrder::factory()->create([
+            'status' => 'pending',
         ]);
 
-        $order->update(['custom_design_status' => 'approved']);
+        $design->update(['status' => 'approved']);
 
-        $this->assertEquals('approved', $order->fresh()->custom_design_status);
+        $this->assertEquals('approved', $design->fresh()->status);
     }
 
     /** @test */
     public function admin_can_reject_custom_design()
     {
-        $order = Order::factory()->create([
-            'is_custom_design' => true,
-            'custom_design_status' => 'pending',
+        $design = CustomDesignOrder::factory()->create([
+            'status' => 'pending',
         ]);
 
-        $order->update(['custom_design_status' => 'rejected']);
+        $design->update(['status' => 'rejected']);
 
-        $this->assertEquals('rejected', $order->fresh()->custom_design_status);
+        $this->assertEquals('rejected', $design->fresh()->status);
     }
 
     /** @test */

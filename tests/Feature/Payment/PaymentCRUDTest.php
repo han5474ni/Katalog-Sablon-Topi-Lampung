@@ -87,21 +87,19 @@ class PaymentCRUDTest extends TestCase
     {
         $user = User::factory()->create();
         $order = Order::factory()->create(['user_id' => $user->id]);
-        $method = PaymentMethod::factory()->create();
 
         $data = [
             'order_id' => $order->id,
             'user_id' => $user->id,
-            'payment_method_id' => $method->id,
+            'payment_method' => 'bank_transfer',
             'amount' => 100000,
             'status' => 'pending',
-            'reference_number' => 'REF-001',
         ];
 
         $transaction = PaymentTransaction::create($data);
 
         $this->assertDatabaseHas('payment_transactions', [
-            'reference_number' => 'REF-001',
+            'payment_method' => 'bank_transfer',
             'amount' => 100000,
         ]);
     }

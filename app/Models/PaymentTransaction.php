@@ -30,6 +30,18 @@ class PaymentTransaction extends Model
     ];
 
     /**
+     * Boot the model
+     */
+    protected static function booting()
+    {
+        static::creating(function ($model) {
+            if (!$model->transaction_id) {
+                $model->transaction_id = self::generateTransactionId();
+            }
+        });
+    }
+
+    /**
      * Get the user that owns the transaction
      */
     public function user(): BelongsTo

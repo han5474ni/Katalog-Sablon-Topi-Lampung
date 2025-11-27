@@ -125,17 +125,26 @@ class PaymentProcessTest extends TestCase
     /** @test */
     public function payment_reference_number_is_unique()
     {
-        PaymentTransaction::create([
+        $txn1 = PaymentTransaction::create([
             'order_id' => $this->order->id,
             'user_id' => $this->user->id,
             'amount' => 100000,
             'payment_method' => 'bank_transfer',
-            'reference_number' => 'UNIQUE-REF-123',
             'status' => 'pending',
         ]);
 
+        $txn2 = PaymentTransaction::create([
+            'order_id' => $this->order->id,
+            'user_id' => $this->user->id,
+            'amount' => 100000,
+            'payment_method' => 'bank_transfer',
+            'status' => 'pending',
+        ]);
+
+        // Verify both transactions have unique transaction_id
+        $this->assertNotEquals($txn1->transaction_id, $txn2->transaction_id);
         $this->assertDatabaseHas('payment_transactions', [
-            'reference_number' => 'UNIQUE-REF-123',
+            'transaction_id' => $txn1->transaction_id,
         ]);
     }
 

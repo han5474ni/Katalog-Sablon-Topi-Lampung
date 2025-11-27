@@ -43,14 +43,14 @@ class ChatTest extends TestCase
         ]);
 
         $message = ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => $this->user->id,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
             'message' => 'Halo, saya ingin bertanya tentang produk',
-            'sender_type' => 'user',
+            'sender_type' => 'customer',
         ]);
 
         $this->assertDatabaseHas('chat_messages', [
-            'conversation_id' => $conversation->id,
+            'chat_conversation_id' => $conversation->id,
             'message' => 'Halo, saya ingin bertanya tentang produk',
         ]);
     }
@@ -58,6 +58,8 @@ class ChatTest extends TestCase
     /** @test */
     public function admin_can_reply_to_chat_message()
     {
+        $admin = User::factory()->create();
+        
         $conversation = ChatConversation::create([
             'user_id' => $this->user->id,
             'subject' => 'Test',
@@ -65,15 +67,15 @@ class ChatTest extends TestCase
         ]);
 
         $message = ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => $this->user->id,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
             'message' => 'Pertanyaan dari user',
-            'sender_type' => 'user',
+            'sender_type' => 'customer',
         ]);
 
         $reply = ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => 1,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $admin->id,
             'message' => 'Jawaban dari admin',
             'sender_type' => 'admin',
         ]);
@@ -101,6 +103,8 @@ class ChatTest extends TestCase
     /** @test */
     public function chat_conversation_messages_are_tracked()
     {
+        $admin = User::factory()->create();
+        
         $conversation = ChatConversation::create([
             'user_id' => $this->user->id,
             'subject' => 'Test',
@@ -108,20 +112,20 @@ class ChatTest extends TestCase
         ]);
 
         ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => $this->user->id,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
             'message' => 'Pesan 1',
-            'sender_type' => 'user',
+            'sender_type' => 'customer',
         ]);
 
         ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => 1,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $admin->id,
             'message' => 'Pesan 2',
             'sender_type' => 'admin',
         ]);
 
-        $messages = ChatMessage::where('conversation_id', $conversation->id)->get();
+        $messages = ChatMessage::where('chat_conversation_id', $conversation->id)->get();
 
         $this->assertCount(2, $messages);
     }
@@ -136,13 +140,13 @@ class ChatTest extends TestCase
         ]);
 
         $message = ChatMessage::create([
-            'conversation_id' => $conversation->id,
-            'sender_id' => $this->user->id,
+            'chat_conversation_id' => $conversation->id,
+            'user_id' => $this->user->id,
             'message' => 'Test message',
-            'sender_type' => 'user',
+            'sender_type' => 'customer',
         ]);
 
-        $this->assertEquals('user', $message->sender_type);
+        $this->assertEquals('customer', $message->sender_type);
     }
 
     /** @test */
