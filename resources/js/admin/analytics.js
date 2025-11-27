@@ -324,19 +324,174 @@ function loadCustomerAnalytics() {
                 if (els['total-customers']) els['total-customers'].textContent = d.totalCustomers;
                 if (els['purchasing-rate']) els['purchasing-rate'].textContent = d.purchasingRate.toFixed(2) + '%';
                 
+                // Render Customer Distribution Pie Chart
+                renderCustomerDistributionChart(d);
+                
+                // Render RFM Bar Chart
+                renderRFMChart(d.rfmTop);
+                
+                // Render RFM Table with ranking
                 if (els['rfm-table'] && d.rfmTop && d.rfmTop.length > 0) {
-                    els['rfm-table'].innerHTML = d.rfmTop.map(c => `
+                    els['rfm-table'].innerHTML = d.rfmTop.map((c, idx) => `
                         <tr>
+                            <td><strong>#${idx + 1}</strong></td>
                             <td><strong>${c.customer}</strong></td>
                             <td>${c.recency} days</td>
                             <td>${c.frequency}x</td>
-                            <td>Rp ${Number(c.monetary).toLocaleString('id-ID', {maxFractionDigits: 0})}</td>
+                            <td><strong>Rp ${Number(c.monetary).toLocaleString('id-ID', {maxFractionDigits: 0})}</strong></td>
                         </tr>
                     `).join('');
                 }
             }
         })
         .catch(err => console.error('Customer Analytics Error:', err));
+}
+
+function renderCustomerDistributionChart(data) {
+    const ctx = document.getElementById('customerDistributionChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart if it exists
+    if (window.customerDistributionChartInstance) {
+        window.customerDistributionChartInstance.destroy();
+    }
+    
+    const inactive = data.totalCustomers - data.activeCustomers;
+    
+    window.customerDistributionChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Active (Purchased)', 'Inactive (Not Purchased)'],
+            datasets: [{
+                data: [data.activeCustomers, inactive],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderColor: ['#059669', '#dc2626'],
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: { size: 12, weight: 500 },
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 29, 55, 0.9)',
+                    padding: 12,
+                    titleFont: { size: 13 },
+                    bodyFont: { size: 12 },
+                    callbacks: {
+                        label: function(context) {
+                            const total = data.totalCustomers;
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderRFMChart(rfmData) {
+    const ctx = document.getElementById('rfmChart');
+    if (!ctx || !rfmData || rfmData.length === 0) return;
+    
+    // Destroy existing chart if it exists
+    if (window.rfmChartInstance) {
+        window.rfmChartInstance.destroy();
+    }
+    
+    // Get top 5 customers
+    const topCustomers = rfmData.slice(0, 5);
+    const labels = topCustomers.map(c => c.customer.split(' ')[0]); // First name only
+    
+    // Normalize data for visualization
+    const maxMonetary = Math.max(...topCustomers.map(c => c.monetary));
+    const monetaryNormalized = topCustomers.map(c => (c.monetary / maxMonetary) * 100);
+    
+    window.rfmChartInstance = new Chart(ctx.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Monetary Value (% of Max)',
+                    data: monetaryNormalized,
+                    backgroundColor: '#3b82f6',
+                    borderColor: '#1d4ed8',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                },
+                {
+                    label: 'Frequency (Orders)',
+                    data: topCustomers.map(c => c.frequency * 10), // Scale for visibility
+                    backgroundColor: '#8b5cf6',
+                    borderColor: '#6d28d9',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: { size: 11, weight: 500 },
+                        color: '#374151'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(10, 29, 55, 0.9)',
+                    padding: 12,
+                    callbacks: {
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                const customer = topCustomers[context.dataIndex];
+                                return `Value: Rp ${Number(customer.monetary).toLocaleString('id-ID')}`;
+                            } else {
+                                const customer = topCustomers[context.dataIndex];
+                                return `Orders: ${customer.frequency}x`;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#9ca3af',
+                        font: { size: 11 }
+                    },
+                    grid: {
+                        color: 'rgba(229, 231, 235, 0.5)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#9ca3af',
+                        font: { size: 11, weight: 500 }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
 }
 
 function loadConversionFunnel() {

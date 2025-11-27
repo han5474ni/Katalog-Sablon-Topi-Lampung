@@ -106,13 +106,33 @@
             </div>
         </div>
 
-        <!-- RFM Analysis Table -->
+        <!-- Customer Distribution & RFM Charts -->
+        <div class="charts-row">
+            <!-- Customer Distribution Pie Chart -->
+            <div class="chart-container">
+                <h3 class="chart-title">📊 Customer Distribution</h3>
+                <div class="chart-wrapper" style="position: relative; height: 300px;">
+                    <canvas id="customerDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- RFM Analysis Bar Chart -->
+            <div class="chart-container">
+                <h3 class="chart-title">💎 Top 5 Customers (RFM)</h3>
+                <div class="chart-wrapper" style="position: relative; height: 300px;">
+                    <canvas id="rfmChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Customers Table -->
         <div class="chart-container">
-            <h3 class="chart-title">Top Customers</h3>
+            <h3 class="chart-title">👥 Top 10 Customers (Monetary Value)</h3>
             <div style="overflow-x: auto; display: block; width: 100%;">
                 <table class="customer-table">
                     <thead>
                         <tr>
+                            <th>Rank</th>
                             <th>Customer Name</th>
                             <th>Recency (Days)</th>
                             <th>Frequency</th>
