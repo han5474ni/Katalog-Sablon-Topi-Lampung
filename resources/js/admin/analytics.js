@@ -119,9 +119,19 @@ function loadSalesOverview() {
                     revEl.textContent = 'Rp ' + Number(d.totalRevenue).toLocaleString('id-ID', {maxFractionDigits: 0});
                 }
                 
+                const completedEl = document.getElementById('completed-orders');
+                if (completedEl) {
+                    completedEl.textContent = d.completedOrders;
+                }
+                
                 const ordersEl = document.getElementById('total-orders');
                 if (ordersEl) {
                     ordersEl.textContent = d.totalOrders;
+                }
+                
+                const conversionEl = document.getElementById('conversion-rate');
+                if (conversionEl) {
+                    conversionEl.textContent = Number(d.conversionRate).toFixed(2) + '%';
                 }
                 
                 const aovEl = document.getElementById('aov');

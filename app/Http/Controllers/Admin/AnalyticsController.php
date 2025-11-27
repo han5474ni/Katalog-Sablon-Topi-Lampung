@@ -66,10 +66,16 @@ class AnalyticsController extends Controller
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->get();
             
+            // Get all orders (regardless of status) for conversion rate
+            $allOrders = Order::whereBetween('created_at', [$startDate, $endDate])->count();
+            $allCustomOrders = CustomDesignOrder::whereBetween('created_at', [$startDate, $endDate])->count();
+            $totalAllOrders = $allOrders + $allCustomOrders;
+            
             // Combine revenues - Order has 'total', CustomDesignOrder has 'total_price'
             $totalRevenue = $orders->sum('total') + $customOrders->sum('total_price');
-            $totalOrders = $orders->count() + $customOrders->count();
-            $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+            $completedOrders = $orders->count() + $customOrders->count();
+            $averageOrderValue = $completedOrders > 0 ? $totalRevenue / $completedOrders : 0;
+            $conversionRate = $totalAllOrders > 0 ? ($completedOrders / $totalAllOrders) * 100 : 0;
             
             // Get previous period data for comparison
             $prevStartDate = $this->getPreviousPeriodStart($period, $startDate);
@@ -85,16 +91,27 @@ class AnalyticsController extends Controller
             
             $prevRevenue = $prevOrders->sum('total') + $prevCustomOrders->sum('total_price');
             
+            // Get previous period all orders for conversion rate
+            $prevAllOrders = Order::whereBetween('created_at', [$prevStartDate, $prevEndDate])->count();
+            $prevAllCustomOrders = CustomDesignOrder::whereBetween('created_at', [$prevStartDate, $prevEndDate])->count();
+            $prevTotalAllOrders = $prevAllOrders + $prevAllCustomOrders;
+            $prevCompletedOrders = $prevOrders->count() + $prevCustomOrders->count();
+            $prevConversionRate = $prevTotalAllOrders > 0 ? ($prevCompletedOrders / $prevTotalAllOrders) * 100 : 0;
+            
             // Calculate growth percentage
             $revenueGrowth = $prevRevenue > 0 ? (($totalRevenue - $prevRevenue) / $prevRevenue) * 100 : 0;
+            $conversionGrowth = $prevConversionRate > 0 ? (($conversionRate - $prevConversionRate) / $prevConversionRate) * 100 : 0;
             
             return response()->json([
                 'success' => true,
                 'data' => [
                     'totalRevenue' => round($totalRevenue, 2),
-                    'totalOrders' => $totalOrders,
+                    'completedOrders' => $completedOrders,
+                    'totalOrders' => $totalAllOrders,
                     'averageOrderValue' => round($averageOrderValue, 2),
+                    'conversionRate' => round($conversionRate, 2),
                     'revenueGrowth' => round($revenueGrowth, 2),
+                    'conversionGrowth' => round($conversionGrowth, 2),
                     'comparison' => [
                         'label' => $period === 'day' ? 'Today vs Yesterday' : ($period === 'week' ? 'This Week vs Last Week' : 'This Month vs Last Month'),
                         'current' => round($totalRevenue, 2),

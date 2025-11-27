@@ -17,22 +17,34 @@
             <div class="stats-card">
                 <div class="stats-card-label">Total Revenue</div>
                 <p class="stats-card-value" id="total-revenue">Rp 0</p>
-                <div class="stats-card-meta">Completed orders</div>
+                <div class="stats-card-meta">From completed orders</div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-card-label">Completed Orders</div>
+                <p class="stats-card-value" id="completed-orders">0</p>
+                <div class="stats-card-meta">Successfully completed</div>
             </div>
 
             <div class="stats-card">
                 <div class="stats-card-label">Total Orders</div>
                 <p class="stats-card-value" id="total-orders">0</p>
-                <div class="stats-card-meta">All orders</div>
+                <div class="stats-card-meta">All statuses</div>
             </div>
 
             <div class="stats-card purple">
-                <div class="stats-card-label">Average Order Value</div>
-                <p class="stats-card-value" id="aov">Rp 0</p>
-                <div class="stats-card-meta">Per order</div>
+                <div class="stats-card-label">Conversion Rate</div>
+                <p class="stats-card-value" id="conversion-rate">0%</p>
+                <div class="stats-card-meta">Completed / Total</div>
             </div>
 
             <div class="stats-card orange">
+                <div class="stats-card-label">Average Order Value</div>
+                <p class="stats-card-value" id="aov">Rp 0</p>
+                <div class="stats-card-meta">Per completed order</div>
+            </div>
+
+            <div class="stats-card green">
                 <div class="stats-card-label">Revenue Growth</div>
                 <p class="stats-card-value" id="growth">0%</p>
                 <div class="stats-card-meta" id="growth-label">vs previous period</div>
