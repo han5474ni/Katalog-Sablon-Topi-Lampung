@@ -16,12 +16,13 @@ class CustomDesignOrderFactory extends Factory
         return [
             'user_id' => User::factory(),
             'product_id' => Product::factory(),
-            'design_description' => $this->faker->paragraph(),
-            'quantity' => $this->faker->numberBetween(1, 50),
+            'product_name' => 'Custom Design',
+            'product_price' => 0,
+            'cutting_type' => $this->faker->randomElement(['Cutting PVC Flex', 'Printable', 'Direct Transfer Film']),
+            'special_materials' => json_encode($this->faker->randomElements(['Foil', 'Glitter', 'Spectrum'], 0)),
+            'additional_description' => $this->faker->paragraph(),
+            'status' => $this->faker->randomElement(['pending', 'processing', 'completed', 'cancelled']),
             'total_price' => $this->faker->numberBetween(100000, 1000000),
-            'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
-            'payment_status' => $this->faker->randomElement(['unpaid', 'paid']),
-            'admin_notes' => $this->faker->optional()->sentence(),
         ];
     }
 }

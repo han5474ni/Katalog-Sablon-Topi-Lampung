@@ -44,10 +44,10 @@ class AdminModelTest extends TestCase
             'name' => 'Super Admin',
             'email' => 'super@example.com',
             'password' => bcrypt('password'),
-            'role' => 'superadmin',
+            'role' => 'super_admin',
         ]);
 
-        $this->assertEquals('superadmin', $admin->role);
+        $this->assertEquals('super_admin', $admin->role);
     }
 
     /** @test */
@@ -57,6 +57,7 @@ class AdminModelTest extends TestCase
             'name' => 'Active Admin',
             'email' => 'active@example.com',
             'password' => bcrypt('password'),
+            'role' => 'admin',
             'status' => 'active',
         ]);
 
@@ -87,6 +88,7 @@ class AdminModelTest extends TestCase
             'name' => 'Admin With Avatar',
             'email' => 'avatar@example.com',
             'password' => bcrypt('password'),
+            'role' => 'admin',
             'avatar' => '/storage/avatars/admin1.png',
         ]);
 
@@ -101,6 +103,7 @@ class AdminModelTest extends TestCase
             'name' => 'Disabled Admin',
             'email' => 'disabled@example.com',
             'password' => bcrypt('password'),
+            'role' => 'admin',
             'status' => 'inactive',
         ]);
 

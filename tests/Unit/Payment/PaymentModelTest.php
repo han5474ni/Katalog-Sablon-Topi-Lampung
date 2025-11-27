@@ -127,6 +127,7 @@ class PaymentModelTest extends TestCase
 
         foreach ($types as $type) {
             PaymentMethod::create([
+                'code' => 'pm_' . $type,
                 'name' => 'Payment ' . $type,
                 'type' => $type,
                 'is_active' => true,

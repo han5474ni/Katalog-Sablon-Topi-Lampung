@@ -25,14 +25,14 @@ class CustomDesignOrderModelTest extends TestCase
         $order = CustomDesignOrder::create([
             'user_id' => $this->user->id,
             'product_id' => $this->product->id,
-            'design_description' => 'Design custom topi dengan logo',
+            'additional_description' => 'Design custom topi dengan logo',
             'quantity' => 10,
             'status' => 'pending',
             'total_price' => 500000,
         ]);
 
         $this->assertDatabaseHas('custom_design_orders', [
-            'design_description' => 'Design custom topi dengan logo',
+            'additional_description' => 'Design custom topi dengan logo',
             'quantity' => 10,
         ]);
     }

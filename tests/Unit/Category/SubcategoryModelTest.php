@@ -4,6 +4,7 @@ namespace Tests\Unit\Category;
 
 use App\Models\Subcategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class SubcategoryModelTest extends TestCase
@@ -95,6 +96,7 @@ class SubcategoryModelTest extends TestCase
         foreach ($names as $name) {
             Subcategory::create([
                 'name' => $name,
+                'slug' => Str::slug($name),
                 'description' => 'Kategori ' . $name,
             ]);
         }
@@ -105,9 +107,9 @@ class SubcategoryModelTest extends TestCase
     /** @test */
     public function subcategory_query_returns_correct_count()
     {
-        Subcategory::create(['name' => 'Type 1', 'description' => 'Desc 1']);
-        Subcategory::create(['name' => 'Type 2', 'description' => 'Desc 2']);
-        Subcategory::create(['name' => 'Type 3', 'description' => 'Desc 3']);
+        Subcategory::create(['name' => 'Type 1', 'slug' => 'type-1', 'description' => 'Desc 1']);
+        Subcategory::create(['name' => 'Type 2', 'slug' => 'type-2', 'description' => 'Desc 2']);
+        Subcategory::create(['name' => 'Type 3', 'slug' => 'type-3', 'description' => 'Desc 3']);
 
         $count = Subcategory::count();
         $this->assertEquals(3, $count);

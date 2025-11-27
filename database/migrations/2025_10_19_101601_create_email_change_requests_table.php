@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('email_change_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('old_email');
-            $table->string('new_email');
+            $table->string('old_email')->default('');
+            $table->string('new_email')->default('');
             $table->string('token')->unique();
-            $table->timestamp('expires_at');
+            $table->string('status')->default('pending');
+            $table->timestamp('expires_at')->nullable();
             $table->boolean('is_confirmed')->default(false);
             $table->timestamps();
             

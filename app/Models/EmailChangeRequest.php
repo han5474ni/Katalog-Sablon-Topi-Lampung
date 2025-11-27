@@ -13,6 +13,7 @@ class EmailChangeRequest extends Model
         'old_email',
         'new_email',
         'token',
+        'status',
         'expires_at',
         'is_confirmed',
     ];
