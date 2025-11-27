@@ -61,6 +61,7 @@ export default defineConfig({
                 'resources/js/guest/catalog.js',
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
+                'resources/js/guest/chatbot-popup.js',
                 
                 // Customer
                 'resources/css/customer/shared.css',

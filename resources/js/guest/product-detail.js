@@ -401,12 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Chat button handler
+    // Chat button handler -> redirect to chatpage
     const chatBtn = document.querySelector('.chat-btn');
     if (chatBtn) {
-        chatBtn.addEventListener('click', () => {
-            // Redirect to chatbot or open chat interface
-            window.location.href = '/chatbot';
+        chatBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = '/chatpage';
         });
     }
 
