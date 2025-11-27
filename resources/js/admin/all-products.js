@@ -276,13 +276,14 @@ class AllProductsManager {
         // Stock
         const stockElement = element.querySelector('.stock-value');
         if (stockElement) {
-            stockElement.textContent = product.stock;
+            stockElement.textContent = product.total_stock || product.stock;
         }
 
         // Status badge
         const statusBadge = element.querySelector('.status-badge');
         if (statusBadge) {
-            if (product.stock === 0) {
+            const totalStock = product.total_stock || product.stock;
+            if (totalStock === 0) {
                 statusBadge.textContent = 'Habis';
                 statusBadge.className = 'badge status-badge out-of-stock';
             } else if (product.is_active) {
@@ -297,10 +298,11 @@ class AllProductsManager {
         // Stock badge
         const stockBadge = element.querySelector('.stock-badge');
         if (stockBadge) {
-            if (product.stock === 0) {
+            const totalStock = product.total_stock || product.stock;
+            if (totalStock === 0) {
                 stockBadge.textContent = 'Habis';
                 stockBadge.className = 'badge stock-badge out';
-            } else if (product.stock <= 10) {
+            } else if (totalStock <= 10) {
                 stockBadge.textContent = 'Stok Rendah';
                 stockBadge.className = 'badge stock-badge low';
             } else {

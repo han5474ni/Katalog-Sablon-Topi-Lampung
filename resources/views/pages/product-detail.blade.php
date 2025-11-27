@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $product['name'] ?? 'Detail Produk' }} - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/guest/product-detail.css', 'resources/css/components/navbar.css', 'resources/css/components/footer.css', 'resources/js/guest/product-detail.js', 'resources/js/components/navbar.js'])
+    @vite(['resources/css/guest/product-detail.css', 'resources/css/components/navbar.css', 'resources/css/components/footer.css', 'resources/js/guest/product-detail.js', 'resources/js/components/navbar.js', 'resources/js/chatbot/product-chatbot.js'])
 </head>
 <body class="product-detail-page">
     <x-navbar />
@@ -62,6 +62,48 @@
         $category = $product['category'] ?? 'Umum';
         $stock = $product['stock'] ?? 0;
         $customAllowed = (bool)($product['custom_design_allowed'] ?? false);
+
+        // ===== PERBAIKAN: Format colors dan sizes untuk chatbot =====
+    $chatbotColors = [];
+    $chatbotSizes = [];
+
+    // Process colors untuk chatbot
+    foreach ($colors as $color) {
+        if (is_array($color)) {
+            $colorValue = $color['value'] ?? $color['hex'] ?? $color['name'] ?? '#000000';
+            $colorLabel = $color['label'] ?? $color['name'] ?? $colorValue;
+        } else {
+            $colorValue = $color;
+            $colorLabel = $color;
+        }
+        $chatbotColors[] = [
+            'value' => $colorValue,
+            'label' => $colorLabel
+        ];
+    }
+
+    // Process sizes untuk chatbot  
+    foreach ($sizes as $size) {
+        if (is_array($size)) {
+            $sizeValue = $size['value'] ?? $size['name'] ?? $size;
+            $sizeLabel = $size['label'] ?? $size['name'] ?? $sizeValue;
+        } else {
+            $sizeValue = $size;
+            $sizeLabel = $size;
+        }
+        $chatbotSizes[] = [
+            'value' => $sizeValue,
+            'label' => $sizeLabel
+        ];
+    }
+
+    // Jika tidak ada colors/sizes dari database, gunakan default
+    if (empty($chatbotColors)) {
+        $chatbotColors = [['value' => 'default', 'label' => 'Standar']];
+    }
+    if (empty($chatbotSizes)) {
+        $chatbotSizes = [['value' => 'default', 'label' => 'Standar']];
+    }
     @endphp
 
     <nav class="breadcrumb">
@@ -262,8 +304,109 @@
                 @endforeach
             </div>
         </section>
+
+        <!-- ChatBot Modal -->
+        <div id="chatbotModal" class="chatbot-modal" aria-hidden="true">
+            <div class="chatbot-modal-overlay" data-close-modal></div>
+            <div class="chatbot-modal-content">
+                <div class="chatbot-header">
+                    <div class="chatbot-title">
+                        <i class="fas fa-robot"></i>
+                        <h3>Chat Support</h3>
+                        <span class="product-badge" id="chatProductName">{{ $product['name'] ?? 'Produk' }}</span>
+                    </div>
+                    <button class="chatbot-close" data-close-modal aria-label="Tutup chat">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="chatbot-body">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="bot-message welcome-message">
+                            <div class="message-content">
+                                <strong>Halo! 👋</strong><br>
+                                Saya siap membantu Anda dengan produk <strong>{{ $product['name'] ?? 'ini' }}</strong>. 
+                                Ada yang bisa saya bantu?
+                            </div>
+                            <small class="message-time">{{ now()->format('H:i') }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Template Questions -->
+                    <div class="template-questions">
+                        <div class="template-title">Pertanyaan Cepat:</div>
+                        <div class="template-buttons">
+                            <button class="template-btn" data-question="harga">💰 Tanya Harga</button>
+                            <button class="template-btn" data-question="stok">📦 Cek Stok</button>
+                            <button class="template-btn" data-question="warna">🎨 Pilihan Warna</button>
+                            <button class="template-btn" data-question="ukuran">📏 Ukuran Tersedia</button>
+                            @if($customAllowed)
+                            <button class="template-btn" data-question="custom">🎨 Custom Design</button>
+                            @endif
+                            <button class="template-btn" data-question="bahan">🧵 Material/Bahan</button>
+                            <button class="template-btn" data-question="pengiriman">🚚 Info Pengiriman</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="chat-input-container">
+                        <form id="chatForm" class="chat-form">
+                            @csrf
+                            <input type="hidden" name="conversation_id" id="conversationId" value="{{ $product['id'] ?? '' }}">
+                            <input type="hidden" name="product_id" value="{{ $product['id'] ?? '' }}">
+                            <div class="input-group">
+                                <input type="text" name="message" class="chat-input" placeholder="Ketik pertanyaan Anda..." required>
+                                <button type="submit" class="chat-send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <x-guest-footer />
+    <!-- <script>
+        // Product data for chatbot
+        const productData = {
+            id: {{ $product['id'] ?? 'null' }},
+            name: "{{ $product['name'] ?? 'Produk' }}",
+            price: {{ $product['price'] ?? 0 }},
+            price_min: {{ $priceMin }},
+            price_max: {{ $priceMax }},
+            stock: {{ $stock }},
+            colors: {!! json_encode($colors) !!},
+            sizes: {!! json_encode($sizes) !!},
+            custom_allowed: {{ $customAllowed ? 'true' : 'false' }},
+            description: `{{ $description }}`,
+            category: "{{ $category }}"
+        };
+
+        console.log('Product Data:', productData);
+    </script> -->
+    <script>
+        // Product data for chatbot - WITH PROPER COLOR AND SIZE DATA
+        const productData = {
+            id: {{ $product['id'] ?? 'null' }},
+            name: "{{ addslashes($product['name'] ?? 'Produk') }}",
+            price: {{ $product['price'] ?? 0 }},
+            price_min: {{ $priceMin }},
+            price_max: {{ $priceMax }},
+            stock: {{ $stock }},
+            colors: {!! json_encode($chatbotColors) !!},
+            sizes: {!! json_encode($chatbotSizes) !!},
+            custom_allowed: {{ $customAllowed ? 'true' : 'false' }},
+            description: `{{ addslashes($description) }}`,
+            category: "{{ addslashes($category) }}"
+        };
+
+        console.log('Product Data for ChatBot:', productData);
+        console.log('Available Colors:', productData.colors);
+        console.log('Available Sizes:', productData.sizes);
+    </script>
+
+    
 </body>
 </html>

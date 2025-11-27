@@ -10,16 +10,235 @@ use App\Http\Controllers\Admin\OrderManagementController;
 use App\Http\Controllers\Admin\ColorManagementController;
 use App\Http\Controllers\Admin\SubcategoryManagementController;
 use App\Http\Controllers\Admin\CustomDesignPriceController;
+use App\Http\Controllers\Admin\AdminChatController;
+use App\Http\Controllers\Admin\ChatbotSettingsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\GoogleAuthController;
-use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+
+
+use Illuminate\Support\Facades\Http;
+//use Illuminate\Support\Facades\Route;
+
+Route::get('/test-n8n-integration', function () {
+    try {
+        // Gunakan URL langsung dulu untuk testing
+        $n8nUrl = 'http://localhost:5678/webhook/chatbot';
+        
+        $response = Http::timeout(30)->post($n8nUrl, [
+            'message' => 'harga produk ini berapa?',
+            'conversation_id' => 1,
+            'product' => [
+                'name' => 'Topi Sablon Bintang', 
+                'price' => 65000
+            ],
+            'user_id' => 1
+        ]);
+
+        if ($response->successful()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->json(),
+                'n8n_response_time' => $response->transferStats->getTransferTime() . 's',
+                'n8n_url_used' => $n8nUrl
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'n8n request failed',
+                'status_code' => $response->status(),
+                'error' => $response->body(),
+                'n8n_url_used' => $n8nUrl
+            ], 500);
+        }
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Exception occurred',
+            'error' => $e->getMessage(),
+            'n8n_url' => $n8nUrl ?? 'not set'
+        ], 500);
+    }
+});
+// Test routes untuk n8n integration
+Route::get('/test-n8n-simple', function () {
+    $n8nUrl = 'http://localhost:5678/webhook/chatbot';
+    
+    try {
+        $response = Http::timeout(10)->post($n8nUrl, [
+            'message' => 'test connection from Laravel',
+            'conversation_id' => 999,
+            'user_id' => 1
+        ]);
+        
+        return response()->json([
+            'status' => $response->status(),
+            'success' => $response->successful(),
+            'response' => $response->json(),
+            'url_used' => $n8nUrl
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'url_used' => $n8nUrl
+        ], 500);
+    }
+});
+
+Route::get('/debug-n8n-config', function () {
+    return response()->json([
+        'n8n_webhook_url' => config('services.n8n.webhook_url'),
+        'env_n8n_url' => env('N8N_WEBHOOK_URL'),
+        'all_services_config' => config('services.n8n'),
+        'is_n8n_url_string' => is_string(config('services.n8n.webhook_url')),
+        'n8n_url_length' => config('services.n8n.webhook_url') ? strlen(config('services.n8n.webhook_url')) : 0
+    ]);
+});
+
+Route::get('/verify-config', function () {
+    // Test different ways to get the config
+    $tests = [
+        'env_direct' => env('N8N_WEBHOOK_URL'),
+        'config_services' => config('services.n8n.webhook_url'),
+        'config_direct' => config('services.n8n'),
+        'is_null' => is_null(config('services.n8n.webhook_url')),
+        'is_string' => is_string(config('services.n8n.webhook_url')),
+    ];
+    
+    // Test actual HTTP call if config is available
+    if (config('services.n8n.webhook_url')) {
+        try {
+            $response = Http::timeout(5)->post(config('services.n8n.webhook_url'), ['message' => 'test']);
+            $tests['http_test'] = $response->status();
+        } catch (\Exception $e) {
+            $tests['http_test'] = $e->getMessage();
+        }
+    }
+    
+    return response()->json($tests);
+});
+
+// Route original test
+Route::get('/test-n8n-integration', function () {
+    try {
+        // Gunakan URL langsung dulu untuk testing
+        $n8nUrl = 'http://localhost:5678/webhook/chatbot';
+        
+        $response = Http::timeout(30)->post($n8nUrl, [
+            'message' => 'harga produk ini berapa?',
+            'conversation_id' => 1,
+            'product' => [
+                'name' => 'Topi Sablon Bintang', 
+                'price' => 65000
+            ],
+            'user_id' => 1
+        ]);
+
+        if ($response->successful()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $response->json(),
+                'n8n_response_time' => $response->transferStats->getTransferTime() . 's',
+                'n8n_url_used' => $n8nUrl
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'n8n request failed',
+                'status_code' => $response->status(),
+                'error' => $response->body(),
+                'n8n_url_used' => $n8nUrl
+            ], 500);
+        }
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Exception occurred',
+            'error' => $e->getMessage(),
+            'n8n_url' => $n8nUrl ?? 'not set'
+        ], 500);
+    }
+});
+
+Route::post('/test-product-chat', function (Request $request) {
+    $request->validate([
+        'product_id' => 'required|integer',
+        'product_name' => 'required|string',
+        'product_price' => 'required|numeric',
+        'message' => 'required|string'
+    ]);
+
+    try {
+        $response = Http::post(config('services.n8n.webhook_url'), [
+            'message' => $request->message,
+            'conversation_id' => $request->product_id,
+            'product' => [
+                'name' => $request->product_name,
+                'price' => $request->product_price
+            ],
+            'user_id' => Auth::id() ?? 1
+        ]);
+
+        return response()->json([
+            'status' => $response->successful() ? 'success' : 'error',
+            'data' => $response->json(),
+            'product' => [
+                'id' => $request->product_id,
+                'name' => $request->product_name
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test routes untuk n8n integration
+Route::get('/test-chat-interface', function () {
+    return view('chat.test-interface');
+});
+
+// Test routes yang menggunakan ChatController
+Route::post('/test-chat-send', [ChatController::class, 'testSendMessage']);
+Route::get('/test-chat-quick', [ChatController::class, 'quickTest']);
+
+// ===== API Routes untuk Stock & Product Info (untuk future use) =====
+Route::prefix('api')->group(function () {
+    // Get fresh stock information untuk product spesifik
+    // Usage: GET /api/product/{id}/stock
+    Route::get('/product/{id}/stock', function ($id) {
+        try {
+            $chatBotService = app(\App\Services\ChatBotService::class);
+            $stockInfo = $chatBotService->getProductStockInfo($id);
+            
+            if ($stockInfo['success']) {
+                return response()->json($stockInfo, 200);
+            } else {
+                return response()->json($stockInfo, 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Internal server error'
+            ], 500);
+        }
+    });
+});
+
+
+
+
+
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -35,6 +254,19 @@ Route::get('/api/custom-design-prices', [App\Http\Controllers\Admin\CustomDesign
 
 // API for product-specific custom design prices (for customer page)
 Route::get('/api/product-custom-design-prices/{productId}', [App\Http\Controllers\Admin\CustomDesignPriceController::class, 'getProductPrices'])->name('api.product-custom-design-prices');
+
+
+// Tambahkan routes berikut
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Chat Routes
+    Route::prefix('chat')->group(function () {
+        Route::get('/product/{productId}', [ChatController::class, 'startChat'])->name('chat.start');
+        Route::get('/history', [ChatController::class, 'getChatHistory'])->name('chat.history');
+        Route::get('/conversation/{conversationId}', [ChatController::class, 'getConversation'])->name('chat.conversation');
+        Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat.send');
+        Route::post('/conversation/{conversationId}/request-admin', [ChatController::class, 'requestAdminResponse'])->name('chat.request-admin');
+    });
+});
 
 // Customer authenticated routes
 Route::middleware(['auth'])->group(function () {
@@ -175,10 +407,31 @@ Route::prefix('admin')->group(function () {
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');
         Route::get('/all-products', [ProductManagementController::class, 'allProducts'])->name('admin.all-products');
 
-        // Chatbot Admin
-        Route::get('/chatbot', function () {
-            return view('admin.chatbot');
-        })->name('admin.chatbot');
+        // Chatbot Admin Management
+        Route::prefix('chatbot')->name('chatbot.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\AdminChatController::class, 'index'])->name('index');
+            Route::get('/conversation/{id}', [App\Http\Controllers\Admin\AdminChatController::class, 'getConversation'])->name('conversation.show');
+            Route::post('/conversation/{id}/take-over', [App\Http\Controllers\Admin\AdminChatController::class, 'takeOverConversation'])->name('conversation.takeover');
+            Route::post('/conversation/{id}/send-message', [App\Http\Controllers\Admin\AdminChatController::class, 'sendAdminMessage'])->name('conversation.send');
+            Route::post('/conversation/{id}/escalate', [App\Http\Controllers\Admin\AdminChatController::class, 'escalateConversation'])->name('conversation.escalate');
+            Route::post('/conversation/{id}/needs-response', [App\Http\Controllers\Admin\AdminChatController::class, 'markNeedsAdminResponse'])->name('conversation.needs-response');
+            Route::post('/conversation/{id}/close', [App\Http\Controllers\Admin\AdminChatController::class, 'closeConversation'])->name('conversation.close');
+            Route::post('/conversation/{id}/release', [App\Http\Controllers\Admin\AdminChatController::class, 'releaseConversation'])->name('conversation.release');
+            Route::post('/conversation/{id}/mark-read', [App\Http\Controllers\Admin\AdminChatController::class, 'markConversationAsRead'])->name('conversation.mark-read');
+            
+            // Chatbot Settings
+            Route::get('/settings', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'index'])->name('settings');
+            Route::post('/settings/toggle-global', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'toggleGlobal'])->name('settings.toggle-global');
+            Route::post('/settings/toggle-product/{productId}', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'toggleProduct'])->name('settings.toggle-product');
+            Route::post('/settings/reset', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'reset'])->name('settings.reset');
+            
+            // API endpoints
+            Route::get('/api/unread-count', [App\Http\Controllers\Admin\AdminChatController::class, 'getUnreadCount'])->name('api.unread-count');
+            Route::get('/api/needs-attention', [App\Http\Controllers\Admin\AdminChatController::class, 'getConversationsNeedingAttention'])->name('api.needs-attention');
+            Route::get('/api/settings', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getSettings'])->name('api.settings');
+            Route::get('/api/products', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getProductsList'])->name('api.products');
+            Route::get('/api/product/{productId}/status', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'getProductStatus'])->name('api.product-status');
+        });
         
         // Custom Design Prices Management
         Route::get('/custom-design-prices', [CustomDesignPriceController::class, 'index'])->name('admin.custom-design-prices');

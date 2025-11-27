@@ -72,6 +72,14 @@ trait StockManagementTrait
             }
             
             $variant->decrement('stock', $order->quantity);
+            
+            // Also decrement product stock to keep it in sync
+            $product = Product::find($variant->product_id);
+            if ($product && $product->stock > 0) {
+                $deductAmount = min($order->quantity, $product->stock);
+                $product->decrement('stock', $deductAmount);
+            }
+            
             Log::info("Stock deducted for custom order #{$order->id}: Variant #{$variant->id}, qty: {$order->quantity}");
         } else {
             $product = Product::find($order->product_id);
@@ -131,6 +139,14 @@ trait StockManagementTrait
                 }
                 
                 $variant->decrement('stock', $item['quantity']);
+                
+                // Also decrement product stock to keep it in sync
+                $product = Product::find($variant->product_id);
+                if ($product && $product->stock > 0) {
+                    $deductAmount = min($item['quantity'], $product->stock);
+                    $product->decrement('stock', $deductAmount);
+                }
+                
                 Log::info("Stock deducted for order #{$order->id}: Variant #{$variant->id}, qty: {$item['quantity']}");
             } else {
                 // Use product stock instead
@@ -173,6 +189,13 @@ trait StockManagementTrait
             $variant = ProductVariant::find($order->variant_id);
             if ($variant) {
                 $variant->increment('stock', $order->quantity);
+                
+                // Also restore product stock
+                $product = Product::find($variant->product_id);
+                if ($product) {
+                    $product->increment('stock', $order->quantity);
+                }
+                
                 Log::info("Stock restored for custom order #{$order->id}: Variant #{$variant->id}, qty: {$order->quantity}");
             }
         } else {
@@ -197,6 +220,13 @@ trait StockManagementTrait
                 $variant = ProductVariant::find($item['variant_id']);
                 if ($variant) {
                     $variant->increment('stock', $item['quantity']);
+                    
+                    // Also restore product stock
+                    $product = Product::find($variant->product_id);
+                    if ($product) {
+                        $product->increment('stock', $item['quantity']);
+                    }
+                    
                     Log::info("Stock restored for order #{$order->id}: Variant #{$variant->id}, qty: {$item['quantity']}");
                 }
             } else {

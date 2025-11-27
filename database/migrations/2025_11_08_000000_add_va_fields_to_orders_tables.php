@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             if (!Schema::hasColumn('orders', 'va_number')) {
-                $table->string('va_number')->nullable()->after('payment_deadline');
+                $table->string('va_number')->nullable()->after('payment_status');
             }
             if (!Schema::hasColumn('orders', 'va_generated_at')) {
                 $table->timestamp('va_generated_at')->nullable()->after('va_number');
@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::table('custom_design_orders', function (Blueprint $table) {
             if (!Schema::hasColumn('custom_design_orders', 'va_number')) {
-                $table->string('va_number')->nullable()->after('payment_deadline');
+                $table->string('va_number')->nullable()->after('status');
             }
             if (!Schema::hasColumn('custom_design_orders', 'va_generated_at')) {
                 $table->timestamp('va_generated_at')->nullable()->after('va_number');

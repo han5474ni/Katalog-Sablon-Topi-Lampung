@@ -85,6 +85,12 @@ class Product extends Model
         });
     }
 
+    // Relationship to ProductVariant
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
     public function scopeFilterByColors($query, array $colors)
     {
         return $query->where(function($q) use ($colors) {
@@ -197,12 +203,6 @@ class Product extends Model
         return $images;
     }
 
-    // Relationship to ProductVariant
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
-
     // Relationship to CustomDesignPrices (Many-to-Many)
     public function customDesignPrices()
     {
@@ -212,5 +212,10 @@ class Product extends Model
             'product_id',
             'custom_design_price_id'
         )->withPivot('custom_price', 'is_active')->withTimestamps();
+    }
+
+    public function chatConversations()
+    {
+        return $this->hasMany(ChatConversation::class);
     }
 }

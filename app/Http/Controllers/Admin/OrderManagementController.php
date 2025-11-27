@@ -400,6 +400,60 @@ class OrderManagementController extends Controller
             $updateData['completed_at'] = now();
         }
 
+        // If updating status to 'approved', ensure stock deduction runs and use a transaction
+        if ($request->status === 'approved') {
+            DB::beginTransaction();
+            try {
+                // Deduct stock for this order (will return ['success' => bool, 'message' => string])
+                $deduction = $this->deductStockForOrder($order, $orderType);
+
+                if (!$deduction['success']) {
+                    throw new \Exception($deduction['message']);
+                }
+
+                // Set approved timestamps + payment deadline
+                $updateData['approved_at'] = now();
+                $updateData['payment_deadline'] = now()->addHours(24);
+
+                // Save and commit
+                $order->forceFill($updateData)->save();
+                DB::commit();
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Status pesanan berhasil diubah ke Approved',
+                        'status' => 'approved',
+                        'timestamp' => now()->format('l, d/m/Y H:i')
+                    ]);
+                }
+
+                return redirect()
+                    ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                    ->with('success', 'Status pesanan berhasil diubah ke Approved. Stok telah dikurangi.');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Failed to update status to approved', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengubah status: ' . $e->getMessage()
+                    ], 400);
+                }
+
+                return redirect()
+                    ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                    ->with('error', 'Gagal mengubah status pesanan: ' . $e->getMessage());
+            }
+        }
+
+        // Default: non-approved status change
         $order->update($updateData);
 
         // If AJAX request, return JSON

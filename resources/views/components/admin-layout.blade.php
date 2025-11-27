@@ -95,7 +95,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.chatbot') }}" class="sidebar__link {{ request()->routeIs('admin.chatbot') ? 'active' : '' }}">
+                    <a href="{{ route('chatbot.index') }}" class="sidebar__link {{ request()->routeIs('chatbot.*') ? 'active' : '' }}">
                         <i class="fas fa-comment"></i>
                         <span>Chatbot</span>
                     </a>
