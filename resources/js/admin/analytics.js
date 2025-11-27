@@ -314,12 +314,14 @@ function loadCustomerAnalytics() {
                 const els = {
                     'new-customers': document.getElementById('new-customers'),
                     'active-customers': document.getElementById('active-customers'),
+                    'total-customers': document.getElementById('total-customers'),
                     'purchasing-rate': document.getElementById('purchasing-rate'),
                     'rfm-table': document.getElementById('rfm-table')
                 };
                 
                 if (els['new-customers']) els['new-customers'].textContent = d.newCustomers;
                 if (els['active-customers']) els['active-customers'].textContent = d.activeCustomers;
+                if (els['total-customers']) els['total-customers'].textContent = d.totalCustomers;
                 if (els['purchasing-rate']) els['purchasing-rate'].textContent = d.purchasingRate.toFixed(2) + '%';
                 
                 if (els['rfm-table'] && d.rfmTop && d.rfmTop.length > 0) {

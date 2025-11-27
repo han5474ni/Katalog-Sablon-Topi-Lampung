@@ -287,23 +287,28 @@ class AnalyticsController extends Controller
             $newCustomers = User::whereBetween('created_at', [$startDate, $endDate])
                 ->count();
             
-            // Total customers
-            $totalCustomers = User::count();
-            $returningCustomers = $totalCustomers - $newCustomers;
+            // Total customers who existed at the start of period (active customer base)
+            $totalCustomersInPeriod = User::where('created_at', '<=', $endDate)->count();
             
-            // Customer who made purchases
-            $customersWithOrders = Order::whereBetween('created_at', [$startDate, $endDate])
+            // Customers who made purchases IN THIS PERIOD
+            $customersWithOrdersInPeriod = Order::whereBetween('created_at', [$startDate, $endDate])
                 ->distinct('user_id')
                 ->count('user_id');
             
-            $customersWithCustomOrders = CustomDesignOrder::whereBetween('created_at', [$startDate, $endDate])
+            $customersWithCustomOrdersInPeriod = CustomDesignOrder::whereBetween('created_at', [$startDate, $endDate])
                 ->distinct('user_id')
                 ->count('user_id');
             
-            $totalActiveCustomers = max(
+            $activeCustomersInPeriod = max($customersWithOrdersInPeriod, $customersWithCustomOrdersInPeriod);
+            
+            // Total active customers all-time (for comparison)
+            $totalActiveCustomersAllTime = max(
                 Order::distinct('user_id')->count('user_id'),
                 CustomDesignOrder::distinct('user_id')->count('user_id')
             );
+            
+            // Purchasing rate = customers who bought in this period / total customers who existed
+            $purchasingRate = $totalCustomersInPeriod > 0 ? round(($activeCustomersInPeriod / $totalCustomersInPeriod) * 100, 2) : 0;
             
             // RFM Analysis (Recency, Frequency, Monetary)
             $rfmData = [];
@@ -345,10 +350,9 @@ class AnalyticsController extends Controller
                 'success' => true,
                 'data' => [
                     'newCustomers' => $newCustomers,
-                    'returningCustomers' => $returningCustomers,
-                    'activeCustomers' => $totalActiveCustomers,
-                    'totalCustomers' => $totalCustomers,
-                    'purchasingRate' => $totalCustomers > 0 ? round(($totalActiveCustomers / $totalCustomers) * 100, 2) : 0,
+                    'activeCustomers' => $activeCustomersInPeriod,
+                    'totalCustomers' => $totalCustomersInPeriod,
+                    'purchasingRate' => $purchasingRate,
                     'rfmTop' => $topRFMData,
                 ]
             ]);

@@ -83,19 +83,25 @@
                 <div class="stats-card">
                     <div class="stats-card-label">New Customers</div>
                     <p class="stats-card-value" id="new-customers">0</p>
-                    <div class="stats-card-meta">This period</div>
+                    <div class="stats-card-meta">Registered this period</div>
                 </div>
 
                 <div class="stats-card purple">
                     <div class="stats-card-label">Active Customers</div>
                     <p class="stats-card-value" id="active-customers">0</p>
-                    <div class="stats-card-meta">With purchases</div>
+                    <div class="stats-card-meta">Purchased this period</div>
                 </div>
 
                 <div class="stats-card orange">
+                    <div class="stats-card-label">Total Customers</div>
+                    <p class="stats-card-value" id="total-customers">0</p>
+                    <div class="stats-card-meta">Customer base</div>
+                </div>
+
+                <div class="stats-card green">
                     <div class="stats-card-label">Purchasing Rate</div>
                     <p class="stats-card-value" id="purchasing-rate">0%</p>
-                    <div class="stats-card-meta">Of all customers</div>
+                    <div class="stats-card-meta">Active / Total</div>
                 </div>
             </div>
         </div>
