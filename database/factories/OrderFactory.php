@@ -33,6 +33,7 @@ class OrderFactory extends Factory
             'cancelled_at' => $this->faker->optional()->dateTime(),
             'approved_at' => $this->faker->optional()->dateTime(),
             'rejected_at' => $this->faker->optional()->dateTime(),
+            'confirmation_deadline' => $this->faker->optional()->dateTime(),
         ];
     }
 }

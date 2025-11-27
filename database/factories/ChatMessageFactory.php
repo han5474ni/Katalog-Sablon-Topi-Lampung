@@ -17,7 +17,7 @@ class ChatMessageFactory extends Factory
             'conversation_id' => ChatConversation::factory(),
             'sender_id' => User::factory(),
             'message' => $this->faker->paragraph(),
-            'sender_type' => $this->faker->randomElement(['user', 'admin']),
+            'sender_type' => $this->faker->randomElement(['customer', 'admin']),
         ];
     }
 }
