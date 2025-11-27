@@ -129,6 +129,7 @@ class PaymentProcessTest extends TestCase
             'order_id' => $this->order->id,
             'user_id' => $this->user->id,
             'amount' => 100000,
+            'payment_method' => 'bank_transfer',
             'reference_number' => 'UNIQUE-REF-123',
             'status' => 'pending',
         ]);
@@ -141,9 +142,9 @@ class PaymentProcessTest extends TestCase
     /** @test */
     public function multiple_payment_methods_available()
     {
-        PaymentMethod::create(['name' => 'BCA', 'type' => 'bank', 'is_active' => true]);
-        PaymentMethod::create(['name' => 'GoPay', 'type' => 'ewallet', 'is_active' => true]);
-        PaymentMethod::create(['name' => 'OVO', 'type' => 'ewallet', 'is_active' => true]);
+        PaymentMethod::create(['code' => 'pm_bca', 'name' => 'BCA', 'type' => 'bank', 'is_active' => true]);
+        PaymentMethod::create(['code' => 'pm_gopay', 'name' => 'GoPay', 'type' => 'ewallet', 'is_active' => true]);
+        PaymentMethod::create(['code' => 'pm_ovo', 'name' => 'OVO', 'type' => 'ewallet', 'is_active' => true]);
 
         $methods = PaymentMethod::where('is_active', true)->get();
 

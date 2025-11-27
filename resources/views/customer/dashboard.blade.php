@@ -138,6 +138,8 @@
     </script>
 </head>
 <body class="bg-gray-50">
+    <livewire:layout.navigation />
+    
     <div class="flex h-screen">
         <x-customer-sidebar active="dashboard" />
 
