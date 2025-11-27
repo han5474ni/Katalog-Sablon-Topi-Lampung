@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('payment_methods', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
+            $table->string('code')->default(uniqid())->unique();
             $table->string('name');
             $table->string('type')->nullable();
             $table->text('description')->nullable();

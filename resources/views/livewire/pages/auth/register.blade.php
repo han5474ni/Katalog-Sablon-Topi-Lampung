@@ -44,8 +44,8 @@ $register = function () {
         // Flash success message
         session()->flash('success', 'Akun berhasil dibuat! Silakan login untuk melanjutkan.');
         
-        // Redirect ke login
-        return redirect()->route('login');
+        // Redirect ke dashboard
+        return redirect()->route('dashboard');
 
     } catch (\Illuminate\Validation\ValidationException $e) {
         // Validation error akan ditangani otomatis oleh Livewire
