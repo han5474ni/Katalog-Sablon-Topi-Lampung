@@ -787,15 +787,6 @@
                                 }
                             @endphp
                             
-                            {{-- Temporary Debug Info --}}
-                            <div style="background: #e3f2fd; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 11px;">
-                                <strong>Debug Preview:</strong><br>
-                                Total Images: {{ count($productImages) }}<br>
-                                @foreach($productImages as $idx => $url)
-                                    {{ $idx + 1 }}. {{ Str::limit($url, 60) }}<br>
-                                @endforeach
-                            </div>
-                            
                             @if(count($productImages) > 1)
                                 {{-- Show Slider for Multiple Images --}}
                                 <div style="width: 100%; max-width: 300px; height: 300px; border-radius: 12px; overflow: hidden; background: #f9fafb; margin: 0 auto;">

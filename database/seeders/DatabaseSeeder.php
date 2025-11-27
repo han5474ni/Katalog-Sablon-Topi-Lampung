@@ -22,5 +22,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Run analytics seeder for dashboard testing
+        $this->call(CompletedOrdersAnalyticsSeeder::class);
     }
 }

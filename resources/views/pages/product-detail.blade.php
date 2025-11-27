@@ -304,67 +304,6 @@
                 @endforeach
             </div>
         </section>
-
-        <!-- ChatBot Modal -->
-        <div id="chatbotModal" class="chatbot-modal" aria-hidden="true">
-            <div class="chatbot-modal-overlay" data-close-modal></div>
-            <div class="chatbot-modal-content">
-                <div class="chatbot-header">
-                    <div class="chatbot-title">
-                        <i class="fas fa-robot"></i>
-                        <h3>Chat Support</h3>
-                        <span class="product-badge" id="chatProductName">{{ $product['name'] ?? 'Produk' }}</span>
-                    </div>
-                    <button class="chatbot-close" data-close-modal aria-label="Tutup chat">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="chatbot-body">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="bot-message welcome-message">
-                            <div class="message-content">
-                                <strong>Halo! 👋</strong><br>
-                                Saya siap membantu Anda dengan produk <strong>{{ $product['name'] ?? 'ini' }}</strong>. 
-                                Ada yang bisa saya bantu?
-                            </div>
-                            <small class="message-time">{{ now()->format('H:i') }}</small>
-                        </div>
-                    </div>
-
-                    <!-- Template Questions -->
-                    <div class="template-questions">
-                        <div class="template-title">Pertanyaan Cepat:</div>
-                        <div class="template-buttons">
-                            <button class="template-btn" data-question="harga">💰 Tanya Harga</button>
-                            <button class="template-btn" data-question="stok">📦 Cek Stok</button>
-                            <button class="template-btn" data-question="warna">🎨 Pilihan Warna</button>
-                            <button class="template-btn" data-question="ukuran">📏 Ukuran Tersedia</button>
-                            @if($customAllowed)
-                            <button class="template-btn" data-question="custom">🎨 Custom Design</button>
-                            @endif
-                            <button class="template-btn" data-question="bahan">🧵 Material/Bahan</button>
-                            <button class="template-btn" data-question="pengiriman">🚚 Info Pengiriman</button>
-                        </div>
-                    </div>
-
-                    <!-- Chat Input -->
-                    <div class="chat-input-container">
-                        <form id="chatForm" class="chat-form">
-                            @csrf
-                            <input type="hidden" name="conversation_id" id="conversationId" value="{{ $product['id'] ?? '' }}">
-                            <input type="hidden" name="product_id" value="{{ $product['id'] ?? '' }}">
-                            <div class="input-group">
-                                <input type="text" name="message" class="chat-input" placeholder="Ketik pertanyaan Anda..." required>
-                                <button type="submit" class="chat-send-btn">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     </main>
 
     <x-guest-footer />

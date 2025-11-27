@@ -14,12 +14,12 @@
                     </div>
                     <div>
                         <p class="stat-content">Produk Terjual</p>
-                        <h3 class="stat-value">123.456</h3>
+                        <h3 class="stat-value" data-stat="total_sold">{{ number_format($stats['total_sold'] ?? 0) }}</h3>
                         <div class="stat-trend">
-                            <span class="stat-badge-up">
-                                <i class="fas fa-arrow-up"></i> 26.7%
+                            <span class="stat-badge-{{ ($soldTrend ?? 0) >= 0 ? 'up' : 'down' }}">
+                                <i class="fas fa-arrow-{{ ($soldTrend ?? 0) >= 0 ? 'up' : 'down' }}"></i> {{ abs($soldTrend ?? 0) }}%
                             </span>
-                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                            <span class="stat-label-small">Dibandingkan dengan bulan lalu</span>
                         </div>
                     </div>
                 </div>
@@ -33,12 +33,12 @@
                     </div>
                     <div>
                         <p class="stat-content">Hasil Pendapatan</p>
-                        <h3 class="stat-value">678.908</h3>
+                        <h3 class="stat-value" data-stat="revenue">Rp {{ number_format($stats['revenue'] ?? 0, 0, ',', '.') }}</h3>
                         <div class="stat-trend">
                             <span class="stat-badge-up">
-                                <i class="fas fa-arrow-up"></i> 33.7%
+                                <i class="fas fa-arrow-up"></i> Data Real-time
                             </span>
-                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                            <span class="stat-label-small">Pesanan yang selesai</span>
                         </div>
                     </div>
                 </div>
@@ -52,12 +52,12 @@
                     </div>
                     <div>
                         <p class="stat-content">Pembeli</p>
-                        <h3 class="stat-value">234.654</h3>
+                        <h3 class="stat-value" data-stat="customers">{{ number_format($stats['customers'] ?? 0) }}</h3>
                         <div class="stat-trend">
                             <span class="stat-badge-up">
-                                <i class="fas fa-arrow-up"></i> 14.7%
+                                <i class="fas fa-arrow-up"></i> Terdaftar
                             </span>
-                            <span class="stat-label-small">Dibandingkan dengan Oktober 2025</span>
+                            <span class="stat-label-small">Pelanggan yang terverifikasi</span>
                         </div>
                     </div>
                 </div>
@@ -88,41 +88,22 @@
                     </button>
                 </div>
                 <div class="product-list">
-                    <!-- Product 1 -->
+                    @forelse($topProducts ?? [] as $product)
                     <div class="product-item">
-                        <div class="product-icon-wrapper product-icon-blue">
-                            <i class="fas fa-shirt product-icon icon-blue"></i>
+                        <div class="product-icon-wrapper product-icon-{{ ['blue', 'green', 'yellow', 'purple', 'pink'][$loop->index] ?? 'blue' }}">
+                            <i class="fas fa-box product-icon"></i>
                         </div>
                         <div class="product-info">
-                            <p class="product-name">Jersey</p>
-                            <p class="product-sales">999 pembelian</p>
+                            <p class="product-name">{{ $product['name'] }}</p>
+                            <p class="product-sales">{{ $product['variant_count'] }} variant</p>
                         </div>
-                        <p class="product-price">Rp 123.456</p>
+                        <a href="{{ route('admin.all-products.detail', $product['id']) }}" class="product-price" style="text-decoration: none; color: inherit; cursor: pointer;">Lihat detail</a>
                     </div>
-
-                    <!-- Product 2 -->
+                    @empty
                     <div class="product-item">
-                        <div class="product-icon-wrapper product-icon-green">
-                            <i class="fas fa-shirt product-icon icon-green"></i>
-                        </div>
-                        <div class="product-info">
-                            <p class="product-name">Kaos</p>
-                            <p class="product-sales">999 pembelian</p>
-                        </div>
-                        <p class="product-price">Rp 234.567</p>
+                        <p class="text-gray-500 text-center py-4 col-span-full">Tidak ada data produk</p>
                     </div>
-
-                    <!-- Product 3 -->
-                    <div class="product-item">
-                        <div class="product-icon-wrapper product-icon-yellow">
-                            <i class="fas fa-hat-cowboy product-icon" style="color: #b45309;"></i>
-                        </div>
-                        <div class="product-info">
-                            <p class="product-name">Topi</p>
-                            <p class="product-sales">999 pembelian</p>
-                        </div>
-                        <p class="product-price">Rp 231.321</p>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -151,84 +132,11 @@
                             <th class="table-th">Jumlah</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recent-orders-tbody">
                         <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
+                            <td colspan="7" class="table-td text-center py-4 text-gray-500">
+                                Memuat pesanan terbaru...
                             </td>
-                            <td class="table-td table-td-product">Baju</td>
-                            <td class="table-td table-td-text">#23456</td>
-                            <td class="table-td table-td-text">Nov 8th, 2023</td>
-                            <td class="table-td table-td-customer">Hakiki</td>
-                            <td class="table-td">
-                                <span class="status-badge status-pending">Pengiriman</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
-                        </tr>
-                        <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
-                            </td>
-                            <td class="table-td table-td-product">Kaos</td>
-                            <td class="table-td table-td-text">#34567</td>
-                            <td class="table-td table-td-text">Nov 7th, 2023</td>
-                            <td class="table-td table-td-customer">Blodot</td>
-                            <td class="table-td">
-                                <span class="status-badge status-cancelled">Dibatalkan</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
-                        </tr>
-                        <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
-                            </td>
-                            <td class="table-td table-td-product">Topi</td>
-                            <td class="table-td table-td-text">#23457</td>
-                            <td class="table-td table-td-text">Nov 6th, 2023</td>
-                            <td class="table-td table-td-customer">Kaisar</td>
-                            <td class="table-td">
-                                <span class="status-badge status-pending">Pengiriman</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
-                        </tr>
-                        <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
-                            </td>
-                            <td class="table-td table-td-product">Kaos</td>
-                            <td class="table-td table-td-text">#43214</td>
-                            <td class="table-td table-td-text">Nov 4th, 2023</td>
-                            <td class="table-td table-td-customer">Anyak</td>
-                            <td class="table-td">
-                                <span class="status-badge status-completed">Selesai</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
-                        </tr>
-                        <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
-                            </td>
-                            <td class="table-td table-td-product">Jersey</td>
-                            <td class="table-td table-td-text">#23345</td>
-                            <td class="table-td table-td-text">Nov 2nd, 2023</td>
-                            <td class="table-td table-td-customer">Elisa Novia</td>
-                            <td class="table-td">
-                                <span class="status-badge status-pending">Pengiriman</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
-                        </tr>
-                        <tr class="table-row">
-                            <td class="table-td">
-                                <input type="checkbox">
-                            </td>
-                            <td class="table-td table-td-product">Kaos</td>
-                            <td class="table-td table-td-text">#23567</td>
-                            <td class="table-td table-td-text">Nov 1st, 2023</td>
-                            <td class="table-td table-td-customer">Kaisar</td>
-                            <td class="table-td">
-                                <span class="status-badge status-completed">Selesai</span>
-                            </td>
-                            <td class="table-td table-td-amount">Rp.99.999</td>
                         </tr>
                     </tbody>
                 </table>
@@ -238,6 +146,6 @@
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    @vite('resources/js/admin/dashboard-charts.js')
+    @vite(['resources/js/admin/dashboard-charts.js'])
     @endpush
 </x-admin-layout>

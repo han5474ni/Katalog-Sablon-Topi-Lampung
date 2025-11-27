@@ -5,12 +5,17 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000;
+    z-index: 9999;
     display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .chatbot-modal.show {
-    display: block;
+    display: flex;
+    opacity: 1;
+    visibility: visible;
 }
 
 .chatbot-modal-overlay {
@@ -248,25 +253,8 @@
     cursor: not-allowed;
 }
 
-/* Chat button in product actions */
-.chat-btn {
-    background: #10b981;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.chat-btn:hover {
-    background: #059669;
-    transform: translateY(-1px);
-}
+/* Chat button styling - consolidated in footer.css */
+/* Use footer.css for .chat-btn base styles to avoid duplication */
 
 /* Floating Chat Button */
 .floating-chat-btn {

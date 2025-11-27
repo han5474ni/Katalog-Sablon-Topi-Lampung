@@ -16,10 +16,7 @@ class GoogleAuthController extends Controller
      */
     public function redirectToGoogle()
     {
-		return Socialite::driver('google')
-			->redirectUrl(route('google.callback'))
-            ->with(['prompt' => 'select_account'])
-            ->redirect();
+        return Socialite::driver('google')->redirect();
     }
 
     /**
@@ -28,10 +25,7 @@ class GoogleAuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-			$googleUser = Socialite::driver('google')
-				->redirectUrl(route('google.callback'))
-				->stateless()
-				->user();
+            $googleUser = Socialite::driver('google')->user();
             
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();

@@ -232,7 +232,7 @@ class AllProductsManager {
                 image.alt = product.name;
             } else {
                 // No image available - use placeholder
-                image.src = '/images/placeholder-product.jpg';
+                image.src = '/images/placeholder-product.svg';
                 image.alt = product.name;
                 image.onerror = () => {
                     // If placeholder also fails, show icon
@@ -485,8 +485,8 @@ class AllProductsManager {
     }
 
     viewProduct(productId) {
-        // Redirect to product detail page or open modal
-        window.open(`/public/detail?id=${productId}`, '_blank');
+        // Redirect to product detail page
+        window.location.href = `/admin/all-products/detail/${productId}`;
     }
 
     editProduct(productId) {

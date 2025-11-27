@@ -396,20 +396,10 @@ body {
     text-align: center;
 }
 
-/* Hide floating chat button on product detail page (we have inline button) */
-.product-detail-page .chat-btn:not(.button-row-top .chat-btn),
-.product-detail-page .chat-btn:not(.button-row-top > .chat-btn) {
-    display: none !important;
-}
 
-/* Ensure floating button from footer doesn't interfere */
-body.product-detail-page > .chat-btn,
-body.product-detail-page footer .chat-btn,
-body.product-detail-page .chat-btn[style*="position: fixed"] {
-    display: none !important;
-}
-
-/* Force remove any inline styles on chat button in button row */
+/* Chat button styling for product detail page
+   Floating button is still visible but handled by product-chatbot.js
+   Inline button in button row is also handled by the same JS */
 .button-row-top > .chat-btn {
     position: static !important;
     bottom: auto !important;

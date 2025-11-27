@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/css/guest/auth-layout.css', 'resources/css/auth/forgot-password.css', 'resources/js/app.js', 'resources/js/guest/auth-layout.js'])
+        @vite(['resources/css/app.css', 'resources/css/guest/auth-layout.css', 'resources/css/guest/login.css', 'resources/css/auth/forgot-password.css', 'resources/js/app.js', 'resources/js/guest/auth-layout.js'])
 
         @stack('styles')
     </head>

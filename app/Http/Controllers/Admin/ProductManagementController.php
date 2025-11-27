@@ -31,6 +31,79 @@ class ProductManagementController extends Controller
     }
 
     /**
+     * Display the product detail page with order filters
+     */
+    public function productDetail($id)
+    {
+        $product = Product::with('variants')->findOrFail($id);
+        
+        // Query all orders containing this product
+        // Orders items column contains JSON array with product IDs
+        $orders = \App\Models\Order::whereJsonContains('items', function($query) use ($id) {
+            // This callback is not used in whereJsonContains - we need to use where with JSON
+        })
+        ->orWhere(function($query) use ($id) {
+            // Raw query to check if product ID exists in items JSON array
+            $query->whereRaw("JSON_CONTAINS(items, JSON_ARRAY(?)) OR items LIKE ?", [$id, '%"product_id":' . $id . '%']);
+        })
+        ->orderByDesc('created_at')
+        ->get();
+
+        // If first query returns no results, try alternative approach
+        if ($orders->isEmpty()) {
+            $orders = \App\Models\Order::get()->filter(function($order) use ($id) {
+                if (!is_array($order->items)) {
+                    return false;
+                }
+                // Check if any item in the order contains this product ID
+                foreach ($order->items as $item) {
+                    if (isset($item['product_id']) && $item['product_id'] == $id) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values();
+        }
+
+        // Group orders by status/category
+        $ordersByCategory = [
+            'pesan' => $orders->where('status', 'pending')->values(),
+            'proses' => $orders->where('status', 'processing')->values(),
+            'completed' => $orders->where('status', 'completed')->values(),
+            'cancel' => $orders->where('status', 'cancelled')->values(),
+            'batal' => $orders->where('status', 'rejected')->values(),
+        ];
+
+        // Collect all variant images for carousel
+        $variantImages = [];
+        if ($product->variants) {
+            foreach ($product->variants as $variant) {
+                if ($variant->image) {
+                    $imageUrl = str_starts_with($variant->image, 'http://') || str_starts_with($variant->image, 'https://') 
+                        ? $variant->image 
+                        : asset('storage/' . $variant->image);
+                    $variantImages[] = $imageUrl;
+                }
+            }
+        }
+        
+        // If no variant images but product has main image, use main image
+        if (empty($variantImages) && $product->image) {
+            $imageUrl = str_starts_with($product->image, 'http://') || str_starts_with($product->image, 'https://') 
+                ? $product->image 
+                : asset('storage/' . $product->image);
+            $variantImages[] = $imageUrl;
+        }
+
+        return view('admin.all-products-detail', [
+            'product' => $product,
+            'orders' => $orders,
+            'ordersByCategory' => $ordersByCategory,
+            'variantImages' => $variantImages,
+        ]);
+    }
+
+    /**
      * Get all products with filters (for AJAX)
      */
     public function getProducts(Request $request)
@@ -829,5 +902,89 @@ class ProductManagementController extends Controller
             \Log::error('Image compression failed: ' . $e->getMessage());
             return $file->store($directory, 'public');
         }
+    }
+
+    /**
+     * Get orders for a specific product (AJAX endpoint for real-time sync)
+     */
+    public function getProductOrders($productId)
+    {
+        try {
+            // Query all orders containing this product
+            $orders = \App\Models\Order::get()->filter(function($order) use ($productId) {
+                if (!is_array($order->items)) {
+                    return false;
+                }
+                // Check if any item in the order contains this product ID
+                foreach ($order->items as $item) {
+                    if (isset($item['product_id']) && $item['product_id'] == $productId) {
+                        return true;
+                    }
+                }
+                return false;
+            })->values()->sortByDesc('created_at');
+
+            // Group orders by status
+            $ordersByCategory = [
+                'pesan' => $orders->where('status', 'pending')->values(),
+                'proses' => $orders->where('status', 'processing')->values(),
+                'completed' => $orders->where('status', 'completed')->values(),
+                'cancel' => $orders->where('status', 'cancelled')->values(),
+                'batal' => $orders->where('status', 'rejected')->values(),
+            ];
+
+            // Format orders for JSON response
+            $formattedOrders = $orders->map(function($order) {
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'customer_name' => $order->user?->name ?? 'Unknown',
+                    'status' => $order->status,
+                    'status_label' => $this->getStatusLabel($order->status),
+                    'total' => (float)$order->total,
+                    'total_formatted' => 'Rp ' . number_format((float)$order->total, 0, ',', '.'),
+                    'created_at' => $order->created_at->format('M d, Y H:i'),
+                ];
+            })->values();
+
+            // Format categories with counts
+            $categories = [
+                'all' => count($orders),
+                'pesan' => count($ordersByCategory['pesan']),
+                'proses' => count($ordersByCategory['proses']),
+                'completed' => count($ordersByCategory['completed']),
+                'cancel' => count($ordersByCategory['cancel']),
+                'batal' => count($ordersByCategory['batal']),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'orders' => $formattedOrders,
+                'categories' => $categories,
+                'total_orders' => count($orders),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error fetching product orders: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching orders: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper to get status label
+     */
+    private function getStatusLabel($status)
+    {
+        return match ($status) {
+            'pending' => 'Pesan',
+            'processing' => 'Proses',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancel',
+            'rejected' => 'Batal',
+            default => ucfirst($status),
+        };
     }
 }

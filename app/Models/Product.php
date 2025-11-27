@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Product extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'name',
         'slug',
@@ -151,7 +154,7 @@ class Product extends Model
     // Get formatted price
     public function getFormattedPriceAttribute()
     {
-        return number_format($this->price, 0, ',', '.');
+        return number_format((float)$this->price, 0, ',', '.');
     }
 
     // Get variant images for carousel

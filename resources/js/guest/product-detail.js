@@ -401,14 +401,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Chat button handler
-    const chatBtn = document.querySelector('.chat-btn');
-    if (chatBtn) {
-        chatBtn.addEventListener('click', () => {
-            // Redirect to chatbot or open chat interface
-            window.location.href = '/chatbot';
-        });
-    }
+    // Chat button handler - DELEGATED
+    // Event handling moved to product-chatbot.js using event delegation
+    // This prevents conflicts with modal-based chatbot
 
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabPanels = document.querySelectorAll('.tab-panel');
@@ -574,8 +569,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(orderData),
                 });
 
-                const data = await response.json();
+                console.log('Response status:', response.status);
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    console.error('Failed to parse response:', parseError);
+                    throw new Error('Server response tidak valid');
+                }
+                
                 console.log('Buy now response:', data);
+
+                // Check response status
+                if (!response.ok) {
+                    // Handle validation errors or other errors
+                    if (response.status === 422 && data.errors) {
+                        const errorMessages = Object.values(data.errors).flat().join(', ');
+                        throw new Error(errorMessages);
+                    }
+                    throw new Error(data.message || 'Gagal membuat pesanan');
+                }
 
                 if (data.success) {
                     // Show success message

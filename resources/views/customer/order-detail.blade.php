@@ -32,9 +32,6 @@
                         <button onclick="showTab('detail')" id="tab-detail" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600">
                             Detail
                         </button>
-                        <button onclick="showTab('catatan')" id="tab-catatan" class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-600 hover:text-gray-900">
-                            Catatan dan Aksi
-                        </button>
                     </div>
 
                     <!-- Tab Content -->
@@ -124,32 +121,40 @@
                                 <div class="space-y-6">
                                     <!-- Product Preview Image -->
                                     <div>
-                                        <h3 class="text-lg font-semibold mb-4">Preview Produk</h3>
+                                        <h3 class="text-lg font-semibold mb-4">Preview Desain</h3>
                                         <div class="bg-gray-100 rounded-lg p-4 flex items-center justify-center" style="min-height: 300px;">
                                             @if($type === 'custom')
-                                                {{-- Custom Design: Show variant image or product base image --}}
+                                                {{-- Custom Design: Show first uploaded design image --}}
                                                 @php
-                                                    // Priority: variant->image > product->image
                                                     $customOrderImage = null;
-                                                    if ($order->variant && !empty($order->variant->image)) {
-                                                        $customOrderImage = str_starts_with($order->variant->image, 'http') 
-                                                            ? $order->variant->image 
-                                                            : asset('storage/' . $order->variant->image);
+                                                    // Priority: first uploaded design > product image > placeholder
+                                                    if ($order->uploads && $order->uploads->count() > 0) {
+                                                        $firstUpload = $order->uploads->first();
+                                                        $customOrderImage = asset('storage/' . $firstUpload->file_path);
                                                     } elseif ($order->product && !empty($order->product->image)) {
                                                         $customOrderImage = str_starts_with($order->product->image, 'http') 
                                                             ? $order->product->image 
                                                             : asset('storage/' . $order->product->image);
+                                                    } elseif ($order->variant && !empty($order->variant->image)) {
+                                                        $customOrderImage = str_starts_with($order->variant->image, 'http') 
+                                                            ? $order->variant->image 
+                                                            : asset('storage/' . $order->variant->image);
                                                     }
                                                 @endphp
                                                 
                                                 @if($customOrderImage)
                                                     <img src="{{ $customOrderImage }}" 
                                                          alt="{{ $order->product_name }}" 
-                                                         class="max-w-full max-h-[300px] object-contain rounded-lg">
+                                                         class="max-w-full max-h-[300px] object-contain rounded-lg"
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <div class="text-center" style="display:none;">
+                                                        <i class="fas fa-image text-gray-400 text-5xl mb-3"></i>
+                                                        <p class="text-gray-500">Desain tidak dapat ditampilkan</p>
+                                                    </div>
                                                 @else
                                                     <div class="text-center">
                                                         <i class="fas fa-image text-gray-400 text-5xl mb-3"></i>
-                                                        <p class="text-gray-500">No Image Available</p>
+                                                        <p class="text-gray-500">Belum ada file desain</p>
                                                     </div>
                                                 @endif
                                             @else
@@ -251,53 +256,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Tab Catatan dan Aksi -->
-                        <div id="content-catatan" class="tab-content hidden">
-                            <h3 class="text-lg font-semibold mb-4">Log Status Pesanan</h3>
-                            <div class="space-y-3">
-                                <div class="flex items-start gap-3 pb-3 border-b border-gray-200">
-                                    <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-600">{{ $order->created_at->format('M d, Y H:i') }}: Pesanan dibuat.</p>
-                                    </div>
-                                </div>
-                                
-                                @if($order->status === 'approved')
-                                <div class="flex items-start gap-3 pb-3 border-b border-gray-200">
-                                    <div class="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-600">{{ $order->updated_at->format('M d, Y H:i') }}: Status diubah ke Disetujui.</p>
-                                    </div>
-                                </div>
-                                @elseif($order->status === 'rejected')
-                                <div class="flex items-start gap-3 pb-3 border-b border-gray-200">
-                                    <div class="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-600">{{ $order->updated_at->format('M d, Y H:i') }}: ditolak.</p>
-                                        @if(isset($order->admin_notes) && $order->admin_notes)
-                                        <p class="text-sm text-red-600 mt-1">Alasan: {{ $order->admin_notes }}</p>
-                                        @endif
-                                    </div>
-                                </div>
-                                @elseif($order->status === 'cancelled')
-                                <div class="flex items-start gap-3 pb-3 border-b border-gray-200">
-                                    <div class="w-2 h-2 bg-gray-500 rounded-full mt-2"></div>
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-600">{{ $order->updated_at->format('M d, Y H:i') }}: Pesanan dibatalkan.</p>
-                                    </div>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            @if($order->status === 'pending')
-                            <div class="mt-6 flex justify-end">
-                                <button onclick="cancelThisOrder()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                                    <i class="fas fa-times mr-2"></i> Batalkan Pesanan
-                                </button>
-                            </div>
-                            @endif
                         </div>
                     </div>
                 </div>

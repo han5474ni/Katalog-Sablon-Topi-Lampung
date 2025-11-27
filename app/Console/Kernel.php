@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\CancelExpiredOrders::class,
+        Commands\CheckExpiredVirtualAccounts::class,
     ];
 
     /**
@@ -23,6 +24,12 @@ class Kernel extends ConsoleKernel
     {
         // Check every minute for expired orders
         $schedule->command('orders:cancel-expired')->everyMinute();
+        
+        // Check every minute for expired Virtual Accounts
+        $schedule->command('va:check-expired')->everyMinute();
+
+        // Auto-cancel unconfirmed orders every hour (every 1 jam cek pesanan yang belum dikonfirmasi admin)
+        $schedule->command('orders:auto-cancel-unconfirmed')->hourly();
     }
 
     /**
