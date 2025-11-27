@@ -43,6 +43,7 @@ class AnalyticsController extends Controller
     {
         try {
             // Support both period-based and date range filtering
+            $period = request()->get('period', 'month');
             $startDate = request()->get('start_date');
             $endDate = request()->get('end_date');
             
@@ -52,7 +53,6 @@ class AnalyticsController extends Controller
                 $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
             } else {
                 // Fallback to period-based filtering
-                $period = request()->get('period', 'month');
                 $startDate = $this->getStartDate($period);
                 $endDate = now();
             }
