@@ -13,12 +13,12 @@ class AdminFactory extends Factory
     public function definition()
     {
         return [
+            'avatar' => $this->faker->optional()->imageUrl(),
             'name' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password123'),
-            'role' => $this->faker->randomElement(['super_admin', 'admin', 'moderator']),
-            'is_active' => $this->faker->boolean(),
-            'avatar' => $this->faker->optional()->imageUrl(),
+            'role' => $this->faker->randomElement(['super_admin', 'admin']),
+            'status' => $this->faker->randomElement(['active', 'inactive']),
         ];
     }
 }
