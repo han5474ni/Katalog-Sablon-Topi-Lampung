@@ -9,12 +9,13 @@ class CatalogController extends Controller
 {
     // Categories mapping
     private $categories = [
+        'jersey' => 'Jersey',
         'topi' => 'Topi',
         'kaos' => 'Kaos',
-        'sablon' => 'Sablon',
+        'polo' => 'Polo',
+        'celana' => 'Celana',
         'jaket' => 'Jaket',
-        'jersey' => 'Jersey',
-        'tas' => 'Tas'
+        'lainnya' => 'Lainnya'
     ];
 
     public function index(Request $request, $category)
@@ -27,16 +28,33 @@ class CatalogController extends Controller
         $categoryName = $this->categories[$category];
         
         // Start building query - Get ALL active products (not limited by stock)
-        $query = Product::active()->category($category);
+        $query = Product::with('variants')->active()->category($category);
 
         // Apply search filter
         if ($request->filled('search')) {
             $query->search($request->search);
         }
 
-        // Apply subcategory filter
-        if ($request->filled('subcategory')) {
-            $query->subcategory($request->subcategory);
+        // Apply quick filters
+        if ($request->boolean('promo')) {
+            $query->whereNotNull('original_price')->whereColumn('original_price', '>', 'price');
+        }
+
+        if ($request->boolean('ready')) {
+            $query->where('stock', '>', 0);
+        }
+
+        if ($request->boolean('custom')) {
+            $query->where('custom_design_allowed', true);
+        }
+
+        // Apply subcategories filter (multiple)
+        if ($request->filled('subcategories')) {
+            $subcategories = is_array($request->subcategories) ? $request->subcategories : explode(',', $request->subcategories);
+            $subcategories = array_values(array_filter($subcategories));
+            if (!empty($subcategories)) {
+                $query->whereIn('subcategory', $subcategories);
+            }
         }
 
         // Apply color filter
@@ -52,8 +70,15 @@ class CatalogController extends Controller
         }
 
         // Apply price range filter
-        if ($request->filled('min_price') && $request->filled('max_price')) {
-            $query->priceRange($request->min_price, $request->max_price);
+        $minPrice = $request->filled('min_price') ? (int) preg_replace('/[^\d]/', '', $request->min_price) : null;
+        $maxPrice = $request->filled('max_price') ? (int) preg_replace('/[^\d]/', '', $request->max_price) : null;
+
+        if (!is_null($minPrice) && !is_null($maxPrice) && $maxPrice >= $minPrice) {
+            $query->whereBetween('price', [$minPrice, $maxPrice]);
+        } elseif (!is_null($minPrice)) {
+            $query->where('price', '>=', $minPrice);
+        } elseif (!is_null($maxPrice)) {
+            $query->where('price', '<=', $maxPrice);
         }
 
         // Apply sorting
@@ -66,6 +91,51 @@ class CatalogController extends Controller
         // Paginate results
         $perPage = $request->get('per_page', 9);
         $products = $query->paginate($perPage)->appends($request->except('page'));
+        
+        // Calculate price range, total stock, and variant images from variants
+        $productsData = collect($products->items())->map(function ($product) {
+            if ($product->variants && $product->variants->count() > 0) {
+                // Get price range
+                $prices = $product->variants->pluck('price')->filter();
+                $minPrice = $prices->min();
+                $maxPrice = $prices->max();
+                
+                // Get total stock
+                $totalStock = $product->variants->sum('stock');
+                
+                // Get variant images for carousel
+                $variantImages = $product->variants
+                    ->filter(function($v) { return !empty($v->image); })
+                    ->map(function($v) {
+                        return asset('storage/' . $v->image);
+                    })
+                    ->values()
+                    ->toArray();
+                
+                // Add computed fields
+                $product->price_min = $minPrice;
+                $product->price_max = $maxPrice;
+                $product->price_range = $minPrice == $maxPrice 
+                    ? "Rp " . number_format($minPrice, 0, ',', '.')
+                    : "Rp " . number_format($minPrice, 0, ',', '.') . " - Rp " . number_format($maxPrice, 0, ',', '.');
+                $product->total_stock = $totalStock;
+                $product->variant_images = $variantImages;
+                $product->variant_count = $product->variants->count();
+            } else {
+                // Fallback to product's own price and stock
+                $product->price_min = $product->price;
+                $product->price_max = $product->price;
+                $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
+                $product->total_stock = $product->stock;
+                $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
+                $product->variant_count = 0;
+            }
+            
+            return $product;
+        });
+        
+        // Update products collection
+        $products->setCollection($productsData);
 
         // Get available filters for sidebar
         $availableColors = $this->getAvailableColors($category);
@@ -75,7 +145,7 @@ class CatalogController extends Controller
         // If AJAX request, return JSON
         if ($request->ajax()) {
             return response()->json([
-                'products' => $products->items(),
+                'products' => $productsData->toArray(),
                 'pagination' => [
                     'current_page' => $products->currentPage(),
                     'last_page' => $products->lastPage(),
@@ -98,9 +168,24 @@ class CatalogController extends Controller
             'availableSubcategories' => $availableSubcategories,
             'currentFilters' => [
                 'search' => $request->search,
-                'subcategory' => $request->subcategory,
-                'colors' => $request->colors,
-                'sizes' => $request->sizes,
+                'promo' => $request->boolean('promo'),
+                'ready' => $request->boolean('ready'),
+                'custom' => $request->boolean('custom'),
+                'subcategories' => $request->has('subcategories')
+                    ? (is_array($request->subcategories)
+                        ? array_values(array_filter($request->subcategories))
+                        : array_values(array_filter(explode(',', $request->subcategories))))
+                    : [],
+                'colors' => $request->has('colors')
+                    ? (is_array($request->colors)
+                        ? array_values(array_filter($request->colors))
+                        : array_values(array_filter(explode(',', $request->colors))))
+                    : [],
+                'sizes' => $request->has('sizes')
+                    ? (is_array($request->sizes)
+                        ? array_values(array_filter($request->sizes))
+                        : array_values(array_filter(explode(',', $request->sizes))))
+                    : [],
                 'sort' => $sort,
             ],
         ]);

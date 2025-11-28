@@ -1,32 +1,79 @@
 # 🎨 Katalog Sablon Topi Lampung
 
-> Aplikasi web katalog sablon topi berbasis Laravel untuk mengelola produk, pelanggan, dan pesanan dengan sistem multi-role.
+> Aplikasi e-commerce untuk manajemen pesanan sablon topi dengan fitur custom design, integrasi pembayaran, dan notifikasi otomatis.
 
-[![Laravel](https://img.shields.io/badge/Laravel-12.x-red)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-red)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3-blue)](https://php.net)
+[![Livewire](https://img.shields.io/badge/Livewire-3.x-purple)](https://livewire.laravel.com)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-teal)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## 📋 Daftar Isi
+## 📋 Fitur Utama
 
-- [Tentang Aplikasi](#-tentang-aplikasi)
-- [Teknologi](#-teknologi)
-- [Persyaratan Sistem](#-persyaratan-sistem)
-- [Instalasi](#-instalasi)
-- [Git Workflow](#-git-workflow)
-- [Keamanan](#-keamanan)
-- [Deployment](#-deployment)
+- 🛒 **Manajemen Pesanan**
+  - Tracking status pesanan realtime
+  - Notifikasi email otomatis
+  - Sistem pembayaran virtual account
+  - Batas waktu pembayaran otomatis
 
----
+- 🎨 **Custom Design**
+  - Upload design kustom
+  - Preview produk
+  - Multiple design uploads
+  - Kalkulasi harga otomatis
 
-## 🎯 Tentang Aplikasi
+- 📦 **Manajemen Stok**
+  - Tracking stok realtime
+  - Pengurangan stok otomatis
+  - Alert stok minimum
 
-**Katalog Sablon Topi Lampung** adalah platform e-commerce untuk bisnis sablon topi dengan fitur:
+- 📊 **Dashboard Admin**
+  - Overview pesanan
+  - Manajemen produk
+  - Laporan penjualan
+  - Export data ke Excel
 
-- 🔐 **Multi-Role**: Super Admin, Admin, dan Customer
-- 👤 **Manajemen Pengguna**: Profil lengkap, avatar, Google OAuth
-- 📦 **Manajemen Produk**: CRUD lengkap dengan gambar
-- 📊 **Dashboard & Analytics**: Statistik real-time, export Excel/PDF
-- 🛒 **E-Commerce**: Katalog, keranjang, detail produk
+- 👥 **User Management**
+  - OAuth Google/Email
+  - Verifikasi email
+  - Manajemen profil
+  - Riwayat pesanan
+
+## 🛠️ Teknologi
+
+### Backend
+- PHP 8.3
+- Laravel 10.x
+- MySQL/MariaDB
+- Redis (caching)
+- Supervisor (queue)
+
+### Frontend
+- Livewire 3.x
+- TailwindCSS 3.x
+- Alpine.js
+- Laravel Blade
+
+### Integrasi
+- Midtrans Payment Gateway
+- Google OAuth
+- Gmail SMTP
+- AWS S3 (storage)
+
+### Tools
+- Laravel Sanctum (API auth)
+- Maatwebsite Excel (export)
+- Intervention Image
+- Laravel Debugbar (development)
+
+## 📋 Persyaratan Sistem
+
+- PHP >= 8.3
+- Composer 2.x
+- Node.js 18.x & NPM
+- MySQL/MariaDB
+- Redis (opsional)
+- Email SMTP (Gmail)
 - 📝 **Activity Logging**: Tracking semua aktivitas
 
 ## 🛠 Teknologi

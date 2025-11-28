@@ -25,6 +25,14 @@ class User extends Authenticatable
         'phone',
         'google_id',
         'avatar',
+        'address',
+        'province',
+        'city',
+        'district',
+        'postal_code',
+        'address_notes',
+        'birth_date',
+        'bio',
     ];
 
     protected $hidden = [
@@ -35,5 +43,30 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'birth_date' => 'date',
     ];
+
+    /**
+     * Get the customer addresses for the user
+     */
+    public function addresses()
+    {
+        return $this->hasMany(CustomerAddress::class, 'user_id');
+    }
+
+    /**
+     * Get the virtual accounts for the user
+     */
+    public function virtualAccounts()
+    {
+        return $this->hasMany(VirtualAccount::class, 'user_id');
+    }
+
+    /**
+     * Get the payment transactions for the user
+     */
+    public function paymentTransactions()
+    {
+        return $this->hasMany(PaymentTransaction::class, 'user_id');
+    }
 }

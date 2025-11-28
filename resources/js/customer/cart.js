@@ -1,308 +1,235 @@
-/**
- * Customer Cart Page - JavaScript
- * Handles cart functionality: add, remove, update quantity, coupon, checkout
- */
+const formatIDR = (value) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+}).format(Math.max(0, value || 0));
 
-// Format IDR currency
-const formatIDR = (n) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        maximumFractionDigits: 0
-    }).format(n || 0);
-};
-
-// Cart state
-let cartItems = [];
-let appliedCoupon = null;
-let shippingMethod = 'STANDARD';
-
-// Initialize cart on page load
 document.addEventListener('DOMContentLoaded', () => {
-    loadCartFromStorage();
-    initializeEventListeners();
-    renderCart();
-});
-
-// Load cart from localStorage
-function loadCartFromStorage() {
-    const stored = localStorage.getItem('cart');
-    if (stored) {
-        try {
-            cartItems = JSON.parse(stored);
-        } catch (e) {
-            cartItems = getMockData();
-        }
-    } else {
-        cartItems = getMockData();
+    const cartContent = document.getElementById('cart-content');
+    if (!cartContent) {
+        return;
     }
-}
 
-// Save cart to localStorage
-function saveCartToStorage() {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-}
+    const selectAllTop = document.getElementById('select-all-top');
+    const selectAllBottom = document.getElementById('select-all-bottom');
+    const voucherToggle = document.getElementById('select-voucher');
+    const voucherSelect = document.getElementById('voucher-select');
+    const checkoutCount = document.getElementById('checkout-count');
+    const summarySubtotal = document.getElementById('summary-subtotal');
+    const summaryCount = document.getElementById('summary-count');
+    const totalPrice = document.getElementById('total-price');
+    const subtotalLabel = document.getElementById('subtotal-label');
+    const deleteSelectedBtn = document.getElementById('delete-selected-btn');
+    const bulkDeleteForm = document.getElementById('bulk-delete-form');
+    const itemCountText = document.getElementById('item-count-text');
 
-// Mock data for demo
-function getMockData() {
-    return [
-        {
-            id: 1,
-            name: 'Kaos Sablon Custom Premium',
-            variant: 'Hitam / L',
-            price: 85000,
-            qty: 2,
-            image: 'https://picsum.photos/seed/topi1/120/120',
-            checked: false
-        },
-        {
-            id: 2,
-            name: 'Topi Baseball Bordir',
-            variant: 'Navy / All Size',
-            price: 65000,
-            qty: 1,
-            image: 'https://picsum.photos/seed/topi2/120/120',
-            checked: false
+    const getItemRows = () => Array.from(document.querySelectorAll('.cart-item'));
+    const getCheckboxes = () => Array.from(document.querySelectorAll('.cart-item .item-checkbox'));
+
+    const updateSelectAllState = () => {
+        const checkboxes = getCheckboxes();
+        const allChecked = checkboxes.length > 0 && checkboxes.every((checkbox) => checkbox.checked);
+        if (selectAllTop) {
+            selectAllTop.checked = allChecked;
         }
-    ];
-}
-
-// Initialize event listeners
-function initializeEventListeners() {
-    // Select all checkbox
-    document.getElementById('select-all')?.addEventListener('change', (e) => {
-        const checked = e.target.checked;
-        cartItems = cartItems.map(item => ({ ...item, checked }));
-        renderCart();
-    });
-
-    // Delete selected button
-    document.getElementById('delete-selected-btn')?.addEventListener('click', () => {
-        if (confirm('Hapus item yang dipilih?')) {
-            cartItems = cartItems.filter(item => !item.checked);
-            saveCartToStorage();
-            renderCart();
+        if (selectAllBottom) {
+            selectAllBottom.checked = allChecked;
         }
-    });
+    };
 
-    // Clear cart button
-    document.getElementById('clear-cart-btn')?.addEventListener('click', () => {
-        if (confirm('Kosongkan seluruh keranjang?')) {
-            cartItems = [];
-            saveCartToStorage();
-            renderCart();
+    const calculateTotals = () => {
+        let subtotal = 0;
+        let selectedQuantity = 0;
+        let selectedCount = 0;
+
+        getItemRows().forEach((row) => {
+            const checkbox = row.querySelector('.item-checkbox');
+            const quantityInput = row.querySelector('.quantity-input');
+            const price = parseFloat(row.dataset.price || '0');
+            const quantity = Math.max(1, Math.min(99, parseInt(quantityInput?.value || '1', 10)));
+
+            if (quantityInput) {
+                quantityInput.value = quantity.toString();
+            }
+
+            if (checkbox?.checked) {
+                subtotal += price * quantity;
+                selectedQuantity += quantity;
+                selectedCount += 1;
+            }
+
+            const lineTotalEl = row.querySelector('.line-total');
+            if (lineTotalEl) {
+                lineTotalEl.textContent = formatIDR(price * quantity);
+            }
+        });
+
+        const discountEnabled = voucherToggle?.checked;
+        const rawDiscount = discountEnabled ? parseInt(voucherSelect?.value || '0', 10) : 0;
+        const discount = Math.min(Math.max(rawDiscount, 0), subtotal);
+        const total = Math.max(0, subtotal - discount);
+
+        if (summarySubtotal) {
+            summarySubtotal.textContent = formatIDR(subtotal);
         }
-    });
+        if (summaryCount) {
+            summaryCount.textContent = selectedQuantity.toString();
+        }
+        if (totalPrice) {
+            totalPrice.textContent = formatIDR(total);
+        }
+        if (checkoutCount) {
+            checkoutCount.textContent = `(${selectedCount})`;
+        }
+        if (subtotalLabel) {
+            subtotalLabel.textContent = discount > 0 ? `(Potongan ${formatIDR(discount)})` : '';
+        }
+        if (itemCountText) {
+            itemCountText.textContent = `(${getItemRows().length})`;
+        }
 
-    // Apply coupon
-    document.getElementById('apply-coupon-btn')?.addEventListener('click', applyCoupon);
+        updateSelectAllState();
+    };
 
-    // Shipping method
-    document.querySelectorAll('input[name="shipping"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            shippingMethod = e.target.value;
-            renderSummary();
+    const toggleAll = (checked) => {
+        getCheckboxes().forEach((checkbox) => {
+            checkbox.checked = checked;
+        });
+        calculateTotals();
+    };
+
+    getCheckboxes().forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+            calculateTotals();
         });
     });
 
-    // Checkout button
-    document.getElementById('checkout-btn')?.addEventListener('click', handleCheckout);
-}
+    selectAllTop?.addEventListener('change', (event) => {
+        toggleAll(event.target.checked);
+    });
 
-// Render cart
-function renderCart() {
-    const isEmpty = cartItems.length === 0;
-    
-    // Toggle empty state
-    document.getElementById('empty-cart').classList.toggle('hidden', !isEmpty);
-    document.getElementById('cart-content').classList.toggle('hidden', isEmpty);
-    document.getElementById('clear-cart-btn').classList.toggle('hidden', isEmpty);
+    selectAllBottom?.addEventListener('change', (event) => {
+        toggleAll(event.target.checked);
+    });
 
-    if (!isEmpty) {
-        renderCartItems();
-        renderSummary();
-        updateSelectAllState();
-    }
-}
+    voucherToggle?.addEventListener('change', () => {
+        calculateTotals();
+    });
 
-// Render cart items
-function renderCartItems() {
-    const container = document.getElementById('cart-items');
-    const itemCount = document.getElementById('item-count');
-    const deleteBtn = document.getElementById('delete-selected-btn');
+    voucherSelect?.addEventListener('change', () => {
+        calculateTotals();
+    });
 
-    const anyChecked = cartItems.some(item => item.checked);
-    deleteBtn.classList.toggle('hidden', !anyChecked);
-    itemCount.classList.toggle('hidden', anyChecked);
-    itemCount.textContent = `${cartItems.length} item`;
+    document.querySelectorAll('.quantity-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            const action = button.dataset.action;
+            const form = button.closest('form');
+            const input = form?.querySelector('.quantity-input');
+            const saveButton = form?.querySelector('.save-quantity');
+            const cancelButton = form?.querySelector('.cancel-quantity');
+            if (!input) {
+                return;
+            }
 
-    container.innerHTML = cartItems.map(item => `
-        <li class="grid grid-cols-12 items-center gap-3 p-4">
-            <!-- Checkbox + Image + Info -->
-            <div class="col-span-12 flex items-center gap-3 md:col-span-6">
-                <input 
-                    type="checkbox" 
-                    ${item.checked ? 'checked' : ''} 
-                    onchange="toggleItem(${item.id}, this.checked)"
-                    class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
-                >
-                <img src="${item.image}" alt="${item.name}" class="h-16 w-16 rounded-xl object-cover">
-                <div>
-                    <div class="font-medium text-slate-900">${item.name}</div>
-                    <div class="text-xs text-slate-500">${item.variant}</div>
-                    <button 
-                        onclick="removeItem(${item.id})" 
-                        class="mt-1 text-xs text-rose-600 hover:underline"
-                    >
-                        Hapus
-                    </button>
-                </div>
-            </div>
+            const current = parseInt(input.value || '1', 10) || 1;
+            const nextValue = action === 'increase' ? Math.min(99, current + 1) : Math.max(1, current - 1);
+            input.value = nextValue.toString();
 
-            <!-- Quantity -->
-            <div class="col-span-6 flex items-center gap-3 md:col-span-3 md:justify-center">
-                <div class="inline-flex items-center rounded-xl border border-slate-200 bg-white">
-                    <button 
-                        onclick="updateQuantity(${item.id}, ${item.qty - 1})" 
-                        class="px-2 py-1 text-slate-600 hover:bg-slate-50"
-                    >-</button>
-                    <input 
-                        type="number" 
-                        value="${item.qty}" 
-                        onchange="updateQuantity(${item.id}, parseInt(this.value))"
-                        class="w-12 px-2 py-1 text-center text-sm outline-none" 
-                        min="1" 
-                        max="99"
-                    >
-                    <button 
-                        onclick="updateQuantity(${item.id}, ${item.qty + 1})" 
-                        class="px-2 py-1 text-slate-600 hover:bg-slate-50"
-                    >+</button>
-                </div>
-            </div>
+            if (saveButton) {
+                const initial = parseInt(input.dataset.initial || '1', 10) || 1;
+                const hasChanged = nextValue !== initial;
+                saveButton.classList.toggle('hidden', !hasChanged);
+                cancelButton?.classList.toggle('hidden', !hasChanged);
+            }
 
-            <!-- Price -->
-            <div class="col-span-6 text-right md:col-span-3">
-                <div class="text-sm font-semibold text-slate-900">${formatIDR(item.price * item.qty)}</div>
-                <div class="text-xs text-slate-500">${formatIDR(item.price)} / item</div>
-            </div>
-        </li>
-    `).join('');
-}
+            const row = form?.closest('.cart-item');
+            if (row) {
+                row.dataset.quantity = nextValue.toString();
+            }
 
-// Toggle item selection
-window.toggleItem = (id, checked) => {
-    cartItems = cartItems.map(item => 
-        item.id === id ? { ...item, checked } : item
-    );
-    renderCart();
-};
+            calculateTotals();
+        });
+    });
 
-// Update quantity
-window.updateQuantity = (id, qty) => {
-    if (qty < 1 || qty > 99) return;
-    cartItems = cartItems.map(item => 
-        item.id === id ? { ...item, qty } : item
-    );
-    saveCartToStorage();
-    renderCart();
-};
+    document.querySelectorAll('.quantity-input').forEach((input) => {
+        input.addEventListener('input', () => {
+            let value = parseInt(input.value || '1', 10) || 1;
+            value = Math.max(1, Math.min(99, value));
+            input.value = value.toString();
 
-// Remove item
-window.removeItem = (id) => {
-    if (confirm('Hapus item ini dari keranjang?')) {
-        cartItems = cartItems.filter(item => item.id !== id);
-        saveCartToStorage();
-        renderCart();
-    }
-};
+            const form = input.closest('form');
+            const saveButton = form?.querySelector('.save-quantity');
+            const cancelButton = form?.querySelector('.cancel-quantity');
+            if (saveButton) {
+                const initial = parseInt(input.dataset.initial || '1', 10) || 1;
+                const hasChanged = value !== initial;
+                saveButton.classList.toggle('hidden', !hasChanged);
+                cancelButton?.classList.toggle('hidden', !hasChanged);
+            }
 
-// Update select all state
-function updateSelectAllState() {
-    const selectAll = document.getElementById('select-all');
-    if (selectAll) {
-        selectAll.checked = cartItems.length > 0 && cartItems.every(item => item.checked);
-    }
-}
+            const row = input.closest('.cart-item');
+            if (row) {
+                row.dataset.quantity = value.toString();
+            }
 
-// Apply coupon
-function applyCoupon() {
-    const input = document.getElementById('coupon-input');
-    const code = input.value.trim().toUpperCase();
-    
-    if (!code) return;
+            calculateTotals();
+        });
+    });
 
-    // Mock coupon validation
-    if (code === 'HEMAT10') {
-        appliedCoupon = { code, type: 'percent', value: 10 };
-        showCouponBadge(code);
-    } else if (code === 'POTONG5000') {
-        appliedCoupon = { code, type: 'flat', value: 5000 };
-        showCouponBadge(code);
-    } else {
-        alert('Kode kupon tidak valid');
-        appliedCoupon = null;
-        hideCouponBadge();
-    }
-    
-    renderSummary();
-}
+    document.querySelectorAll('.cancel-quantity').forEach((button) => {
+        button.addEventListener('click', () => {
+            const form = button.closest('form');
+            const input = form?.querySelector('.quantity-input');
+            const saveButton = form?.querySelector('.save-quantity');
+            if (!input) {
+                return;
+            }
+            const initial = parseInt(input.dataset.initial || '1', 10) || 1;
+            input.value = initial.toString();
+            button.classList.add('hidden');
+            saveButton?.classList.add('hidden');
 
-// Show coupon badge
-function showCouponBadge(code) {
-    const badge = document.getElementById('coupon-badge');
-    const codeSpan = document.getElementById('coupon-code');
-    if (badge && codeSpan) {
-        codeSpan.textContent = code;
-        badge.classList.remove('hidden');
-    }
-}
+            const row = form?.closest('.cart-item');
+            if (row) {
+                row.dataset.quantity = initial.toString();
+            }
 
-// Hide coupon badge
-function hideCouponBadge() {
-    const badge = document.getElementById('coupon-badge');
-    if (badge) {
-        badge.classList.add('hidden');
-    }
-}
+            calculateTotals();
+        });
+    });
 
-// Render summary
-function renderSummary() {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    
-    let discount = 0;
-    if (appliedCoupon) {
-        if (appliedCoupon.type === 'percent') {
-            discount = Math.floor(subtotal * appliedCoupon.value / 100);
-        } else if (appliedCoupon.type === 'flat') {
-            discount = appliedCoupon.value;
+    deleteSelectedBtn?.addEventListener('click', () => {
+        const selectedRows = getItemRows().filter((row) => row.querySelector('.item-checkbox')?.checked);
+        if (selectedRows.length === 0) {
+            alert('Pilih minimal satu produk untuk dihapus.');
+            return;
         }
-    }
 
-    const taxable = Math.max(0, subtotal - discount);
-    const tax = Math.floor(taxable * 0.11); // PPN 11%
-    const shippingFee = cartItems.length > 0 ? (shippingMethod === 'STANDARD' ? 15000 : 30000) : 0;
-    const total = Math.max(0, taxable + tax + shippingFee);
 
-    document.getElementById('subtotal').textContent = formatIDR(subtotal);
-    document.getElementById('discount').textContent = `-${formatIDR(discount)}`;
-    document.getElementById('tax').textContent = formatIDR(tax);
-    document.getElementById('total').textContent = formatIDR(total);
+        if (!confirm('Hapus produk yang dipilih dari keranjang?')) {
+            return;
+        }
 
-    // Enable/disable checkout button
-    const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn) {
-        checkoutBtn.disabled = cartItems.length === 0;
-    }
-}
+        if (!bulkDeleteForm) {
+            return;
+        }
 
-// Handle checkout
-function handleCheckout() {
-    if (cartItems.length === 0) return;
-    
-    // Mock checkout - replace with actual checkout flow
-    alert('Lanjut ke halaman checkout (dalam pengembangan)');
-    
-    // You can redirect to checkout page:
-    // window.location.href = '/checkout';
-}
+        bulkDeleteForm.querySelectorAll('input[name="keys[]"]').forEach((input) => input.remove());
+
+        selectedRows.forEach((row) => {
+            const key = row.dataset.key;
+            if (!key) {
+                return;
+            }
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'keys[]';
+            hiddenInput.value = key;
+            bulkDeleteForm.appendChild(hiddenInput);
+        });
+
+        bulkDeleteForm.submit();
+    });
+
+    calculateTotals();
+});

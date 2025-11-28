@@ -14,7 +14,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    @vite(['resources/css/admin/login.css'])
+    @vite(['resources/css/admin/login.css', 'resources/js/admin/login.js'])
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
     <!-- Home Button -->
@@ -100,21 +100,5 @@
         </div>
     </div>
 
-    <script>
-    // Password visibility toggle
-    document.addEventListener('DOMContentLoaded', function () {
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-
-        if (togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function () {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
-        }
-    });
-    </script>
 </body>
 </html>

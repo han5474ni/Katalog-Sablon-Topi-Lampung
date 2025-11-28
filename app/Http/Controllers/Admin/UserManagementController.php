@@ -204,8 +204,7 @@ class UserManagementController extends Controller
         // Only super admin can change email, role, and status
         if ($currentAdmin->isSuperAdmin() && $currentAdmin->id !== $admin->id) {
             if (isset($validated['email']) && $admin->email !== $validated['email']) {
-                // TODO: Send confirmation email to old email
-                // For now, just update
+                // Note: Email change is immediate. Future enhancement: Add confirmation workflow
                 $admin->email = $validated['email'];
             }
             

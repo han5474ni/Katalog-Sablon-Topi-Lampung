@@ -3,499 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One Life Graphic T-Shirt - Product Detail</title>
-    @vite(['resources/css/guest/catalog.css', 'resources/css/components/footer.css'])
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-        }
-
-        .breadcrumb {
-            padding: 20px 40px;
-            background-color: white;
-        }
-
-        .breadcrumb a {
-            color: #666;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px;
-            background-color: white;
-        }
-
-        .product-section {
-            display: flex;
-            gap: 60px;
-            margin-bottom: 60px;
-        }
-
-        .product-images {
-            flex: 1;
-            display: flex;
-            gap: 20px;
-        }
-
-        .thumbnail-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .thumbnail {
-            width: 100px;
-            height: 100px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            overflow: hidden;
-            transition: border-color 0.3s;
-        }
-
-        .thumbnail:hover,
-        .thumbnail.active {
-            border-color: #0a1f44;
-        }
-
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .main-image {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #f8f8f8;
-            border-radius: 12px;
-            padding: 40px;
-        }
-
-        .main-image img {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-title {
-            font-size: 36px;
-            font-weight: bold;
-            color: #0a1f44;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .product-price {
-            font-size: 32px;
-            font-weight: bold;
-            color: #d4af37;
-            margin-bottom: 20px;
-        }
-
-        .product-description {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .option-group {
-            margin-bottom: 30px;
-        }
-
-        .option-label {
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .color-options {
-            display: flex;
-            gap: 12px;
-        }
-
-        .color-option {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .color-option:hover,
-        .color-option.active {
-            border-color: #0a1f44;
-            transform: scale(1.1);
-        }
-
-        .color-olive {
-            background-color: #6b6b47;
-        }
-
-        .color-teal {
-            background-color: #4a6b6b;
-        }
-
-        .color-navy {
-            background-color: #2a3a5a;
-        }
-
-        .size-options {
-            display: flex;
-            gap: 12px;
-        }
-
-        .size-option {
-            padding: 12px 24px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            background-color: white;
-            font-weight: 500;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .size-option:hover {
-            border-color: #666;
-        }
-
-        .size-option.active {
-            background-color: #0a1f44;
-            color: white;
-            border-color: #0a1f44;
-        }
-
-        .quantity-cart {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-top: 30px;
-        }
-
-        .quantity-selector {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 8px 20px;
-        }
-
-        .quantity-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #333;
-            padding: 4px 8px;
-        }
-
-        .quantity-value {
-            font-size: 16px;
-            font-weight: 600;
-            min-width: 30px;
-            text-align: center;
-        }
-
-        .add-to-cart {
-            flex: 1;
-            background-color: #0a1f44;
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .add-to-cart:hover {
-            background-color: #152d5a;
-        }
-
-        .tabs {
-            border-bottom: 2px solid #ddd;
-            display: flex;
-            gap: 40px;
-            margin-bottom: 30px;
-        }
-
-        .tab {
-            padding: 15px 0;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            color: #0a1f44;
-            border-bottom-color: #0a1f44;
-        }
-
-        .tab-content {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            padding: 40px;
-            margin-bottom: 60px;
-        }
-
-        .detail-section {
-            margin-bottom: 25px;
-        }
-
-        .detail-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #0a1f44;
-        }
-
-        .detail-text {
-            color: #555;
-            line-height: 1.8;
-            font-size: 14px;
-        }
-
-        .detail-list {
-            list-style-position: inside;
-            color: #555;
-            line-height: 1.8;
-            margin-left: 20px;
-            font-size: 14px;
-        }
-
-        .recommendations {
-            background-color: #0a1f44;
-            padding: 60px 40px;
-        }
-
-        .recommendations-title {
-            text-align: center;
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .product-card {
-            background-color: #f5f5f5;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            cursor: pointer;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .product-card-image {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            background-color: white;
-        }
-
-        .product-card-info {
-            padding: 20px;
-        }
-
-        .product-card-title {
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #0a1f44;
-            font-size: 16px;
-        }
-
-        .product-card-price {
-            color: #d4af37;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .product-section {
-                flex-direction: column;
-            }
-
-            .product-images {
-                flex-direction: column-reverse;
-            }
-
-            .thumbnail-list {
-                flex-direction: row;
-            }
-
-            .quantity-cart {
-                flex-direction: column;
-            }
-
-            .container {
-                padding: 20px;
-            }
-
-            .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-    </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Semua Produk - LGI STORE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite(['resources/css/guest/catalog.css', 'resources/css/guest/catalog-inline.css', 'resources/css/components/footer.css', 'resources/css/components/product-card.css', 'resources/js/guest/catalog.js', 'resources/js/guest/product-card-carousel.js'])
 </head>
 <body>
     <x-navbar />
 
-    <div class="breadcrumb">
-        <a href="#">< Kembali ke Polo</a>
-    </div>
+    <section class="catalog-breadcrumb">
+        <div class="breadcrumb-container">
+            <a href="{{ route('home') }}" class="breadcrumb-back">
+                <i class="fas fa-chevron-left"></i>
+                Kembali ke beranda
+            </a>
+        </div>
+    </section>
 
-    <div class="container">
-        <div class="product-section">
-            <div class="product-images">
-                <div class="thumbnail-list">
-                    <div class="thumbnail active">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=1" alt="Thumbnail 1">
-                    </div>
-                    <div class="thumbnail">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=2" alt="Thumbnail 2">
-                    </div>
-                    <div class="thumbnail">
-                        <img src="https://via.placeholder.com/100x100/6b6b47/ffffff?text=3" alt="Thumbnail 3">
-                    </div>
-                </div>
-                <div class="main-image">
-                    <img src="https://via.placeholder.com/400x400/6b6b47/ffffff?text=One+Life" alt="One Life Graphic T-Shirt">
-                </div>
-            </div>
+    <section class="catalog-section">
+        <div class="container">
+            <div class="content-wrapper-new">
+                <aside class="sidebar">
+                    <div class="filter-container">
+                        <!-- Quick Filters First -->
+                        <div class="filter-section">
+                            <div class="filter-checkbox-list">
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="promo" value="1">
+                                    <span>Dengan diskon</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="ready" value="1">
+                                    <span>Ready stok</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="custom" value="1">
+                                    <span>Kustomisasi</span>
+                                </label>
+                            </div>
+                        </div>
 
-            <div class="product-info">
-                <h1 class="product-title">One Life Graphic T-Shirt</h1>
-                <p class="product-price">Rp 375.000</p>
-                <p class="product-description">Kaos eksklusif dengan desain grafis "One Life" yang terinspirasi dari gaya streetwear modern. Dibuat dengan bahan katun premium 24s, memberikan kenyamanan maksimal sekaligus tampilan yang stylish untuk segala kesempatan.</p>
+                        <!-- Category Filter -->
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Kategori</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="filter-checkbox-list">
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="topi">
+                                    <span>Topi</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="celana">
+                                    <span>Celana</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="polo">
+                                    <span>Polo</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="jaket">
+                                    <span>Jaket</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="jersey">
+                                    <span>Jersey</span>
+                                </label>
+                                <label class="filter-checkbox">
+                                    <input type="checkbox" name="categories[]" value="kaos">
+                                    <span>Kaos</span>
+                                </label>
+                            </div>
+                        </div>
 
-                <div class="option-group">
-                    <p class="option-label">Pilih Warna</p>
-                    <div class="color-options">
-                        <div class="color-option color-olive active" title="Olive"></div>
-                        <div class="color-option color-teal" title="Teal"></div>
-                        <div class="color-option color-navy" title="Navy"></div>
+                        <!-- Price Range -->
+                        <div class="filter-section">
+                            <div class="filter-title-row">
+                                <span class="filter-title">Harga</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="price-range-wrapper">
+                                <div class="price-inputs">
+                                    <input type="text" class="price-input" id="min-price" placeholder="Rp 0" value="Rp 0">
+                                    <span class="price-separator">-</span>
+                                    <input type="text" class="price-input" id="max-price" placeholder="Rp 2.500.000" value="Rp 2.500.000">
+                                </div>
+                                <div class="price-slider-container">
+                                    <input type="range" id="price-range-min" min="0" max="2500000" value="0">
+                                    <input type="range" id="price-range-max" min="0" max="2500000" value="2500000">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </aside>
 
-                <div class="option-group">
-                    <p class="option-label">Pilih Ukuran</p>
-                    <div class="size-options">
-                        <div class="size-option">S</div>
-                        <div class="size-option active">M</div>
-                        <div class="size-option">L</div>
-                        <div class="size-option">XL</div>
+                <main class="products-section">
+                    <div class="products-header-inline">
+                        <div class="header-title-section">
+                            <h1 class="page-title-inline">Semua Produk</h1>
+                        </div>
                     </div>
-                </div>
 
-                <div class="quantity-cart">
-                    <div class="quantity-selector">
-                        <button class="quantity-btn" type="button">-</button>
-                        <span class="quantity-value">1</span>
-                        <button class="quantity-btn" type="button">+</button>
+                    <div class="products-grid" id="products-grid">
+                        @forelse($products as $product)
+                            <x-product-card :product="$product" />
+                        @empty
+                            <div class="no-products">
+                                <i class="fas fa-inbox"></i>
+                                <p>Tidak ada produk ditemukan</p>
+                            </div>
+                        @endforelse
                     </div>
-                    <button class="add-to-cart" type="button">Tambahkan ke Keranjang</button>
-                </div>
+
+                    @if($products->hasPages())
+                        <div class="pagination" id="pagination-container">
+                            @if ($products->onFirstPage())
+                                <button class="pagination-btn" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </button>
+                            @else
+                                <a href="{{ $products->previousPageUrl() }}" class="pagination-btn pagination-link">
+                                    <i class="fas fa-chevron-left"></i>
+                                    Sebelumnya
+                                </a>
+                            @endif
+
+                            <div class="pagination-numbers">
+                                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                                    @if ($page == $products->currentPage())
+                                        <button class="pagination-number active">{{ $page }}</button>
+                                    @else
+                                        <a href="{{ $url }}" class="pagination-number pagination-link">{{ $page }}</a>
+                                    @endif
+                                @endforeach
+                            </div>
+
+                            @if ($products->hasMorePages())
+                                <a href="{{ $products->nextPageUrl() }}" class="pagination-btn pagination-link">
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            @else
+                                <button class="pagination-btn" disabled>
+                                    Selanjutnya
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+                </main>
             </div>
         </div>
-
-        <div class="tabs">
-            <div class="tab active">Deskripsi</div>
-            <div class="tab">Detail Produk</div>
-            <div class="tab">Ulasan</div>
-        </div>
-
-        <div class="tab-content">
-            <div class="detail-section">
-                <h3 class="detail-title">Deskripsi Produk</h3>
-                <p class="detail-text">Kaos ini dirancang untuk para pecinta gaya hidup aktif dengan sentuhan urban. Grafis "One Life" menunjukkan sikap berani dan optimis, membuat Anda tampil percaya diri di setiap momen.</p>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">Material dan Perawatan</h3>
-                <ul class="detail-list">
-                    <li>100% katun combed 24s premium</li>
-                    <li>Tahan lama dan tidak mudah melar</li>
-                    <li>Teknik sablon plastisol berkualitas tinggi</li>
-                    <li>Disarankan cuci tangan dengan air dingin</li>
-                </ul>
-            </div>
-
-            <div class="detail-section">
-                <h3 class="detail-title">Panduan Ukuran</h3>
-                <p class="detail-text">Tersedia dalam ukuran S hingga XL. Silakan cek tabel ukuran untuk memastikan kenyamanan terbaik bagi Anda.</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="recommendations">
-        <h2 class="recommendations-title">Rekomendasi Produk Lain</h2>
-        <div class="product-grid">
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/2a3a5a/ffffff?text=Streetwear" alt="Streetwear Series">
-                <div class="product-card-info">
-                    <p class="product-card-title">Streetwear Series Hoodie</p>
-                    <p class="product-card-price">Rp 425.000</p>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/4a6b6b/ffffff?text=Minimal" alt="Minimal Logo Tee">
-                <div class="product-card-info">
-                    <p class="product-card-title">Minimal Logo Tee</p>
-                    <p class="product-card-price">Rp 295.000</p>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/6b6b47/ffffff?text=Classic" alt="Classic Varsity Jacket">
-                <div class="product-card-info">
-                    <p class="product-card-title">Classic Varsity Jacket</p>
-                    <p class="product-card-price">Rp 650.000</p>
-                </div>
-            </div>
-            <div class="product-card">
-                <img class="product-card-image" src="https://via.placeholder.com/300x300/152d5a/ffffff?text=Limited" alt="Limited Edition Cap">
-                <div class="product-card-info">
-                    <p class="product-card-title">Limited Edition Cap</p>
-                    <p class="product-card-price">Rp 175.000</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <x-guest-footer />
 </body>

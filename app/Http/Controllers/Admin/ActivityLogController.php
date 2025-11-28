@@ -45,6 +45,46 @@ class ActivityLogController extends Controller
     }
 
     /**
+     * Admin History page (UX-focused view with filters)
+     */
+    public function history(Request $request)
+    {
+        $query = ActivityLog::orderBy('created_at', 'desc');
+
+        // Optional quick filters to match UI tabs
+        $entity = $request->get('entity'); // order|product|user|chatbot|login
+        if ($entity) {
+            $map = [
+                'order' => 'App\\Models\\CustomDesignOrder',
+                'product' => 'App\\Models\\Product',
+                'user' => 'App\\Models\\User',
+                'chatbot' => 'App\\Models\\ActivityLog', // fallback; adjust if chatbot has its own subject
+            ];
+
+            if ($entity === 'login') {
+                $query->where('action', 'login');
+            } elseif (isset($map[$entity])) {
+                $query->where('subject_type', $map[$entity]);
+            }
+        }
+
+        // Search in object name/description (simple: description LIKE)
+        if ($search = $request->get('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('subject_id', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = (int) ($request->get('per_page', 25));
+        if ($perPage < 5 || $perPage > 100) { $perPage = 25; }
+
+        $logs = $query->paginate($perPage)->withQueryString();
+
+        return view('admin.history', compact('logs'));
+    }
+
+    /**
      * Export activity logs to Excel
      */
     public function export(Request $request)

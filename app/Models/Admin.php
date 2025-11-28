@@ -119,4 +119,32 @@ class Admin extends Authenticatable
             default => 'Unknown',
         };
     }
+
+    /**
+     * Get chat conversations handled by this admin
+     */
+    public function chatConversations()
+    {
+        return $this->hasMany(ChatConversation::class);
+    }
+
+    /**
+     * Get currently active chat conversations
+     */
+    public function activeConversations()
+    {
+        return $this->chatConversations()
+            ->where('taken_over_by_admin', true)
+            ->where('status', 'active');
+    }
+
+    /**
+     * Get escalated conversations assigned to this admin
+     */
+    public function escalatedConversations()
+    {
+        return $this->chatConversations()
+            ->where('is_escalated', true)
+            ->where('taken_over_by_admin', true);
+    }
 }

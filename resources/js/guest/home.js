@@ -92,7 +92,7 @@ if (profilePopup) {
 // Using event delegation to handle both original and cloned cards
 document.addEventListener('click', function(e) {
     const productCard = e.target.closest('.product-card');
-    
+
     if (productCard) {
         const productId = productCard.getAttribute('data-product-id');
         const productName = productCard.getAttribute('data-product-name');
@@ -104,3 +104,11 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
+// Chat button click handler - redirect to chatbot page
+const chatBtn = document.querySelector('.chat-btn');
+if (chatBtn) {
+    chatBtn.addEventListener('click', function() {
+        window.location.href = '/chatbot';
+    });
+}

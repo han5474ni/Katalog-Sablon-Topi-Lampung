@@ -30,7 +30,7 @@
                     <i class="fas fa-shopping-bag"></i>
                 </div>
                 <div class="top-navbar__brand">
-                    <h1 class="top-navbar__title">IGI STORE</h1>
+                    <h1 class="top-navbar__title">LGI STORE</h1>
                     <p class="top-navbar__subtitle">Produk Eksklusif Kaos Berkualitas</p>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.all-products') }}" class="sidebar__link {{ request()->routeIs('admin.all-products') ? 'active' : '' }}">
                         <i class="fas fa-box-open"></i>
                         <span>All Products</span>
                     </a>
@@ -95,7 +95,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('chatbot.index') }}" class="sidebar__link {{ request()->routeIs('chatbot.*') ? 'active' : '' }}">
                         <i class="fas fa-comment"></i>
                         <span>Chatbot</span>
                     </a>
@@ -107,13 +107,19 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.finance.index') }}" class="sidebar__link {{ request()->routeIs('admin.finance.*') ? 'active' : '' }}">
+                        <i class="fas fa-wallet"></i>
+                        <span>Finance & Wallet</span>
+                    </a>
+                </li>
+                <li>
                     <a href="#" class="sidebar__link">
                         <i class="fas fa-chart-bar"></i>
                         <span>Analytic Reports</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
+                    <a href="{{ route('admin.history') }}" class="sidebar__link {{ request()->routeIs('admin.history') ? 'active' : '' }}">
                         <i class="fas fa-history"></i>
                         <span>History</span>
                     </a>
@@ -125,9 +131,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="sidebar__link">
-                        <i class="fas fa-wallet"></i>
-                        <span>Finance and Wallet</span>
+                    <a href="{{ route('admin.custom-design-prices') }}" class="sidebar__link {{ request()->routeIs('admin.custom-design-prices') ? 'active' : '' }}">
+                        <i class="fas fa-palette"></i>
+                        <span>Custom Design Prices</span>
                     </a>
                 </li>
             </ul>
@@ -211,7 +217,7 @@
                     
                     <div class="page-header__date-range">
                         <i class="fas fa-calendar"></i>
-                        <span>{{ now()->format('F d, Y') }} - {{ now()->addDays(25)->format('F d, Y') }}</span>
+                        <span>{{ now()->format('F d, Y') }}</span>
                     </div>
                 </div>
             </div>
@@ -223,71 +229,7 @@
         </main>
     </div>
 
+    @vite('resources/js/admin/layout.js')
     @stack('scripts')
-    
-    <script>
-        function toggleAdminDropdown() {
-            const menu = document.getElementById('adminDropdownMenu');
-            menu.classList.toggle('show');
-            
-            // Close notification dropdown if open
-            const notifDropdown = document.getElementById('notificationDropdown');
-            if (notifDropdown && notifDropdown.classList.contains('show')) {
-                notifDropdown.classList.remove('show');
-            }
-        }
-
-        function toggleNotificationDropdown() {
-            const dropdown = document.getElementById('notificationDropdown');
-            dropdown.classList.toggle('show');
-            
-            // Close admin dropdown if open
-            const adminMenu = document.getElementById('adminDropdownMenu');
-            if (adminMenu && adminMenu.classList.contains('show')) {
-                adminMenu.classList.remove('show');
-            }
-        }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            // Close admin dropdown
-            if (!e.target.matches('.admin-dropdown__btn') && !e.target.closest('.admin-dropdown__btn')) {
-                const menu = document.getElementById('adminDropdownMenu');
-                if (menu && menu.classList.contains('show')) {
-                    menu.classList.remove('show');
-                }
-            }
-            
-            // Close notification dropdown
-            if (!e.target.matches('.notification-bell__btn') && !e.target.closest('.notification-bell')) {
-                const notifDropdown = document.getElementById('notificationDropdown');
-                if (notifDropdown && notifDropdown.classList.contains('show')) {
-                    notifDropdown.classList.remove('show');
-                }
-            }
-        });
-
-        // Listen for admin profile updates (real-time sync)
-        window.addEventListener('admin-profile-updated', function(event) {
-            const newAvatarUrl = event.detail.avatarUrl;
-            
-            // Update all admin avatar images
-            document.querySelectorAll('.admin-avatar').forEach(img => {
-                img.src = newAvatarUrl;
-            });
-            
-            // If it's a placeholder, replace with image
-            const placeholder = document.querySelector('.admin-avatar-placeholder');
-            if (placeholder && newAvatarUrl !== '{{ asset("images/default-avatar.png") }}') {
-                const img = document.createElement('img');
-                img.src = newAvatarUrl;
-                img.alt = 'Avatar';
-                img.className = 'admin-avatar';
-                placeholder.replaceWith(img);
-            }
-            
-            console.log('Admin avatar updated:', newAvatarUrl);
-        });
-    </script>
 </body>
 </html>

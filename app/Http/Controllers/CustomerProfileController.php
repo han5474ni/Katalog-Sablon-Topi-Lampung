@@ -17,6 +17,7 @@ class CustomerProfileController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $user->load('addresses');
         return view('pages.profile', compact('user'));
     }
 
@@ -158,6 +159,119 @@ class CustomerProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Password updated successfully'
+        ]);
+    }
+
+    /**
+     * Store new address
+     */
+    public function storeAddress(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'recipient_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:500'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'province' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
+            'label' => ['nullable', 'string', 'max:100'],
+            'is_primary' => ['boolean'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+        
+        // If this is set as primary, unset other primary addresses
+        if ($validated['is_primary'] ?? false) {
+            \App\Models\CustomerAddress::where('user_id', $user->id)
+                ->update(['is_primary' => false]);
+        }
+        
+        $address = $user->addresses()->create($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Alamat berhasil ditambahkan',
+            'address' => $address
+        ]);
+    }
+
+    /**
+     * Update existing address
+     */
+    public function updateAddress(Request $request, $id)
+    {
+        $user = Auth::user();
+        
+        $address = \App\Models\CustomerAddress::where('user_id', $user->id)
+            ->findOrFail($id);
+        
+        $validated = $request->validate([
+            'recipient_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['required', 'string', 'max:500'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'province' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:10'],
+            'label' => ['nullable', 'string', 'max:100'],
+            'is_primary' => ['boolean'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+        
+        // If this is set as primary, unset other primary addresses
+        if ($validated['is_primary'] ?? false) {
+            \App\Models\CustomerAddress::where('user_id', $user->id)
+                ->where('id', '!=', $id)
+                ->update(['is_primary' => false]);
+        }
+        
+        $address->update($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Alamat berhasil diperbarui',
+            'address' => $address
+        ]);
+    }
+
+    /**
+     * Delete address
+     */
+    public function deleteAddress($id)
+    {
+        $user = Auth::user();
+        
+        $address = \App\Models\CustomerAddress::where('user_id', $user->id)
+            ->findOrFail($id);
+        
+        $address->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Alamat berhasil dihapus'
+        ]);
+    }
+
+    /**
+     * Set address as primary
+     */
+    public function setPrimaryAddress($id)
+    {
+        $user = Auth::user();
+        
+        $address = \App\Models\CustomerAddress::where('user_id', $user->id)
+            ->findOrFail($id);
+        
+        // Unset all other primary addresses
+        \App\Models\CustomerAddress::where('user_id', $user->id)
+            ->update(['is_primary' => false]);
+        
+        // Set this address as primary
+        $address->update(['is_primary' => true]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Alamat utama berhasil diatur'
         ]);
     }
 }

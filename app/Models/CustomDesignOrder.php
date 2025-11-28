@@ -11,19 +11,28 @@ class CustomDesignOrder extends Model
     protected $fillable = [
         'user_id',
         'product_id',
+        'variant_id',
         'product_name',
         'product_price',
+        'quantity',
         'cutting_type',
         'special_materials',
         'additional_description',
         'status',
         'total_price',
+        'admin_notes',
+        'rejected_at',
+        'approved_at',
+        'payment_deadline',
     ];
 
     protected $casts = [
         'special_materials' => 'array',
         'product_price' => 'decimal:2',
         'total_price' => 'decimal:2',
+        'rejected_at' => 'datetime',
+        'approved_at' => 'datetime',
+        'payment_deadline' => 'datetime',
     ];
 
     /**
@@ -40,6 +49,14 @@ class CustomDesignOrder extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Get the product variant associated with this order
+     */
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
     /**
