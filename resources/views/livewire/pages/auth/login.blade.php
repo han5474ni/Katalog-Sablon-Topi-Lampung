@@ -42,7 +42,7 @@ $login = function () {
     <div class="container">
         <div class="logo-section">
             <div class="logo-circle">
-                <i class="fas fa-glasses"></i>
+                <img src="{{ asset('images/logo-lgi-Photoroom.png') }}" alt="LGI Store Logo">
             </div>
             <div class="logo-text-container">
                 <div class="logo-text">LGI STORE</div>

@@ -17,7 +17,9 @@
     <header class="main-navbar">
         <div class="main-navbar-inner">
             <a href="{{ route('home') }}" class="brand" aria-label="LGI Store">
-                <div class="brand-logo">L</div>
+                <div class="brand-logo">
+                    <img src="{{ asset('images/logo-lgi-Photoroom.png') }}" alt="LGI Store Logo" class="brand-logo-img">
+                </div>
                 <div class="brand-text">
                     <span class="brand-name">LGI STORE</span>
                     <span class="brand-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</span>

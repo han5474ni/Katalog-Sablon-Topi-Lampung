@@ -334,10 +334,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         const chatBtn = e.target.closest('.action-chat');
         const cartBtn = e.target.closest('.action-cart');
-        
+
         if (chatBtn) {
             e.stopPropagation(); // Prevent card click
-            window.location.href = '/chatbot';
+            window.location.href = '/chatpage';
         } else if (cartBtn) {
             e.stopPropagation(); // Prevent card click
             const productId = cartBtn.getAttribute('data-product-id') || 

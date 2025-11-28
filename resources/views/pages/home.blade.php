@@ -97,12 +97,13 @@
     <!-- Footer Component -->
     <x-guest-footer />
 
+    
+    <!-- Chatbot Popup -->
     <!-- Chatbot Trigger Button -->
     <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
-        <span class="material-icons" aria-hidden="true">chat</span>
+        <i class="fas fa-comment" aria-hidden="true"></i>
     </button>
 
-    <!-- Chatbot Popup -->
     <div class="chatbot-popup" id="chatbotPopup">
         <!-- Chatbot Header -->
         <div class="chatbot-header">

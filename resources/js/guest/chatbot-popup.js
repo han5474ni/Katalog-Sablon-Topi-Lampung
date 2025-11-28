@@ -4,7 +4,7 @@
  */
 
 // DOM Elements
-const chatbotTrigger = document.getElementById('chatbotTrigger');
+let chatbotTrigger = document.getElementById('chatbotTrigger');
 const chatbotPopup = document.getElementById('chatbotPopup');
 const chatbotMessages = document.getElementById('chatbotMessages');
 const chatbotInput = document.getElementById('chatbotInput');
@@ -20,7 +20,13 @@ function initializeChatbot() {
     if (!chatbotTrigger || !chatbotPopup) return;
 
     // Toggle popup on trigger click
-    chatbotTrigger.addEventListener('click', toggleChatbot);
+    // Support footer floating button on all pages
+    if (!chatbotTrigger) {
+        chatbotTrigger = document.querySelector('.chat-btn');
+    }
+    if (chatbotTrigger) {
+        chatbotTrigger.addEventListener('click', toggleChatbot);
+    }
 
     // Send message on button click
     chatbotSend.addEventListener('click', handleSendMessage);
@@ -53,14 +59,14 @@ function toggleChatbot() {
 // Open Chatbot
 function openChatbot() {
     chatbotPopup.classList.add('active');
-    chatbotTrigger.classList.add('hidden');
-    chatbotInput.focus();
+    if (chatbotTrigger) chatbotTrigger.classList.add('hidden');
+    chatbotInput && chatbotInput.focus();
 }
 
 // Close Chatbot
 function closeChatbot() {
     chatbotPopup.classList.remove('active');
-    chatbotTrigger.classList.remove('hidden');
+    if (chatbotTrigger) chatbotTrigger.classList.remove('hidden');
 }
 
 // Handle Send Message

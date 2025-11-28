@@ -112,7 +112,7 @@
                 <span aria-hidden="true">&lt;</span>
                 <span>Beranda</span>
             </a>
-            <li class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></li>
+            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
             <span class="breadcrumb-current">{{ $product['name'] ?? 'Produk' }}</span>
         </div>
     </nav>
@@ -249,7 +249,7 @@
                                 <i class="fas fa-palette"></i>
                             </button>
 
-                            <button type="button" class="chat-btn" title="Chat">
+                            <button type="button" class="chat-btn" title="Chat" onclick="window.location.href='{{ route('chatpage') }}'">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                             

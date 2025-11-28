@@ -125,7 +125,6 @@
                     <div class="products-header">
                         <button class="filter-toggle-btn mobile-only" id="filter-toggle-mobile">
                             <span>Filters</span>
-                            <i class="fas fa-sliders-h"></i>
                         </button>
                         
                         <div class="header-center">

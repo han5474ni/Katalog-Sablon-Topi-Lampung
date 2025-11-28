@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $categoryName }} - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/guest/catalog.css', 'resources/css/guest/catalog-inline.css', 'resources/css/components/footer.css', 'resources/css/components/product-card.css', 'resources/js/guest/catalog.js', 'resources/js/guest/product-card-carousel.js'])
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    @vite(['resources/css/guest/catalog.css', 'resources/css/guest/catalog-inline.css', 'resources/css/components/footer.css', 'resources/css/components/product-card.css', 'resources/css/guest/chatbot.css', 'resources/js/guest/catalog.js', 'resources/js/guest/product-card-carousel.js', 'resources/js/guest/chatbot-popup.js'])
 </head>
 <body>
     @php
@@ -114,7 +115,9 @@
                             </div>
                         </div>
 
-                        <!-- Price Range Filter -->
+
+
+                        <!-- Harga Section -->
                         <div class="filter-section">
                             <div class="filter-title-row">
                                 <span class="filter-title">Harga</span>
@@ -122,13 +125,13 @@
                             </div>
                             <div class="price-range-wrapper">
                                 <div class="price-inputs">
-                                    <input type="text" class="price-input" id="min-price" placeholder="Rp 0" value="{{ $minPriceDisplay }}">
+                                    <input type="text" class="price-input" id="min-price" placeholder="Rp 0" value="Rp 0">
                                     <span class="price-separator">-</span>
-                                    <input type="text" class="price-input" id="max-price" placeholder="Rp 2.500.000" value="{{ $maxPriceDisplay }}">
+                                    <input type="text" class="price-input" id="max-price" placeholder="Rp 2.500.000" value="Rp 2.500.000">
                                 </div>
                                 <div class="price-slider-container">
-                                    <input type="range" id="price-range-min" min="0" max="2500000" value="{{ $minPriceValue }}">
-                                    <input type="range" id="price-range-max" min="0" max="2500000" value="{{ $maxPriceValue }}">
+                                    <input type="range" id="price-range-min" min="0" max="2500000" value="0">
+                                    <input type="range" id="price-range-max" min="0" max="2500000" value="2500000">
                                 </div>
                             </div>
                         </div>
@@ -225,174 +228,243 @@
             const colorSelections = new Set(@json($selectedColors));
             const sizeSelections = new Set(@json($selectedSizes));
             
-            // Price range slider functionality
-            const priceRangeMin = document.getElementById('price-range-min');
-            const priceRangeMax = document.getElementById('price-range-max');
+            // Price slider functionality
             const minPriceInput = document.getElementById('min-price');
             const maxPriceInput = document.getElementById('max-price');
-            
-            function formatRupiah(value) {
-                return 'Rp ' + parseInt(value).toLocaleString('id-ID');
-            }
-            
-            function parseRupiah(value) {
-                return parseInt(value.replace(/[^0-9]/g, '')) || 0;
-            }
-            
-            if (priceRangeMin && priceRangeMax && minPriceInput && maxPriceInput) {
-                // Update input fields when sliders change
-                priceRangeMin.addEventListener('input', function() {
-                    const minVal = parseInt(this.value);
-                    const maxVal = parseInt(priceRangeMax.value);
-                    
-                    if (minVal > maxVal - 50000) {
-                        this.value = maxVal - 50000;
-                    }
-                    
-                    minPriceInput.value = formatRupiah(this.value);
-                });
-                
-                priceRangeMax.addEventListener('input', function() {
-                    const minVal = parseInt(priceRangeMin.value);
-                    const maxVal = parseInt(this.value);
-                    
-                    if (maxVal < minVal + 50000) {
-                        this.value = minVal + 50000;
-                    }
-                    
-                    maxPriceInput.value = formatRupiah(this.value);
-                });
-                
-                // Update sliders when input fields change
-                minPriceInput.addEventListener('blur', function() {
-                    const value = parseRupiah(this.value);
-                    const maxVal = parseInt(priceRangeMax.value);
-                    
-                    if (value < 0) this.value = formatRupiah(0);
-                    if (value > maxVal - 50000) this.value = formatRupiah(maxVal - 50000);
-                    
-                    priceRangeMin.value = parseRupiah(this.value);
-                });
-                
-                maxPriceInput.addEventListener('blur', function() {
-                    const value = parseRupiah(this.value);
-                    const minVal = parseInt(priceRangeMin.value);
-                    
-                    if (value > 2500000) this.value = formatRupiah(2500000);
-                    if (value < minVal + 50000) this.value = formatRupiah(minVal + 50000);
-                    
-                    priceRangeMax.value = parseRupiah(this.value);
-                });
+            const minRange = document.getElementById('price-range-min');
+            const maxRange = document.getElementById('price-range-max');
+            const priceSliderRange = document.querySelector('.price-slider-range');
+
+            // Initialize slider values
+            let minValue = parseInt(minRange.value) || 0;
+            let maxValue = parseInt(maxRange.value) || 2500000;
+
+            // Function to update slider track
+            function updateSliderTrack() {
+                if (!priceSliderRange) return;
+                const percent1 = (minValue / 2500000) * 100;
+                const percent2 = (maxValue / 2500000) * 100;
+                priceSliderRange.style.left = percent1 + '%';
+                priceSliderRange.style.width = (percent2 - percent1) + '%';
             }
 
-            colorButtons.forEach(btn => {
-                const colorValue = btn.dataset.color;
-
-                if (colorSelections.has(colorValue)) {
-                    btn.classList.add('active');
+            // Update input values when slider changes
+            minRange.addEventListener('input', function() {
+                minValue = parseInt(this.value);
+                if (minValue > maxValue - 10000) {
+                    minValue = maxValue - 10000;
+                    this.value = minValue;
                 }
-
-                btn.addEventListener('click', () => {
-                    if (colorSelections.has(colorValue)) {
-                        colorSelections.delete(colorValue);
-                        btn.classList.remove('active');
-                    } else {
-                        colorSelections.add(colorValue);
-                        btn.classList.add('active');
-                    }
-                });
+                minPriceInput.value = 'Rp ' + minValue.toLocaleString('id-ID');
+                updateSliderTrack();
             });
 
-            sizeButtons.forEach(btn => {
-                const sizeValue = btn.dataset.size;
-
-                if (sizeSelections.has(sizeValue)) {
-                    btn.classList.add('active');
+            maxRange.addEventListener('input', function() {
+                maxValue = parseInt(this.value);
+                if (maxValue < minValue + 10000) {
+                    maxValue = minValue + 10000;
+                    this.value = maxValue;
                 }
-
-                btn.addEventListener('click', () => {
-                    if (sizeSelections.has(sizeValue)) {
-                        sizeSelections.delete(sizeValue);
-                        btn.classList.remove('active');
-                    } else {
-                        sizeSelections.add(sizeValue);
-                        btn.classList.add('active');
-                    }
-                });
+                maxPriceInput.value = 'Rp ' + maxValue.toLocaleString('id-ID');
+                updateSliderTrack();
             });
 
-            applyFilterBtn?.addEventListener('click', () => {
-                const url = new URL(window.location.href);
-                const params = url.searchParams;
+            // Update slider when input changes
+            minPriceInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                if (value) {
+                    minValue = parseInt(value);
+                    if (minValue > maxValue - 10000) minValue = maxValue - 10000;
+                    minRange.value = minValue;
+                    e.target.value = 'Rp ' + minValue.toLocaleString('id-ID');
+                    updateSliderTrack();
+                }
+            });
 
-                // Handle quick filters
-                if (quickFilters.promo?.checked) {
-                    params.set('promo', '1');
-                } else {
-                    params.delete('promo');
+            maxPriceInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^\d]/g, '');
+                if (value) {
+                    maxValue = parseInt(value);
+                    if (maxValue < minValue + 10000) maxValue = minValue + 10000;
+                    maxRange.value = maxValue;
+                    e.target.value = 'Rp ' + maxValue.toLocaleString('id-ID');
+                    updateSliderTrack();
+                }
+            });
+
+            // Handle input blur
+            minPriceInput.addEventListener('blur', function(e) {
+                if (!e.target.value || e.target.value === 'Rp ') {
+                    minValue = 0;
+                    minRange.value = 0;
+                    e.target.value = 'Rp 0';
+                    updateSliderTrack();
+                }
+            });
+
+            maxPriceInput.addEventListener('blur', function(e) {
+                if (!e.target.value || e.target.value === 'Rp ') {
+                    maxValue = 2500000;
+                    maxRange.value = 2500000;
+                    e.target.value = 'Rp 2.500.000';
+                    updateSliderTrack();
+                }
+            });
+
+            // Initialize slider track on page load
+            updateSliderTrack();
+
+
+
+            applyFilterBtn.addEventListener('click', function() {
+                const selectedFilters = {
+                    promo: document.getElementById('promo-filter')?.checked || false,
+                    ready: document.getElementById('ready-filter')?.checked || false,
+                    custom: document.getElementById('custom-filter')?.checked || false,
+                    subcategories: [],
+                    min_price: document.getElementById('price-range-min')?.value || 0,
+                    max_price: document.getElementById('price-range-max')?.value || 2500000,
+                    sort: document.getElementById('sort-select')?.value || 'most_popular'
+                };
+
+                // Get selected subcategories
+                const subcategoryCheckboxes = document.querySelectorAll('input[name="subcategories[]"]:checked');
+                subcategoryCheckboxes.forEach(cb => {
+                    selectedFilters.subcategories.push(cb.value);
+                });
+
+                console.log('Applying filters:', selectedFilters);
+
+                // Show loading state
+                applyFilterBtn.textContent = 'Memuat...';
+                applyFilterBtn.disabled = true;
+
+                // Build query string from selected filters
+                const params = new URLSearchParams();
+
+                if (selectedFilters.promo) params.append('promo', '1');
+                if (selectedFilters.ready) params.append('ready', '1');
+                if (selectedFilters.custom) params.append('custom', '1');
+
+                if (selectedFilters.categories.length > 0) {
+                    params.append('categories', selectedFilters.categories.join(','));
                 }
 
-                if (quickFilters.ready?.checked) {
-                    params.set('ready', '1');
-                } else {
-                    params.delete('ready');
+                if (selectedFilters.min_price) {
+                    params.append('min_price', selectedFilters.min_price);
                 }
 
-                if (quickFilters.custom?.checked) {
-                    params.set('custom', '1');
-                } else {
-                    params.delete('custom');
+                if (selectedFilters.max_price) {
+                    params.append('max_price', selectedFilters.max_price);
                 }
 
-                // Handle subcategories
-                const selectedSubcategories = Array.from(subcategoryCheckboxes)
-                    .filter(cb => cb.checked)
-                    .map(cb => cb.value);
-                
-                if (selectedSubcategories.length > 0) {
-                    params.set('subcategories', selectedSubcategories.join(','));
-                } else {
-                    params.delete('subcategories');
+                if (selectedFilters.sort) {
+                    params.append('sort', selectedFilters.sort);
                 }
 
-                // Handle colors
-                if (colorSelections.size > 0) {
-                    params.set('colors', Array.from(colorSelections).join(','));
-                } else {
-                    params.delete('colors');
-                }
-
-                // Handle sizes
-                if (sizeSelections.size > 0) {
-                    params.set('sizes', Array.from(sizeSelections).join(','));
-                } else {
-                    params.delete('sizes');
-                }
-
-                // Handle price range - use slider values
-                const minPriceSlider = document.getElementById('price-range-min');
-                const maxPriceSlider = document.getElementById('price-range-max');
-                
-                if (minPriceSlider && maxPriceSlider) {
-                    const minPrice = parseInt(minPriceSlider.value) || 0;
-                    const maxPrice = parseInt(maxPriceSlider.value) || 2500000;
-                    
-                    if (minPrice > 0) {
-                        params.set('min_price', minPrice);
-                    } else {
-                        params.delete('min_price');
+                // Make AJAX request to filter products
+                fetch(`${window.location.pathname}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
-                    
-                    if (maxPrice < 2500000) {
-                        params.set('max_price', maxPrice);
-                    } else {
-                        params.delete('max_price');
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update products grid
+                    const productsGrid = document.getElementById('products-grid');
+                    const products = data.products;
 
-                params.delete('page');
+                    if (products.length === 0) {
+                        productsGrid.innerHTML = `
+                            <div class="no-products" style="grid-column: 1 / -1;">
+                                <i class="fas fa-inbox"></i>
+                                <p>Produk tidak ditemukan</p>
+                            </div>
+                        `;
+                        return;
+                    }
 
-                window.location.href = `${url.pathname}?${params.toString()}`;
+                    let html = '';
+                    products.forEach(product => {
+                        // Priority: variant_images[0] > product.image > placeholder
+                        let imageUrl = '';
+                        if (product.variant_images && product.variant_images.length > 0) {
+                            imageUrl = product.variant_images[0];
+                        } else if (product.image) {
+                            imageUrl = `/storage/${product.image}`;
+                        }
+
+                        const variantImagesJson = JSON.stringify(product.variant_images || []).replace(/'/g, '&#39;');
+                        const customRibbon = product.custom_design_allowed ? '<div class="product-ribbon" aria-hidden="true">CUSTOM</div>' : '';
+                        const imageHtml = imageUrl
+                            ? `<img class="product-image" src="${imageUrl}" alt="${product.name}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'no-image-placeholder\\'><i class=\\'fas fa-image\\'></i></div>';">`
+                            : `<div class="no-image-placeholder"><i class="fas fa-image"></i></div>`;
+
+                        const formattedPrice = product.formatted_price || 'Rp ' + parseInt(product.price).toLocaleString('id-ID');
+
+                        html += `
+                            <div class="product-card"
+                                 data-product-id="${product.id}"
+                                 data-product-slug="${product.slug || ''}"
+                                 data-product-name="${product.name}"
+                                 data-product-price="${formattedPrice}"
+                                 data-product-image="${imageUrl}"
+                                 data-variant-images='${variantImagesJson}'>
+                                <div class="product-image-container" data-product-id="${product.id}">
+                                    ${imageHtml}
+                                    ${customRibbon}
+                                </div>
+                                <div class="product-info">
+                                    <h3 class="product-title">${product.name}</h3>
+                                    <p class="product-price">${formattedPrice}</p>
+                                    <div class="product-actions" role="group" aria-label="Aksi produk">
+                                        <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk">
+                                            <i class="fas fa-comments" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="${product.id}">
+                                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    productsGrid.innerHTML = html;
+
+                    // Update pagination
+                    // Update products count
+                    const productsCount = document.getElementById('products-count');
+                    if (data.pagination) {
+                        productsCount.textContent = `Menampilkan ${data.pagination.from || 0}-${data.pagination.to || 0} dari ${data.pagination.total} Produk.`;
+                    }
+
+                    // Re-initialize carousels and click handlers
+                    if (typeof window.initializeProductCarousels === 'function') {
+                        window.initializeProductCarousels();
+                    }
+                    if (typeof window.initializeProductCardClicks === 'function') {
+                        window.initializeProductCardClicks();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error applying filters:', error);
+                    if (error.message.includes('HTTP error')) {
+                        alert('Terjadi kesalahan saat menerapkan filter. Silakan coba lagi.');
+                    }
+                })
+                .finally(() => {
+                    // Reset button state
+                    applyFilterBtn.textContent = 'Apply Filter';
+                    applyFilterBtn.disabled = false;
+                });
             });
 
             sortSelect?.addEventListener('change', () => {
@@ -404,5 +476,31 @@
             });
         });
     </script>
+<!-- Floating Chat Button (catalog) -->
+    <button class="chat-btn" id="chatbotTrigger" aria-label="Buka chat">
+        <i class="fas fa-comment"></i>
+    </button>
+
+    <!-- Chatbot Popup -->
+    <div class="chatbot-popup" id="chatbotPopup">
+        <div class="chatbot-header">
+            <div class="chatbot-avatar">
+                <span class="material-icons">support_agent</span>
+            </div>
+            <div class="chatbot-info">
+                <div class="chatbot-name">LGI STORE</div>
+                <div class="chatbot-status">Online - Balas Cepat</div>
+            </div>
+        </div>
+        <div class="chatbot-container">
+            <div class="chatbot-messages" id="chatbotMessages"></div>
+            <div class="chatbot-input-wrapper">
+                <div class="chatbot-input-container">
+                    <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ketik pesan Anda...">
+                    <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

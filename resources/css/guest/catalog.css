@@ -1420,37 +1420,62 @@ header {
 
 /* Price Range */
 .catalog-section .price-range-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    overflow: hidden;
-    width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 100%;
 }
 
 .catalog-section .price-inputs {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	flex-wrap: wrap;
 }
 
 .catalog-section .price-input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    color: #1f2937;
-    text-align: left;
-    min-width: 0;
-    width: 100%;
-    background: #ffffff;
+	flex: 1;
+	min-width: 0;
+	padding: 8px 10px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 12px;
+	font-weight: 400;
+	color: #374151;
+	background: #ffffff;
+	transition: all 0.2s;
+	box-sizing: border-box;
 }
 
 .catalog-section .price-input:focus {
-    outline: none;
-    border-color: #000000;
-    box-shadow: 0 0 0 1px #000000;
+	outline: none;
+	border-color: #1a1a1a;
+	box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.08);
+}
+
+.price-slider-container {
+	position: relative;
+	height: 6px;
+	margin-top: 4px;
+	width: 100%;
+}
+
+.price-slider-track {
+	position: absolute;
+	width: 100%;
+	height: 6px;
+	background: #e5e7eb;
+	border-radius: 3px;
+}
+
+.price-slider-range {
+	position: absolute;
+	height: 6px;
+	background: #1a1a1a;
+	border-radius: 3px;
+	left: 0%;
+	width: 100%;
 }
 
 .catalog-section .price-separator {
@@ -1482,25 +1507,27 @@ header {
 
 .catalog-section .price-slider-container input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: #3b82f6;
     cursor: pointer;
     pointer-events: auto;
     border: 3px solid #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: -9px;
 }
 
 .catalog-section .price-slider-container input[type="range"]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #3b82f6;
     cursor: pointer;
     pointer-events: auto;
     border: 3px solid #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: -13px;
 }
 
 .catalog-section .price-slider-container input[type="range"]::-webkit-slider-runnable-track {

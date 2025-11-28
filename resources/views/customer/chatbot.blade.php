@@ -4,7 +4,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chat Assistant - LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/guest/chatbot.css', 'resources/js/customer/chatbot.js'])
+    @vite(['resources/css/guest/chatpage.css', 'resources/js/customer/chatbot.js'])
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>LGI Store</title>
 </head>

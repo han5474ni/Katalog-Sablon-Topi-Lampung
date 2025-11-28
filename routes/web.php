@@ -345,6 +345,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])
             ->name('custom-design.store');
+
+        Route::get('/chatpage', [CustomerController::class, 'chatpage'])
+            ->name('chatpage');
+        Route::get('/notifikasi', [CustomerController::class, 'notifikasi'])
+            ->name('notifikasi');
     });
 
     // Download route - accessible by both customer and admin (outside customer.only middleware)

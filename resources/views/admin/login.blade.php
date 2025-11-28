@@ -25,6 +25,9 @@
         </a>
     </div>
     <div class="admin-login-container">
+        <div class="admin-logo">
+            <img src="{{ asset('images/logo-lgi-Photoroom.png') }}" alt="LGI Store Logo">
+        </div>
         <div class="admin-header">
             <div class="admin-icon">
                 <i class="fas fa-user-shield"></i>
