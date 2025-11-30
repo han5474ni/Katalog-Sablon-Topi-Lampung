@@ -60,7 +60,7 @@
         
         <!-- Action Buttons (Both White with Black Icons) -->
         <div class="product-actions" role="group" aria-label="Aksi produk">
-            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk" onclick="window.location.href='{{ route('chatpage') }}'">
+            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk" onclick="window.location.href='{{ route('chatbot') }}'">
                 <i class="fas fa-comments" aria-hidden="true"></i>
             </button>
             <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">

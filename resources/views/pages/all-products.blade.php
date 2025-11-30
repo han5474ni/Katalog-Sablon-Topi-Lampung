@@ -104,6 +104,16 @@
                     <div class="products-header-inline">
                         <div class="header-title-section">
                             <h1 class="page-title-inline">Semua Produk</h1>
+                            <span class="products-count-inline" id="products-count">Menampilkan 1-{{ $products->count() }} dari {{ $products->total() }} Produk</span>
+                        </div>
+                        <div class="header-sort-section">
+                            <label for="sort-select">Urut berdasarkan:</label>
+                            <select class="sort-select" id="sort-select">
+                                <option value="most_popular">Paling Populer</option>
+                                <option value="newest">Terbaru</option>
+                                <option value="price_asc">Harga Terendah</option>
+                                <option value="price_desc">Harga Tertinggi</option>
+                            </select>
                         </div>
                     </div>
 

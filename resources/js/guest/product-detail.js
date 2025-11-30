@@ -401,19 +401,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Chat button handler -> redirect to chatpage
+    // Chat button handler 
     const chatBtn = document.querySelector('.chat-btn');
-    console.log('Chat button found:', chatBtn);
+    //console.log('Chat button found:', chatBtn);
     if (chatBtn) {
-        chatBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Chat button clicked, redirecting to /chatpage');
-            // Always redirect to chat page; authentication is handled by middleware
-            window.location.href = '/chatpage';
+        chatBtn.addEventListener('click', () => {
+            // Redirect to chatbot or open chat interface
+            window.location.href = '/chatbot';
+            
         });
-    } else {
-        console.log('Chat button not found!');
     }
 
     const tabButtons = document.querySelectorAll('.tab-button');

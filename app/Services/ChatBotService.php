@@ -15,7 +15,7 @@ class ChatBotService
     public function __construct()
     {
         // Gunakan URL langsung untuk testing, fallback ke config
-        $this->n8nWebhookUrl = 'http://localhost:5678/webhook/chatbot';
+        $this->n8nWebhookUrl = 'https://tokolgilampung.app.n8n.cloud/webhook/chatbot';
         
         // Jika config tersedia, gunakan config
         if (config('services.n8n.webhook_url')) {

@@ -69,4 +69,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(PaymentTransaction::class, 'user_id');
     }
+
+    /**
+     * Get the orders for the user
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    /**
+     * Get the custom design orders for the user
+     */
+    public function customDesignOrders()
+    {
+        return $this->hasMany(CustomDesignOrder::class, 'user_id');
+    }
 }

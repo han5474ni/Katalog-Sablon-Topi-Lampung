@@ -249,7 +249,7 @@
                                 <i class="fas fa-palette"></i>
                             </button>
 
-                            <button type="button" class="chat-btn" title="Chat" onclick="window.location.href='{{ route('chatpage') }}'">
+                            <button type="button" class="chat-btn" title="Chat">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                             

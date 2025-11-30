@@ -523,7 +523,11 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($order->items as $item)
+                                    @php
+                                        // Ensure items is an array
+                                        $itemsToDisplay = is_array($order->items) ? $order->items : (is_string($order->items) ? json_decode($order->items, true) ?? [] : []);
+                                    @endphp
+                                    @forelse($itemsToDisplay as $item)
                                     <tr style="border-bottom: 1px solid #f3f4f6;">
                                         <td style="padding: 16px 0;">
                                             <p style="font-weight: 600; color: #111827; margin: 0 0 8px 0;">{{ $item['product_name'] ?? $item['name'] ?? 'N/A' }}</p>
@@ -549,7 +553,11 @@
                                             <p style="font-size: 13px; color: #6b7280; margin: 0;">Rp {{ number_format($item['price'] ?? 0, 0, ',', '.') }} x {{ $item['quantity'] ?? 1 }}</p>
                                         </td>
                                     </tr>
-                                    @endforeach
+                                    @empty
+                                    <tr>
+                                        <td colspan="3" style="padding: 16px 0; text-align: center; color: #6b7280;">Tidak ada item dalam pesanan</td>
+                                    </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -560,7 +568,10 @@
                                 // Collect all product images from order items
                                 $orderImages = [];
                                 
-                                foreach($order->items as $item) {
+                                // Ensure items is an array
+                                $items = is_array($order->items) ? $order->items : (is_string($order->items) ? json_decode($order->items, true) ?? [] : []);
+                                
+                                foreach($items as $item) {
                                     // Try variant image first
                                     if(!empty($item['variant_id'])) {
                                         $variant = \App\Models\ProductVariant::find($item['variant_id']);
@@ -766,14 +777,16 @@
                                 }
                                 
                                 // Get uploaded design images
-                                if($order->uploads && $order->uploads->count() > 0) {
-                                    foreach($order->uploads as $upload) {
+                                if($order->uploads && (is_array($order->uploads) || method_exists($order->uploads, 'count'))) {
+                                    $uploadsToProcess = is_array($order->uploads) ? $order->uploads : ($order->uploads->count() > 0 ? $order->uploads : []);
+                                    foreach($uploadsToProcess as $upload) {
                                         // Check if file is an image by extension
                                         $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-                                        $fileExtension = strtolower(pathinfo($upload->file_path, PATHINFO_EXTENSION));
+                                        $filePath = is_array($upload) ? ($upload['file_path'] ?? '') : $upload->file_path;
+                                        $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
                                         
                                         if(in_array($fileExtension, $imageExtensions)) {
-                                            $productImages[] = asset('storage/' . $upload->file_path);
+                                            $productImages[] = asset('storage/' . $filePath);
                                         }
                                     }
                                 }
@@ -786,15 +799,6 @@
                                     $productImages[] = 'https://via.placeholder.com/300x300?text=No+Image';
                                 }
                             @endphp
-                            
-                            {{-- Temporary Debug Info --}}
-                            <div style="background: #e3f2fd; padding: 10px; margin-bottom: 10px; border-radius: 4px; font-size: 11px;">
-                                <strong>Debug Preview:</strong><br>
-                                Total Images: {{ count($productImages) }}<br>
-                                @foreach($productImages as $idx => $url)
-                                    {{ $idx + 1 }}. {{ Str::limit($url, 60) }}<br>
-                                @endforeach
-                            </div>
                             
                             @if(count($productImages) > 1)
                                 {{-- Show Slider for Multiple Images --}}

@@ -25,11 +25,11 @@
         <div class="catalog-inner-container">
             <nav aria-label="breadcrumb" class="catalog-breadcrumb-nav">
                 <nav class="breadcrumb">
-    <a href="{{ route('home') }}">
-        <i class="fas fa-chevron-left"></i>
-        Kembali ke beranda
-    </a>
-</nav>
+                    <a href="{{ route('home') }}">
+                        <i class="fas fa-chevron-left"></i>
+                        Kembali ke beranda
+                    </a>
+                </nav>
             </nav>
         </div>
     </section>
@@ -125,6 +125,7 @@
                     <div class="products-header">
                         <button class="filter-toggle-btn mobile-only" id="filter-toggle-mobile">
                             <span>Filters</span>
+                            <!-- <i class="fas fa-sliders-h"></i> -->
                         </button>
                         
                         <div class="header-center">

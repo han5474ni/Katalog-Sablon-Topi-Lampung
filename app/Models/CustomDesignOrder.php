@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CustomDesignOrder extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'product_id',
@@ -19,11 +22,14 @@ class CustomDesignOrder extends Model
         'special_materials',
         'additional_description',
         'status',
+        'payment_status',
         'total_price',
         'admin_notes',
         'rejected_at',
         'approved_at',
         'payment_deadline',
+        'processing_at',
+        'completed_at',
     ];
 
     protected $casts = [
@@ -33,6 +39,8 @@ class CustomDesignOrder extends Model
         'rejected_at' => 'datetime',
         'approved_at' => 'datetime',
         'payment_deadline' => 'datetime',
+        'processing_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     /**

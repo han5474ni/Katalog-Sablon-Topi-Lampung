@@ -340,7 +340,7 @@ class ChatController extends Controller
 
         $message = $tests[$testType] ?? 'harga produk berapa?';
 
-        $n8nUrl = 'https://lgistorelampung.app.n8n.cloud/webhook/chatbot';
+        $n8nUrl = 'https://tokolgilampung.app.n8n.cloud/webhook/chatbot';
         
         $payload = [
             'message' => $message,

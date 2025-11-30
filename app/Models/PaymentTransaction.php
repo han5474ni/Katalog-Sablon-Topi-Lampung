@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentTransaction extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'transaction_id',
         'user_id',
@@ -27,11 +30,31 @@ class PaymentTransaction extends Model
     ];
 
     /**
+     * Boot the model
+     */
+    protected static function booting()
+    {
+        static::creating(function ($model) {
+            if (!$model->transaction_id) {
+                $model->transaction_id = self::generateTransactionId();
+            }
+        });
+    }
+
+    /**
      * Get the user that owns the transaction
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the order associated with the transaction
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
     }
 
     /**

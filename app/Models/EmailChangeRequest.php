@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EmailChangeRequest extends Model
@@ -12,6 +13,7 @@ class EmailChangeRequest extends Model
         'old_email',
         'new_email',
         'token',
+        'status',
         'expires_at',
         'is_confirmed',
     ];

@@ -1,4 +1,4 @@
-YANG SEBELAH KIRI MASIH BELUM MENUTUPI GARIS/* ================= FILTER STYLING ================= */
+/* ================= FILTER STYLING ================= */
 .filter-container {
     background-color: #fff;
     border-radius: 12px;
@@ -80,20 +80,20 @@ YANG SEBELAH KIRI MASIH BELUM MENUTUPI GARIS/* ================= FILTER STYLING 
 }
 
 .apply-filter-btn {
-	background-color: #000000;
-	color: #fff;
-	width: 100%;
-	padding: 10px 0;
-	border: none;
-	border-radius: 25px;
-	font-size: 0.95rem;
-	font-weight: 500;
-	cursor: pointer;
-	transition: background-color 0.3s;
+    background-color: #000000;
+    color: #fff;
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .apply-filter-btn:hover {
-	background-color: #111827;
+    background-color: #111827;
 }
 
 /* Price range slider */

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_address_id')->nullable(); // Comment foreign key temporarily
             $table->unsignedBigInteger('payment_method_id')->nullable(); // Comment foreign key temporarily
             $table->string('order_number')->unique();
-            $table->json('items');
+            $table->json('items')->nullable();
             $table->decimal('subtotal', 12, 2);
             $table->decimal('shipping_cost', 12, 2)->default(0);
             $table->decimal('discount', 12, 2)->default(0);

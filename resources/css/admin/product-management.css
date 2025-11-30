@@ -353,6 +353,12 @@
     width: 60px;
     height: 60px;
     margin: 0 auto;
+    border-radius: 0.5rem;
+    background: #f1f5f9;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-image {
@@ -368,12 +374,14 @@
 }
 
 .product-image img,
-.product-image-cell img {
+.product-image-cell img,
+.product-carousel-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 0.5rem;
     transition: opacity 0.3s ease;
+    display: block;
 }
 
 .image-count-badge {

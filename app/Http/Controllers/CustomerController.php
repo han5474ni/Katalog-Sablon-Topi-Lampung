@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Order;
+use App\Models\CustomDesignOrder;
 use App\Traits\ImageResolutionTrait;
 use App\Traits\StockManagementTrait;
 use Illuminate\Http\Request;
@@ -20,8 +22,75 @@ class CustomerController extends Controller
                 return redirect()->route('login');
             }
             
+            $user = auth()->user();
+            
+            // Get orders (regular + custom)
+            $regularOrders = Order::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'regular';
+                return $order;
+            });
+            
+            $customOrders = CustomDesignOrder::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'custom';
+                return $order;
+            });
+            
+            $allOrders = $regularOrders->concat($customOrders)->sortByDesc('created_at');
+            
+            // Calculate statistics (last 365 days)
+            $thirtyDaysAgo = now()->subDays(365);
+            
+            $completedOrders = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->status === 'completed' && $order->created_at >= $thirtyDaysAgo;
+            });
+            
+            $cancelledOrders = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->status === 'cancelled' && $order->created_at >= $thirtyDaysAgo;
+            });
+            
+            $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->created_at >= $thirtyDaysAgo;
+            })->sum('total');
+            
+            $totalItems = 0;
+            foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->created_at >= $thirtyDaysAgo;
+            }) as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $totalItems += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $totalItems += $order->quantity ?? 1;
+                }
+            }
+            
+            $completedItemsCount = 0;
+            foreach ($completedOrders as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $completedItemsCount += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $completedItemsCount += $order->quantity ?? 1;
+                }
+            }
+            
+            $cancelledItemsCount = 0;
+            foreach ($cancelledOrders as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $cancelledItemsCount += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $cancelledItemsCount += $order->quantity ?? 1;
+                }
+            }
+            
             return view('customer.dashboard', [
-                'user' => auth()->user()
+                'user' => $user,
+                'totalSpent' => $totalSpent,
+                'totalItems' => $totalItems,
+                'completedItems' => $completedItemsCount,
+                'cancelledItems' => $cancelledItemsCount,
+                'recentOrders' => $allOrders->take(5),
             ]);
         } catch (\Exception $e) {
             \Log::error('Dashboard Error: ' . $e->getMessage());
@@ -95,18 +164,28 @@ class CustomerController extends Controller
      */
     public function buyNow(Request $request)
     {
-        // Validate request
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'variant_id' => 'nullable|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1|max:99',
-            'color' => 'nullable|string',
-            'size' => 'nullable|string',
-        ]);
+        // Validate request with proper error handling
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'variant_id' => 'nullable|exists:product_variants,id',
+                'quantity' => 'required|integer|min:1|max:99',
+                'color' => 'nullable|string',
+                'size' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = auth()->user();
 
         try {
+            \Log::info('Buy Now Request', ['user_id' => $user->id, 'data' => $validated]);
+            
             // Load product
             $product = Product::findOrFail($request->product_id);
 
@@ -173,6 +252,8 @@ class CustomerController extends Controller
                 'payment_status' => 'unpaid',
             ]);
 
+            \Log::info('Buy Now Success', ['order_id' => $order->id, 'order_number' => $order->order_number]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pesanan berhasil dibuat! Menunggu konfirmasi admin.',
@@ -181,7 +262,7 @@ class CustomerController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Buy Now Error: ' . $e->getMessage());
+            \Log::error('Buy Now Error: ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal membuat pesanan. Silakan coba lagi.'
@@ -403,7 +484,7 @@ class CustomerController extends Controller
                     'va_number' => $existingVA->va_number,
                     'bank_code' => $existingVA->bank_code,
                     'bank_name' => $this->getBankName($existingVA->bank_code),
-                    'amount' => number_format($amount, 0, ',', '.'),
+                    'amount' => number_format((float)$amount, 0, ',', '.'),
                     'amount_raw' => $amount,
                     'expired_at' => $existingVA->expired_at->format('d M Y, H:i'),
                     'expired_at_iso' => $existingVA->expired_at->toISOString(),
@@ -449,7 +530,7 @@ class CustomerController extends Controller
                 'va_number' => $va->va_number,
                 'bank_code' => $va->bank_code,
                 'bank_name' => $this->getBankName($va->bank_code),
-                'amount' => number_format($amount, 0, ',', '.'),
+                'amount' => number_format((float)$amount, 0, ',', '.'),
                 'amount_raw' => $amount,
                 'expired_at' => $va->expired_at->format('d M Y, H:i'),
                 'expired_at_iso' => $va->expired_at->toISOString(),
@@ -618,14 +699,24 @@ class CustomerController extends Controller
             // Payment for existing order
             if ($orderType === 'custom') {
                 $order = \App\Models\CustomDesignOrder::where('user_id', $user->id)
-                    ->with(['product', 'variant'])
+                    ->with(['product', 'variant', 'uploads'])
                     ->findOrFail($orderId);
+                
+                // For custom orders, priority: first upload image > product image > variant image
+                $customImage = null;
+                if ($order->uploads && $order->uploads->count() > 0) {
+                    $customImage = $order->uploads->first()->file_path;
+                } elseif ($order->product && !empty($order->product->image)) {
+                    $customImage = $order->product->image;
+                } elseif ($order->variant && !empty($order->variant->image)) {
+                    $customImage = $order->variant->image;
+                }
                 
                 $items = collect([[
                     'name' => $order->product_name,
                     'price' => $order->total_price,
                     'quantity' => $order->quantity,
-                    'image' => $order->variant ? $order->variant->image : ($order->product ? $order->product->image : null),
+                    'image' => $customImage,
                 ]]);
                 
                 $subtotal = $order->total_price;
@@ -911,11 +1002,12 @@ class CustomerController extends Controller
                 $file = $upload['file'];
                 $section = $upload['section_name'];
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('public/custom-designs/' . $order->id, $filename);
+                // Store file using public disk
+                $path = $file->storeAs('custom-designs/' . $order->id, $filename, 'public');
                 $uploadRecords[] = [
                     'custom_design_order_id' => $order->id,
                     'section_name' => $section,
-                    'file_path' => str_replace('public/', '', $path),
+                    'file_path' => $path,
                     'file_name' => $file->getClientOriginalName(),
                     'file_size' => $file->getSize(),
                     'created_at' => now(),
@@ -1111,16 +1203,64 @@ class CustomerController extends Controller
     {
         $user = auth()->user();
         
+        // Get filter inputs
+        $kategori = request()->get('kategori', '');
+        $status = request()->get('status', '');
+        $tglMulai = request()->get('tgl_mulai', '');
+        $tglAkhir = request()->get('tgl_akhir', '');
+        
         // Get regular orders
-        $regularOrders = \App\Models\Order::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $regularOrdersQuery = \App\Models\Order::where('user_id', $user->id);
         
         // Get custom design orders
-        $customOrders = \App\Models\CustomDesignOrder::where('user_id', $user->id)
-            ->with(['uploads', 'product', 'variant'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $customOrdersQuery = \App\Models\CustomDesignOrder::where('user_id', $user->id)
+            ->with(['uploads', 'product', 'variant']);
+        
+        // Apply filters
+        if ($kategori === 'regular') {
+            // Only regular orders
+            $regularOrders = $regularOrdersQuery->orderBy('created_at', 'desc')->get();
+            $customOrders = collect([]);
+        } elseif ($kategori === 'custom') {
+            // Only custom orders
+            $regularOrders = collect([]);
+            $customOrders = $customOrdersQuery->orderBy('created_at', 'desc')->get();
+        } else {
+            // Both
+            $regularOrders = $regularOrdersQuery->orderBy('created_at', 'desc')->get();
+            $customOrders = $customOrdersQuery->orderBy('created_at', 'desc')->get();
+        }
+        
+        // Apply status filter
+        if ($status) {
+            $regularOrders = $regularOrders->filter(function ($order) use ($status) {
+                return $order->status === $status;
+            });
+            $customOrders = $customOrders->filter(function ($order) use ($status) {
+                return $order->status === $status;
+            });
+        }
+        
+        // Apply date filters
+        if ($tglMulai) {
+            $startDate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglMulai)->startOfDay();
+            $regularOrders = $regularOrders->filter(function ($order) use ($startDate) {
+                return $order->created_at >= $startDate;
+            });
+            $customOrders = $customOrders->filter(function ($order) use ($startDate) {
+                return $order->created_at >= $startDate;
+            });
+        }
+        
+        if ($tglAkhir) {
+            $endDate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglAkhir)->endOfDay();
+            $regularOrders = $regularOrders->filter(function ($order) use ($endDate) {
+                return $order->created_at <= $endDate;
+            });
+            $customOrders = $customOrders->filter(function ($order) use ($endDate) {
+                return $order->created_at <= $endDate;
+            });
+        }
         
         // Merge and sort by created_at
         $allOrders = $regularOrders->concat($customOrders)
@@ -1318,6 +1458,16 @@ class CustomerController extends Controller
                     ->where('id', $orderId)
                     ->firstOrFail();
                 
+                // Priority: first upload image > product image > variant image
+                $customImage = null;
+                if ($order->uploads && $order->uploads->count() > 0) {
+                    $customImage = $order->uploads->first()->file_path;
+                } elseif ($order->product && !empty($order->product->image)) {
+                    $customImage = $order->product->image;
+                } elseif ($order->variant && !empty($order->variant->image)) {
+                    $customImage = $order->variant->image;
+                }
+                
                 $orderData = [
                     'id' => $order->id,
                     'type' => 'custom',
@@ -1329,7 +1479,7 @@ class CustomerController extends Controller
                     'status' => $order->status,
                     'created_at' => $order->created_at,
                     'approved_at' => $order->approved_at,
-                    'image' => $order->variant ? $order->variant->image : ($order->product ? $order->product->image : null),
+                    'image' => $customImage,
                     'cutting_type' => $order->cutting_type,
                     'special_materials' => $order->special_materials,
                     'description' => $order->additional_description,
@@ -1391,6 +1541,161 @@ class CustomerController extends Controller
             \Log::error('Payment Status Error: ' . $e->getMessage());
             return redirect()->route('order-list')->with('error', 'Gagal memuat status pembayaran');
         }
+    }
+
+    /**
+     * API endpoint: Get dashboard statistics
+     */
+    public function getDashboardStats(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            
+            // Get orders (regular + custom)
+            $regularOrders = Order::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'regular';
+                return $order;
+            });
+            
+            $customOrders = CustomDesignOrder::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'custom';
+                return $order;
+            });
+            
+            $allOrders = $regularOrders->concat($customOrders);
+            
+            // Calculate statistics (last 365 days)
+            $thirtyDaysAgo = now()->subDays(365);
+            
+            $completedOrders = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->status === 'completed' && $order->created_at >= $thirtyDaysAgo;
+            });
+            
+            $cancelledOrders = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->status === 'cancelled' && $order->created_at >= $thirtyDaysAgo;
+            });
+            
+            $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->created_at >= $thirtyDaysAgo;
+            })->sum('total');
+            
+            $totalItems = 0;
+            foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {
+                return $order->created_at >= $thirtyDaysAgo;
+            }) as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $totalItems += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $totalItems += $order->quantity ?? 1;
+                }
+            }
+            
+            $completedItemsCount = 0;
+            foreach ($completedOrders as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $completedItemsCount += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $completedItemsCount += $order->quantity ?? 1;
+                }
+            }
+            
+            $cancelledItemsCount = 0;
+            foreach ($cancelledOrders as $order) {
+                if ($order->order_type === 'regular' && isset($order->items)) {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $cancelledItemsCount += collect($items)->sum('quantity');
+                } elseif ($order->order_type === 'custom') {
+                    $cancelledItemsCount += $order->quantity ?? 1;
+                }
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'totalSpent' => $totalSpent,
+                    'totalItems' => $totalItems,
+                    'completedItems' => $completedItemsCount,
+                    'cancelledItems' => $cancelledItemsCount,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Dashboard Stats API Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat statistik'
+            ], 500);
+        }
+    }
+
+    /**
+     * API endpoint: Get recent orders data
+     */
+    public function getRecentOrdersData(Request $request)
+    {
+        try {
+            $user = auth()->user();
+            
+            // Get orders (regular + custom)
+            $regularOrders = Order::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'regular';
+                return $order;
+            });
+            
+            $customOrders = CustomDesignOrder::where('user_id', $user->id)->get()->map(function($order) {
+                $order->order_type = 'custom';
+                return $order;
+            });
+            
+            $allOrders = $regularOrders->concat($customOrders)->sortByDesc('created_at')->take(5);
+            
+            $orders = $allOrders->map(function($order) {
+                if ($order->order_type === 'regular') {
+                    $items = is_array($order->items) ? $order->items : [];
+                    $productNames = collect($items)->pluck('name')->unique();
+                } else {
+                    $productNames = collect([$order->product_name ?? 'Custom Design']);
+                }
+                
+                return [
+                    'id' => $order->order_type === 'regular' ? ($order->order_number ?? '#' . str_pad($order->id, 5, '0', STR_PAD_LEFT)) : ('CDO-' . str_pad($order->id, 5, '0', STR_PAD_LEFT)),
+                    'status' => $order->status,
+                    'statusLabel' => $this->getStatusLabel($order->status),
+                    'product' => $productNames->first(),
+                    'moreProducts' => count($productNames) > 1 ? count($productNames) - 1 : 0,
+                    'date' => $order->created_at->format('d M Y'),
+                    'total' => $order->total,
+                ];
+            });
+            
+            return response()->json([
+                'success' => true,
+                'data' => $orders
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Dashboard Orders API Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat pesanan'
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper function to get status label
+     */
+    private function getStatusLabel($status)
+    {
+        return match($status) {
+            'pending' => 'Menunggu',
+            'approved' => 'Disetujui',
+            'processing' => 'Diproses',
+            'completed' => 'Selesai',
+            'rejected' => 'Ditolak',
+            'cancelled' => 'Dibatalkan',
+            default => ucfirst($status),
+        };
     }
 
 }

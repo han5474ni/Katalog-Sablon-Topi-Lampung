@@ -134,20 +134,31 @@ function renderProducts(products) {
         return;
     }
 
-    tbody.innerHTML = products.map(product => `
-        <tr data-product-id="${product.id}">
+    // Build HTML string without complex nested quotes
+    let html = '';
+    
+    products.forEach(product => {
+        // Main product row
+        html += `<tr data-product-id="${product.id}">
             <td>
                 <input type="checkbox" class="product-checkbox" value="${product.id}" ${selectedProducts.has(product.id) ? 'checked' : ''}>
             </td>
             <td>
-                <div class="product-image-cell" data-product-id="${product.id}">
-                    ${product.variant_images && product.variant_images.length > 0 
-                        ? `<img class="product-carousel-img" src="${product.variant_images[0]}" alt="${product.name}">
-                           ${product.variant_images.length > 1 ? '<div class="image-count-badge">+' + (product.variant_images.length - 1) + '</div>' : ''}`
-                        : product.image 
-                        ? `<img src="/storage/${product.image}" alt="${product.name}">` 
-                        : '<div class="no-image"><i class="fas fa-image"></i></div>'}
-                </div>
+                <div class="product-image-cell" data-product-id="${product.id}">`;
+        
+        // Image handling - use simple if/else
+        if (product.variant_images && product.variant_images.length > 0) {
+            html += `<img class="product-carousel-img" src="${product.variant_images[0]}" alt="${product.name}">`;
+            if (product.variant_images.length > 1) {
+                html += `<div class="image-count-badge">+${product.variant_images.length - 1}</div>`;
+            }
+        } else if (product.image) {
+            html += `<img src="/storage/${product.image}" alt="${product.name}">`;
+        } else {
+            html += '<div class="no-image"><i class="fas fa-image"></i></div>';
+        }
+        
+        html += `</div>
             </td>
             <td>
                 <div class="product-name-cell">
@@ -159,9 +170,7 @@ function renderProducts(products) {
             <td>
                 <div class="price-variants-cell">
                     <div>${product.price_range || 'Rp ' + formatPrice(product.price)}</div>
-                    ${product.variants && product.variants.length > 0 ? `
-                        <small>${product.variants.length} varian</small>
-                    ` : ''}
+                    ${product.variants && product.variants.length > 0 ? `<small>${product.variants.length} varian</small>` : ''}
                 </div>
             </td>
             <td>
@@ -200,40 +209,69 @@ function renderProducts(products) {
                     </div>
                 </div>
             </td>
-        </tr>
-        ${product.variants && product.variants.length > 0 ? `
-        ${groupVariantsByColor(product.variants).map(group => `
-            ${group.variants.map(v => `
-                <tr class="variant-data-row" id="variants-${product.id}-item" style="display: none;">
-                    <td style="padding-left: 1rem;">
-                        <input type="checkbox" disabled style="opacity: 0.3;">
-                    </td>
-                    <td>
-                        <div class="product-image-cell">
-                            ${v.image ? `<img src="/storage/${v.image}" alt="Variant" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'no-image\\'><i class=\\'fas fa-image\\'></i></div>'; console.error('Image not found:', '/storage/${v.image}');">` : '<div class="no-image"><i class="fas fa-image"></i></div>'}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="product-name-cell">
-                            <div class="product-name">${getColorName(v.color)} / ${v.size}</div>
-                        </div>
-                    </td>
-                    <td><span style="color: #9ca3af;">-</span></td>
-                    <td>Rp ${formatPrice(v.price)}</td>
-                    <td>
-                        <span class="stock-number ${v.stock > 0 ? 'in-stock' : 'out-of-stock'}">${v.stock}</span>
-                    </td>
-                    <td>
-                        <span class="badge ${v.stock > 0 ? 'badge-success' : 'badge-danger'}">
-                            ${v.stock > 0 ? 'Tersedia' : 'Habis'}
-                        </span>
-                    </td>
-                    <td><span style="color: #9ca3af;">-</span></td>
-                </tr>
-            `).join('')}
-        `).join('')}
-        ` : ''}
-    `).join('');
+        </tr>`;
+        
+        // Variant rows
+        if (product.variants && product.variants.length > 0) {
+            groupVariantsByColor(product.variants).forEach(group => {
+                group.variants.forEach(v => {
+                    html += `<tr class="variant-data-row" id="variants-${product.id}-item" style="display: none;">
+                        <td style="padding-left: 1rem;">
+                            <input type="checkbox" disabled style="opacity: 0.3;">
+                        </td>
+                        <td>
+                            <div class="product-image-cell">`;
+                    
+                    if (v.image) {
+                        html += `<img src="/storage/${v.image}" alt="Variant">`;
+                    } else {
+                        html += '<div class="no-image"><i class="fas fa-image"></i></div>';
+                    }
+                    
+                    html += `</div>
+                        </td>
+                        <td>
+                            <div class="product-name-cell">
+                                <div class="product-name">${getColorName(v.color)} / ${v.size}</div>
+                            </div>
+                        </td>
+                        <td><span style="color: #9ca3af;">-</span></td>
+                        <td>Rp ${formatPrice(v.price)}</td>
+                        <td>
+                            <span class="stock-number ${v.stock > 0 ? 'in-stock' : 'out-of-stock'}">${v.stock}</span>
+                        </td>
+                        <td>
+                            <span class="badge ${v.stock > 0 ? 'badge-success' : 'badge-danger'}">
+                                ${v.stock > 0 ? 'Tersedia' : 'Habis'}
+                            </span>
+                        </td>
+                        <td><span style="color: #9ca3af;">-</span></td>
+                    </tr>`;
+                });
+            });
+        }
+    });
+    
+    tbody.innerHTML = html;
+
+    // Add image error handling
+    document.querySelectorAll('.product-image-cell img').forEach(img => {
+        img.addEventListener('error', function() {
+            // Hide image and show placeholder
+            this.style.display = 'none';
+            const parent = this.parentElement;
+            if (!parent.querySelector('.no-image')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'no-image';
+                placeholder.innerHTML = '<i class="fas fa-image"></i>';
+                parent.appendChild(placeholder);
+            }
+        });
+        img.addEventListener('load', function() {
+            // Ensure image is visible when loaded
+            this.style.display = 'block';
+        });
+    });
 
     // Attach checkbox listeners
     document.querySelectorAll('.product-checkbox').forEach(cb => {

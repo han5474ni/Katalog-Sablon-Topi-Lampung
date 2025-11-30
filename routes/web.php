@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SubcategoryManagementController;
 use App\Http\Controllers\Admin\CustomDesignPriceController;
 use App\Http\Controllers\Admin\AdminChatController;
 use App\Http\Controllers\Admin\ChatbotSettingsController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\ProductController;
@@ -264,8 +265,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/history', [ChatController::class, 'getChatHistory'])->name('chat.history');
         Route::get('/conversation/{conversationId}', [ChatController::class, 'getConversation'])->name('chat.conversation');
         Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat.send');
-        Route::post('/conversation/{conversationId}/request-admin', [ChatController::class, 'requestAdminResponse'])->name('chat.request-admin');
+        //Route::post('/conversation/{conversationId}/request-admin', [ChatController::class, 'requestAdminResponse'])->name('chat.request-admin');
     });
+});
+
+// Chat Conversation API Routes - untuk customer dan admin
+Route::prefix('api/chat')->middleware('auth')->group(function () {
+    Route::post('/conversation/create', [\App\Http\Controllers\ChatConversationController::class, 'getOrCreateConversation'])->name('api.chat.create');
+    Route::post('/message/send', [\App\Http\Controllers\ChatConversationController::class, 'sendMessage'])->name('api.chat.send');
+    Route::get('/history/{conversationId}', [\App\Http\Controllers\ChatConversationController::class, 'getChatHistory'])->name('api.chat.history');
+    Route::post('/message/{messageId}/read', [\App\Http\Controllers\ChatConversationController::class, 'markMessageAsRead'])->name('api.chat.mark-read');
 });
 
 // Customer authenticated routes
@@ -350,6 +359,12 @@ Route::middleware(['auth'])->group(function () {
             ->name('chatpage');
         Route::get('/notifikasi', [CustomerController::class, 'notifikasi'])
             ->name('notifikasi');
+        
+        // API endpoints untuk realtime dashboard updates
+        Route::get('/api/dashboard/stats', [CustomerController::class, 'getDashboardStats'])
+            ->name('api.customer.dashboard-stats');
+        Route::get('/api/dashboard/recent-orders', [CustomerController::class, 'getRecentOrdersData'])
+            ->name('api.customer.dashboard-orders');
     });
 
     // Download route - accessible by both customer and admin (outside customer.only middleware)
@@ -385,7 +400,22 @@ Route::prefix('admin')->group(function () {
 
     // Routes untuk admin yang sudah login
     Route::middleware('admin')->group(function () {
-        Route::get('/dashboard', [AdminAuthController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+        
+        // Dashboard API endpoints untuk real-time updates
+        Route::get('/api/dashboard/stats', [App\Http\Controllers\Admin\DashboardController::class, 'getStats'])->name('api.dashboard.stats');
+        Route::get('/api/dashboard/sales-data', [App\Http\Controllers\Admin\DashboardController::class, 'getSalesData'])->name('api.dashboard.sales');
+        Route::get('/api/dashboard/recent-orders', [App\Http\Controllers\Admin\DashboardController::class, 'getRecentOrders'])->name('api.dashboard.orders');
+        Route::get('/api/dashboard/top-products', [App\Http\Controllers\Admin\DashboardController::class, 'getTopProducts'])->name('api.dashboard.products');
+        
+        // Analytics & Reports
+        Route::get('/analytic', [AnalyticsController::class, 'index'])->name('admin.analytic');
+        Route::get('/api/analytics/sales-overview', [AnalyticsController::class, 'getSalesOverview'])->name('admin.api.analytics.sales-overview');
+        Route::get('/api/analytics/sales-trend', [AnalyticsController::class, 'getSalesTrendData'])->name('admin.api.analytics.sales-trend');
+        Route::get('/api/analytics/order-status', [AnalyticsController::class, 'getOrderStatusDistribution'])->name('admin.api.analytics.order-status');
+        Route::get('/api/analytics/customer', [AnalyticsController::class, 'getCustomerAnalytics'])->name('admin.api.analytics.customer');
+        Route::get('/api/analytics/conversion-funnel', [AnalyticsController::class, 'getConversionFunnel'])->name('admin.api.analytics.conversion-funnel');
+        
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
         Route::get('/order-history', [OrderManagementController::class, 'history'])->name('admin.order-history');
         Route::get('/order-list/{id}/detail', [OrderManagementController::class, 'showDetail'])->name('admin.order.detail');
@@ -411,6 +441,7 @@ Route::prefix('admin')->group(function () {
         // Product Management
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');
         Route::get('/all-products', [ProductManagementController::class, 'allProducts'])->name('admin.all-products');
+        Route::get('/all-products/detail/{id}', [ProductManagementController::class, 'productDetail'])->name('admin.all-products.detail');
 
         // Chatbot Admin Management
         Route::prefix('chatbot')->name('chatbot.')->group(function () {
@@ -464,6 +495,7 @@ Route::prefix('admin')->group(function () {
             // Product Management API
             Route::get('/products', [ProductManagementController::class, 'getProducts'])->name('products.index');
             Route::get('/products/export', [ProductManagementController::class, 'export'])->name('products.export');
+            Route::get('/products/{id}/orders', [ProductManagementController::class, 'getProductOrders'])->name('products.orders');
             Route::post('/products', [ProductManagementController::class, 'store'])->name('products.store');
             Route::get('/products/{id}', [ProductManagementController::class, 'show'])->name('products.show');
             Route::put('/products/{id}', [ProductManagementController::class, 'update'])->name('products.update');

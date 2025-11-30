@@ -105,10 +105,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Chat button click handler - redirect to chatbot page
-const chatBtn = document.querySelector('.chat-btn');
-if (chatBtn) {
-    chatBtn.addEventListener('click', function() {
-        window.location.href = '/chatbot';
-    });
-}
+// Chat button click handler - DELEGATED
+// Event handling moved to product-chatbot.js using event delegation
+// This prevents conflicts with modal-based chatbot functionality

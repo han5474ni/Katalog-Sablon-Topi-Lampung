@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('payment_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_id')->unique();
+            $table->string('transaction_id')->default(uniqid())->unique();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('virtual_account_id')->nullable()->constrained()->onDelete('set null');
             $table->string('order_type')->nullable(); // 'custom' or 'regular'
             $table->unsignedBigInteger('order_id')->nullable();
-            $table->string('payment_method'); // 'va', 'ewallet', etc
+            $table->string('payment_method')->default('bank_transfer'); // 'va', 'ewallet', etc
             $table->string('payment_channel')->nullable(); // 'bri', 'bca', 'gopay', etc
             $table->decimal('amount', 15, 2);
             $table->string('status'); // 'pending', 'paid', 'failed', 'expired'

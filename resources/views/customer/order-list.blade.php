@@ -31,6 +31,58 @@
             <div class="p-6">
                 <h1 class="text-2xl font-bold mb-6">Daftar Pesanan</h1>
 
+                <!-- Filters -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Filter Pesanan</h3>
+                    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <!-- Kategori Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Pesanan</label>
+                            <select name="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Semua Tipe</option>
+                                <option value="regular" {{ request('kategori') === 'regular' ? 'selected' : '' }}>Reguler</option>
+                                <option value="custom" {{ request('kategori') === 'custom' ? 'selected' : '' }}>Custom Design</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Semua Status</option>
+                                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                                <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="processing" {{ request('status') === 'processing' ? 'selected' : '' }}>Diproses</option>
+                                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
+                                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                                <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                            </select>
+                        </div>
+
+                        <!-- Tanggal Mulai -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                            <input type="date" name="tgl_mulai" value="{{ request('tgl_mulai') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <!-- Tanggal Akhir -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
+                            <input type="date" name="tgl_akhir" value="{{ request('tgl_akhir') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex items-end gap-2">
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
+                                <i class="fas fa-filter mr-2"></i> Filter
+                            </button>
+                            <a href="{{ route('order-list') }}" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium text-center">
+                                <i class="fas fa-redo mr-2"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
                 @if(session('success'))
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                         {{ session('success') }}
@@ -55,7 +107,13 @@
                                 @endif
                                 Pesanan #{{ $order->id }}
                             </h3>
-                            <p class="text-sm text-gray-600">{{ $order->created_at->format('d M Y, H:i') }}</p>
+                            <p class="text-sm text-gray-600">
+                                @if($order instanceof \App\Models\Order && $order->formatted_last_action)
+                                    {{ $order->formatted_last_action }}
+                                @else
+                                    {{ $order->created_at->format('d M Y, H:i') }}
+                                @endif
+                            </p>
                         </div>
                         <span class="px-3 py-1 rounded-full text-sm font-medium
                             @if($order->status === 'pending') bg-yellow-100 text-yellow-800
@@ -86,160 +144,162 @@
 
                     @if($order instanceof \App\Models\CustomDesignOrder)
                         {{-- Custom Design Order --}}
-                        <div class="space-y-3 mb-4">
-                            <div class="flex items-start space-x-3 py-3 border-b border-gray-100">
-                                @php
-                                    // Priority: variant->image > product->image > placeholder
-                                    $orderImage = null;
-                                    if ($order->variant && !empty($order->variant->image)) {
-                                        $orderImage = str_starts_with($order->variant->image, 'http') 
-                                            ? $order->variant->image 
-                                            : asset('storage/' . $order->variant->image);
-                                    } elseif ($order->product && !empty($order->product->image)) {
-                                        $orderImage = str_starts_with($order->product->image, 'http') 
-                                            ? $order->product->image 
-                                            : asset('storage/' . $order->product->image);
-                                    }
-                                @endphp
-                                
-                                @if($orderImage)
-                                    <img src="{{ $orderImage }}" alt="{{ $order->product_name }}" class="w-16 h-16 object-cover rounded">
-                                @else
-                                    <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center">
-                                        <span class="text-gray-500 text-xs">No Image</span>
-                                    </div>
-                                @endif
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-gray-900">{{ $order->product_name }}</h4>
-                                    <p class="text-sm text-gray-600">
-                                        Custom Design
-                                        @if($order->variant)
-                                            @if($order->variant->color) • {{ $order->variant->color }}@endif
-                                            @if($order->variant->size) • {{ $order->variant->size }}@endif
-                                        @endif
-                                    </p>
-                                    <div class="mt-2 text-sm">
-                                        <p class="text-gray-600">
-                                            <i class="fas fa-cut"></i> Jenis Cutting: <span class="font-medium">{{ $order->cutting_type }}</span>
-                                        </p>
-                                        <p class="text-gray-600">
-                                            <i class="fas fa-images"></i> Bagian Desain: <span class="font-medium">{{ $order->uploads->count() }} bagian</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="flex items-start space-x-4">
+                            @php
+                                // Priority: first upload image > variant->image > product->image > placeholder
+                                $orderImage = null;
+                                if ($order->uploads && $order->uploads->count() > 0) {
+                                    $firstUpload = $order->uploads->first();
+                                    $orderImage = asset('storage/' . $firstUpload->file_path);
+                                } elseif ($order->variant && !empty($order->variant->image)) {
+                                    $orderImage = str_starts_with($order->variant->image, 'http') 
+                                        ? $order->variant->image 
+                                        : asset('storage/' . $order->variant->image);
+                                } elseif ($order->product && !empty($order->product->image)) {
+                                    $orderImage = str_starts_with($order->product->image, 'http') 
+                                        ? $order->product->image 
+                                        : asset('storage/' . $order->product->image);
+                                }
+                            @endphp
                             
-                            @if($order->uploads->count() > 0)
-                            <div class="bg-gray-50 p-3 rounded">
-                                <p class="text-sm font-medium text-gray-700 mb-2">File Desain Anda:</p>
-                                <div class="grid grid-cols-2 gap-2">
-                                    @foreach($order->uploads as $upload)
-                                    <div class="flex items-center space-x-2 bg-white p-2 rounded border border-gray-200">
-                                        <i class="fas fa-file-image text-blue-500"></i>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-xs font-medium text-gray-900 truncate">{{ $upload->section_name }}</p>
-                                            <p class="text-xs text-gray-500">{{ number_format($upload->file_size / 1024, 1) }} KB</p>
-                                        </div>
-                                    </div>
-                                    @endforeach
+                            @if($orderImage)
+                                <img src="{{ $orderImage }}" alt="{{ $order->product_name }}" class="w-20 h-20 object-cover rounded flex-shrink-0">
+                            @else
+                                <div class="w-20 h-20 bg-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                                    <span class="text-gray-500 text-xs">No Image</span>
                                 </div>
-                            </div>
                             @endif
-                        </div>
 
-                        <div class="pt-4 border-t border-gray-200">
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-sm text-gray-600">Total Pesanan</p>
-                                    <p class="text-lg font-bold text-gray-900">Rp {{ number_format((float) $order->total_price, 0, ',', '.') }}</p>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        Produk (Rp {{ number_format($order->product_price, 0, ',', '.') }}) + Custom Design
-                                    </p>
+                            <div class="flex-1 min-w-0">
+                                {{-- Product Info & Price Row --}}
+                                <div class="flex justify-between items-start gap-4 mb-2">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium text-gray-900">{{ $order->product_name }}</h4>
+                                        <p class="text-sm text-gray-600">
+                                            Custom Design
+                                            @if($order->variant)
+                                                @if($order->variant->color) • {{ $order->variant->color }}@endif
+                                                @if($order->variant->size) • {{ $order->variant->size }}@endif
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="text-right flex-shrink-0">
+                                        <p class="text-lg font-bold text-gray-900">Rp {{ number_format((float) $order->total_price, 0, ',', '.') }}</p>
+                                        <p class="text-xs text-gray-500">Produk + Custom Design</p>
+                                    </div>
                                 </div>
-                                @if($order->status === 'pending')
-                                <div class="text-right">
-                                    <p class="text-sm text-yellow-600 font-medium">
-                                        <i class="fas fa-clock"></i> Menunggu konfirmasi admin
-                                    </p>
+
+                                {{-- Cutting & Design Parts --}}
+                                <div class="flex gap-4 text-sm text-gray-600 mb-2">
+                                    <p><i class="fas fa-cut"></i> Cutting: <span class="font-medium">{{ $order->cutting_type }}</span></p>
+                                    <p><i class="fas fa-images"></i> Bagian: <span class="font-medium">{{ $order->uploads->count() }}</span></p>
                                 </div>
-                                @elseif($order->status === 'rejected')
-                                <div class="text-right">
-                                    <p class="text-sm text-red-600 font-medium">Alasan Penolakan:</p>
-                                    <p class="text-sm text-red-800">{{ $order->admin_notes ?? 'Tidak ada catatan' }}</p>
+
+                                {{-- File Design Compact --}}
+                                @if($order->uploads->count() > 0)
+                                <div class="bg-gray-50 p-2 rounded text-xs mb-3 max-h-12 overflow-y-auto">
+                                    <p class="font-medium text-gray-700 mb-1">File Desain:</p>
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($order->uploads as $upload)
+                                        <span class="bg-white px-2 py-1 rounded border border-gray-200">
+                                            <i class="fas fa-file-image text-blue-500 text-xs"></i> {{ $upload->section_name }} ({{ number_format($upload->file_size / 1024, 1) }} KB)
+                                        </span>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 @endif
-                            </div>
-                            
-                            {{-- Action Buttons --}}
-                            <div class="flex justify-end gap-2 mt-3">
-                                @php
-                                    // Check if order has active VA
-                                    $hasActiveVA = \App\Models\VirtualAccount::where('user_id', auth()->id())
-                                        ->where('order_type', 'custom')
-                                        ->where('order_id', $order->id)
-                                        ->where('status', 'pending')
-                                        ->where('expired_at', '>', now())
-                                        ->exists();
-                                @endphp
-                                
-                                @if($order->status === 'approved' && $order->payment_deadline && $order->payment_deadline->isFuture())
-                                    @if($hasActiveVA)
-                                        {{-- Has VA: Only show "Status Pembayaran" button --}}
+
+                                {{-- Status Info --}}
+                                @if($order->status === 'pending')
+                                <p class="text-sm text-yellow-600 font-medium mb-3">
+                                    <i class="fas fa-clock"></i> Menunggu konfirmasi admin
+                                </p>
+                                @elseif($order->status === 'rejected')
+                                <div class="bg-red-50 p-2 rounded text-sm mb-3">
+                                    <p class="text-red-600 font-medium">Alasan Penolakan:</p>
+                                    <p class="text-red-800">{{ $order->admin_notes ?? 'Tidak ada catatan' }}</p>
+                                </div>
+                                @endif
+
+                                {{-- Action Buttons --}}
+                                <div class="flex justify-end gap-2 flex-wrap">
+                                    @php
+                                        // Check if order has active VA
+                                        $hasActiveVA = \App\Models\VirtualAccount::where('user_id', auth()->id())
+                                            ->where('order_type', 'custom')
+                                            ->where('order_id', $order->id)
+                                            ->where('status', 'pending')
+                                            ->where('expired_at', '>', now())
+                                            ->exists();
+                                    @endphp
+                                    
+                                    @if($order->status === 'approved' && $order->payment_deadline && $order->payment_deadline->isFuture())
+                                        @if($hasActiveVA)
+                                            {{-- Has VA: Only show "Status Pembayaran" button --}}
+                                            <a href="{{ route('payment-status', ['type' => 'custom', 'order_id' => $order->id]) }}" 
+                                               class="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition whitespace-nowrap">
+                                                <i class="fas fa-receipt mr-1"></i> Status Pembayaran
+                                            </a>
+                                        @else
+                                            {{-- No VA: Show "Detail" and "Bayar" buttons --}}
+                                            <a href="{{ route('order-detail', ['type' => 'custom', 'id' => $order->id]) }}" 
+                                               class="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                                                <i class="fas fa-eye mr-1"></i> Detail
+                                            </a>
+                                            <a href="{{ route('alamat') }}?order_type=custom&order_id={{ $order->id }}" 
+                                               class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition whitespace-nowrap">
+                                                <i class="fas fa-credit-card mr-1"></i> Bayar
+                                            </a>
+                                        @endif
+                                    @elseif(in_array($order->status, ['processing', 'completed']))
                                         <a href="{{ route('payment-status', ['type' => 'custom', 'order_id' => $order->id]) }}" 
-                                           class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition">
+                                           class="px-3 py-1 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition whitespace-nowrap">
                                             <i class="fas fa-receipt mr-1"></i> Status Pembayaran
                                         </a>
-                                    @else
-                                        {{-- No VA: Show "Detail" and "Bayar" buttons --}}
-                                        <a href="{{ route('order-detail', ['type' => 'custom', 'id' => $order->id]) }}" 
-                                           class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
-                                            <i class="fas fa-eye mr-1"></i> Detail
-                                        </a>
-                                        <a href="{{ route('alamat') }}?order_type=custom&order_id={{ $order->id }}" 
-                                           class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
-                                            <i class="fas fa-credit-card mr-1"></i> Bayar
-                                        </a>
                                     @endif
-                                @elseif(in_array($order->status, ['processing', 'completed']))
-                                    <a href="{{ route('payment-status', ['type' => 'custom', 'order_id' => $order->id]) }}" 
-                                       class="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition">
-                                        <i class="fas fa-receipt mr-1"></i> Status Pembayaran
-                                    </a>
-                                @endif
-                                
-                                @if($order->status === 'pending')
-                                <button onclick="cancelOrder('custom', {{ $order->id }})" 
-                                        class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition">
-                                    <i class="fas fa-times mr-1"></i> Batalkan
-                                </button>
-                                @endif
+                                    
+                                    @if($order->status === 'pending')
+                                    <button onclick="cancelOrder('custom', {{ $order->id }})" 
+                                            class="px-3 py-1 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition whitespace-nowrap">
+                                        <i class="fas fa-times mr-1"></i> Batalkan
+                                    </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     @else
                         {{-- Regular Order --}}
                         <div class="space-y-3 mb-4">
-                            @foreach($order->items as $item)
+                            @php
+                                // Order model's retrieved hook already converts items to array
+                                $items = is_array($order->items) ? $order->items : [];
+                            @endphp
+                            @foreach($items as $item)
                             <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
                                 <div class="flex items-center space-x-3">
-                                    @if($item['image'])
-                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="w-12 h-12 object-cover rounded">
+                                    @if(isset($item['image']) && $item['image'])
+                                        <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] ?? 'Product' }}" class="w-12 h-12 object-cover rounded">
                                     @else
                                         <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
                                             <span class="text-gray-500 text-xs">No Image</span>
                                         </div>
                                     @endif
                                     <div>
-                                        <h4 class="font-medium text-gray-900">{{ $item['name'] }}</h4>
+                                        <h4 class="font-medium text-gray-900">{{ $item['name'] ?? 'Unknown Product' }}</h4>
                                         <p class="text-sm text-gray-600">
-                                            @if($item['color']) Warna: {{ $item['color'] }} @endif
-                                            @if($item['size']) Ukuran: {{ $item['size'] }} @endif
-                                            Qty: {{ $item['quantity'] }}
+                                            @if(isset($item['color']) && $item['color']) Warna: {{ $item['color'] }} @endif
+                                            @if(isset($item['size']) && $item['size']) Ukuran: {{ $item['size'] }} @endif
+                                            @if(isset($item['quantity'])) Qty: {{ $item['quantity'] }} @endif
                                         </p>
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-medium text-gray-900">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</p>
-                                    <p class="text-sm text-gray-600">Rp {{ number_format($item['price'], 0, ',', '.') }} x {{ $item['quantity'] }}</p>
+                                    @php
+                                        $price = isset($item['price']) ? (float)$item['price'] : 0;
+                                        $qty = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+                                    @endphp
+                                    <p class="font-medium text-gray-900">Rp {{ number_format($price * $qty, 0, ',', '.') }}</p>
+                                    <p class="text-sm text-gray-600">Rp {{ number_format($price, 0, ',', '.') }} x {{ $qty }}</p>
                                 </div>
                             </div>
                             @endforeach

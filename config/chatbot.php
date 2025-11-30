@@ -14,7 +14,7 @@ return [
         /**
          * N8N Webhook URL for chatbot processing
          */
-        'webhook_url' => env('N8N_WEBHOOK_URL', 'http://localhost:5678/webhook/chatbot'),
+        'webhook_url' => env('N8N_WEBHOOK_URL', 'https://tokolgilampung.app.n8n.cloud/webhook/chatbot'),
 
         /**
          * Timeout for n8n requests (seconds)

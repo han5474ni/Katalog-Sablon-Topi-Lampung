@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('subcategories', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Nama subcategory (readable): "Baby Jumper"
-            $table->string('slug')->unique(); // Slug format: "baby-jumper"
+            $table->text('description')->nullable(); // Description for the subcategory
+            $table->string('slug')->default('uncategorized')->unique(); // Slug format: "baby-jumper"
             $table->string('category')->default('lainnya'); // Category: "lainnya"
             $table->timestamps();
         });
