@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -35,17 +35,23 @@ class EventServiceProvider extends ServiceProvider
 
     /**
      * Register any events for your application.
+     * We extend ServiceProvider directly (not EventServiceProvider) 
+     * to avoid auto-discovery from parent class
      */
     public function boot(): void
     {
-        //
+        foreach ($this->listen as $event => $listeners) {
+            foreach ($listeners as $listener) {
+                Event::listen($event, $listener);
+            }
+        }
     }
 
     /**
-     * Determine if events and listeners should be automatically discovered.
+     * Get the events and handlers.
      */
-    public function shouldDiscoverEvents(): bool
+    public function listens(): array
     {
-        return false;
+        return $this->listen;
     }
 }
