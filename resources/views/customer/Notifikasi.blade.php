@@ -31,8 +31,8 @@
                         <p class="text-sm text-gray-600">{{ $notification->message }}</p>
                         <span class="text-xs text-gray-400 mt-1 block">{{ $notification->created_at->diffForHumans() }}</span>
                     </div>
-                    @if($notification->notifiable_type && $notification->notifiable_id)
-                    <a href="{{ $notification->notifiable_type === 'App\\Models\\Order' ? route('order-detail', ['type' => 'regular', 'id' => $notification->notifiable_id]) : route('custom-design.tracking', $notification->notifiable_id) }}" 
+                    @if($notification->action_url)
+                    <a href="{{ $notification->action_url }}" 
                        class="px-4 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition flex-shrink-0">
                         Tampilkan rincian
                     </a>
