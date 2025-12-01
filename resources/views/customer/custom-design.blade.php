@@ -1,15 +1,5 @@
- <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desain Kustom - LGI Store</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+<x-customer-layout title="Desain Kustom" active="custom-design">
     @vite(['resources/css/customer/shared.css', 'resources/css/guest/custom-design.css', 'resources/css/components/footer.css', 'resources/css/app.css'])
-</head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
     @php
         // Prefer server-provided product (from controller) for safety; fallback to request params
         $selectedName = isset($product) ? $product->name : (request('name') ?: 'One Life Graphic T-shirt');
@@ -79,16 +69,7 @@
         }
     @endphp
 
-    {{-- Public navbar intentionally removed for the custom-design workspace view --}}
-
-    <div class="flex flex-1 min-h-screen">
-        <x-customer-sidebar active="custom-design" />
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
-            <x-customer-header title="Desain Kustom" />
-
-            <main class="flex-1 overflow-y-auto min-h-0">
+    <main class="flex-1 overflow-y-auto min-h-0">
                 <div class="main-content">
                     <div class="breadcrumb">
                         <a href="{{ url()->previous() }}">
@@ -809,4 +790,6 @@
             }
         });
     </script>
-</body>
+
+    @stack('scripts')
+</x-customer-layout>

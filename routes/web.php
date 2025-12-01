@@ -234,6 +234,15 @@ Route::prefix('api')->group(function () {
             ], 500);
         }
     });
+
+    // Notification API routes
+    Route::middleware('auth')->group(function () {
+        Route::get('/notifications', [App\Http\Controllers\Api\NotificationController::class, 'index']);
+        Route::get('/notifications/unread-count', [App\Http\Controllers\Api\NotificationController::class, 'unreadCount']);
+        Route::post('/notifications/{id}/read', [App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);
+        Route::post('/notifications/read-selected', [App\Http\Controllers\Api\NotificationController::class, 'markSelectedAsRead']);
+    });
 });
 
 
@@ -437,6 +446,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
         Route::get('/history', [ActivityLogController::class, 'history'])->name('admin.history');
+        
+        // Notifications
+        Route::get('/notifikasi', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifikasi');
         
         // Product Management
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');

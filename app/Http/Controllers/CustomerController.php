@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\CustomDesignOrder;
+use App\Services\NotificationService;
 use App\Traits\ImageResolutionTrait;
 use App\Traits\StockManagementTrait;
 use Illuminate\Http\Request;
@@ -154,9 +155,12 @@ class CustomerController extends Controller
     /**
      * Display notifications page
      */
-    public function notifikasi()
+    public function notifikasi(NotificationService $notificationService)
     {
-        return view('customer.Notifikasi');
+        $notifications = $notificationService->getUserNotifications(auth()->id());
+        $unreadCount = $notificationService->getUnreadCount(auth()->id());
+        
+        return view('customer.Notifikasi', compact('notifications', 'unreadCount'));
     }
 
     /**
@@ -253,6 +257,9 @@ class CustomerController extends Controller
             ]);
 
             \Log::info('Buy Now Success', ['order_id' => $order->id, 'order_number' => $order->order_number]);
+
+            // Notify all admins about new order
+            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
 
             return response()->json([
                 'success' => true,
@@ -522,6 +529,9 @@ class CustomerController extends Controller
         ]);
         
         \Log::info("VA generated for Order #{$orderId} ({$orderType}): VA #{$va->id}, Amount: {$amount}");
+
+        // Notify all admins about VA activation
+        app(NotificationService::class)->notifyAdminVAActivated($order, $va->va_number);
         
         return response()->json([
             'success' => true,
@@ -873,6 +883,9 @@ class CustomerController extends Controller
             // Clear session data
             $request->session()->forget(['cart', 'selected_address_id', 'shipping_method']);
 
+            // Notify all admins about new order
+            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pesanan berhasil dibuat',
@@ -1020,6 +1033,9 @@ class CustomerController extends Controller
 
             \DB::commit();
             \Log::info('✅ Order completed successfully');
+
+            // Notify all admins about new custom design order
+            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
             
             return response()->json([
                 'success' => true, 
@@ -1187,6 +1203,9 @@ class CustomerController extends Controller
 
             // Clear cart after successful order creation
             $request->session()->forget('cart');
+
+            // Notify all admins about new order
+            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
 
             return redirect()->route('order-list')->with('success', 'Pesanan berhasil dibuat dan menunggu konfirmasi admin.');
         } catch (\Exception $e) {

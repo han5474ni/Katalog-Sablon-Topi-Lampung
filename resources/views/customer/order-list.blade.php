@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Daftar Pesanan - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<x-customer-layout title="Daftar Pesanan" active="order-list">
     @vite(['resources/css/customer/shared.css', 'resources/js/customer/notifications.js'])
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -18,27 +10,16 @@
             });
         });
     </script>
-</head>
-<body class="bg-gray-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="order-list" />
-
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <x-customer-header title="Daftar Pesanan" />
-
-            <!-- Order List Content -->
-            <div class="p-6">
-                <h1 class="text-2xl font-bold mb-6">Daftar Pesanan</h1>
-
-                <!-- Filters -->
-                <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
                     <h3 class="text-lg font-semibold mb-4">Filter Pesanan</h3>
-                    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <!-- Kategori Filter -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Pesanan</label>
-                            <select name="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipe Pesanan</label>
+                            <select name="kategori" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                                 <option value="">Semua Tipe</option>
                                 <option value="regular" {{ request('kategori') === 'regular' ? 'selected' : '' }}>Reguler</option>
                                 <option value="custom" {{ request('kategori') === 'custom' ? 'selected' : '' }}>Custom Design</option>
@@ -47,8 +28,8 @@
 
                         <!-- Status Filter -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                                 <option value="">Semua Status</option>
                                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
                                 <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Disetujui</option>
@@ -61,42 +42,50 @@
 
                         <!-- Tanggal Mulai -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
-                            <input type="date" name="tgl_mulai" value="{{ request('tgl_mulai') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                            <input type="date" name="tgl_mulai" value="{{ request('tgl_mulai') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                         </div>
 
                         <!-- Tanggal Akhir -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
-                            <input type="date" name="tgl_akhir" value="{{ request('tgl_akhir') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
+                            <input type="date" name="tgl_akhir" value="{{ request('tgl_akhir') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                         </div>
 
                         <!-- Buttons -->
                         <div class="flex items-end gap-2">
-                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                                <i class="fas fa-filter mr-2"></i> Filter
+                            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm shadow-sm">
+                                <i class="fas fa-filter mr-1"></i> Filter
                             </button>
-                            <a href="{{ route('order-list') }}" class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium text-center">
-                                <i class="fas fa-redo mr-2"></i> Reset
+                            <a href="{{ route('order-list') }}" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium text-center text-sm border border-gray-300">
+                                <i class="fas fa-redo mr-1"></i> Reset
                             </a>
                         </div>
-                    </form>
+            </form>
+        </div>
+
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="bg-green-50 border-l-4 border-green-400 text-green-800 px-4 py-3 rounded-lg mb-6 shadow-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-3"></i>
+                    <span>{{ session('success') }}</span>
                 </div>
+            </div>
+        @endif
 
-                @if(session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                        {{ session('success') }}
-                    </div>
-                @endif
+        @if(session('error'))
+            <div class="bg-red-50 border-l-4 border-red-400 text-red-800 px-4 py-3 rounded-lg mb-6 shadow-sm">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            </div>
+        @endif
 
-                @if(session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @forelse($orders as $order)
-                <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+        <!-- Orders List -->
+        @forelse($orders as $order)
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4 hover:shadow-md transition-shadow">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">
@@ -371,31 +360,28 @@
                             </div>
                         </div>
                     @endif
-                </div>
-                @empty
-                <div class="bg-white rounded-lg shadow-md p-8 text-center">
-                    <div class="text-gray-400 mb-4">
-                        <i class="fas fa-shopping-bag text-4xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada pesanan</h3>
-                    <p class="text-gray-600 mb-4">Anda belum memiliki pesanan apapun.</p>
-                    <a href="{{ route('catalog', ['category' => 'kaos']) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-shopping-cart mr-2"></i>
-                        Mulai Belanja
-                    </a>
-                </div>
-                @endforelse
-
-                @if($orders->hasPages())
-                <div class="mt-6">
-                    {{ $orders->links() }}
-                </div>
-                @endif
             </div>
+        @empty
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                <i class="fas fa-shopping-bag text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum ada pesanan</h3>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">Anda belum memiliki pesanan apapun. Mulai jelajahi katalog produk kami!</p>
+            <a href="{{ route('catalog', ['category' => 'kaos']) }}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                Mulai Belanja
+            </a>
         </div>
-    </div>
+        @endforelse
 
-    <script>
+        <!-- Pagination -->
+        @if($orders->hasPages())
+        <div class="mt-6">
+            {{ $orders->links() }}
+        </div>
+        @endif
+    </div>    <script>
         // Cancel order function
         async function cancelOrder(type, orderId) {
             if (!confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
@@ -426,5 +412,5 @@
         }
     </script>
 
-</body>
-</html>
+    @stack('scripts')
+</x-customer-layout>

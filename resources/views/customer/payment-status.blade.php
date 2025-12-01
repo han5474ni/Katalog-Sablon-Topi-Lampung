@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Status Pembayaran - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<x-customer-layout title="Status Pembayaran" active="payment-status">
     @vite(['resources/css/customer/shared.css', 'resources/js/customer/notifications.js'])
     <style>
         * {
@@ -303,16 +294,8 @@
             margin: 16px 0;
         }
     </style>
-</head>
-<body class="bg-gray-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="order-list" />
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto main-container">
-            <x-customer-header title="Status Pembayaran" />
-
-            <div class="container">
+    <div class="mx-auto max-w-full">
                 <!-- Back Button -->
                 <div class="mb-4">
                     <a href="{{ route('order-list') }}" class="btn-back">
@@ -703,5 +686,4 @@
         }); // End DOMContentLoaded
     </script>
     @endif
-</body>
-</html>
+</x-customer-layout>

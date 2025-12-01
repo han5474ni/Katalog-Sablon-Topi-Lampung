@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\VirtualAccount;
 use App\Exports\OrderExport;
 use App\Traits\StockManagementTrait;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Log, Mail};
 use Maatwebsite\Excel\Facades\Excel;
@@ -231,6 +232,16 @@ class OrderManagementController extends Controller
             // This ensures order is approved even if email fails
             DB::commit();
 
+            // Send notification to customer (always execute regardless of email status)
+            try {
+                app(NotificationService::class)->notifyOrderApproved($order, $order->user_id);
+            } catch (\Exception $notifException) {
+                Log::error('Failed to send notification', [
+                    'order_id' => $order->id,
+                    'error' => $notifException->getMessage()
+                ]);
+            }
+
             // Send email notification to customer (outside transaction)
             try {
                 if ($order->user) {
@@ -315,6 +326,15 @@ class OrderManagementController extends Controller
             'rejected_at' => now(),
         ]);
 
+        // Send notification to customer (always execute)
+        try {
+            app(NotificationService::class)->notifyOrderRejected($order, $order->user_id, $request->reason);
+        } catch (\Exception $notifException) {
+            \Log::error('Failed to send rejection notification: ' . $notifException->getMessage(), [
+                'order_id' => $order->id,
+            ]);
+        }
+
         // Send rejection email notification
         $emailSent = false;
         try {
@@ -326,6 +346,7 @@ class OrderManagementController extends Controller
                 'customer_email' => $order->user->email,
                 'reason' => $request->reason
             ]);
+            
             $emailSent = true;
         } catch (\Exception $e) {
             \Log::error('Failed to send order rejection email: ' . $e->getMessage(), [
@@ -454,7 +475,13 @@ class OrderManagementController extends Controller
         }
 
         // Default: non-approved status change
+        $oldStatus = $order->status;
         $order->update($updateData);
+
+        // Send status update notification to customer
+        if ($oldStatus !== $request->status && $order->user_id) {
+            app(NotificationService::class)->notifyOrderStatusUpdate($order, $order->user_id, $oldStatus, $request->status);
+        }
 
         // If AJAX request, return JSON
         if ($request->expectsJson() || $request->ajax()) {

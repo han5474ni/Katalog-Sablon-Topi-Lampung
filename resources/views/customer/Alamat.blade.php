@@ -1,25 +1,7 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Alamat - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    @vite(['resources/css/customer/shared.css', 'resources/css/guest/alamat.css'])
-</head>
-<body class="bg-slate-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="alamat" />
+<x-customer-layout title="Alamat" active="alamat">
+    @vite(['resources/css/guest/alamat.css'])
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <x-customer-header title="Alamat" />
-
-            <!-- Address Content -->
-            <div class="p-4 md:p-8">
-                <div class="mx-auto max-w-4xl">
+    <div class="mx-auto max-w-4xl">
 
 
         <!-- Progress Steps -->
@@ -155,10 +137,7 @@
                     this.classList.add('selected');
                 });
             });
-        </script>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+    </script>
+
+    @stack('scripts')
+</x-customer-layout>

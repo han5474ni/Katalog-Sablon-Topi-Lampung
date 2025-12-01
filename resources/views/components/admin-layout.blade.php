@@ -170,46 +170,41 @@
                     <div class="notification-bell">
                         <button class="notification-bell__btn" onclick="toggleNotificationDropdown()">
                             <i class="fas fa-bell"></i>
-                            <span class="notification-badge">3</span>
+                            @php
+                                $adminUnreadCount = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth('admin')->id()) : 0;
+                            @endphp
+                            @if($adminUnreadCount > 0)
+                            <span class="notification-badge">{{ $adminUnreadCount }}</span>
+                            @endif
                         </button>
                         <div class="notification-dropdown" id="notificationDropdown">
                             <div class="notification-dropdown__header">
                                 <h3>Notifikasi</h3>
-                                <span class="notification-count">3 baru</span>
+                                <span class="notification-count">{{ $adminUnreadCount }} baru</span>
                             </div>
                             <div class="notification-dropdown__list">
-                                <a href="#" class="notification-item notification-item--unread">
-                                    <div class="notification-icon notification-icon--order">
-                                        <i class="fas fa-shopping-cart"></i>
+                                @php
+                                    $adminNotifications = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUserNotifications(auth('admin')->id(), 5) : collect();
+                                @endphp
+                                @forelse($adminNotifications as $notification)
+                                <a href="{{ $notification->notifiable_type === 'App\\Models\\Order' ? route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'regular']) : route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'custom']) }}" 
+                                   class="notification-item {{ $notification->is_read ? '' : 'notification-item--unread' }}">
+                                    <div class="notification-icon notification-icon--{{ $notification->type === 'new_order' ? 'order' : ($notification->type === 'va_activated' ? 'product' : 'user') }}">
+                                        <i class="fas fa-{{ $notification->type === 'new_order' ? 'shopping-cart' : ($notification->type === 'va_activated' ? 'credit-card' : 'comment') }}"></i>
                                     </div>
                                     <div class="notification-content">
-                                        <p class="notification-title">Pesanan Baru</p>
-                                        <p class="notification-text">Ada 2 pesanan baru masuk</p>
-                                        <span class="notification-time">5 menit yang lalu</span>
+                                        <p class="notification-title">{{ $notification->title }}</p>
+                                        <p class="notification-text">{{ Str::limit($notification->message, 50) }}</p>
+                                        <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
                                     </div>
                                 </a>
-                                <a href="#" class="notification-item notification-item--unread">
-                                    <div class="notification-icon notification-icon--product">
-                                        <i class="fas fa-box"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <p class="notification-title">Stok Produk Menipis</p>
-                                        <p class="notification-text">Jersey Hitam tinggal 5 item</p>
-                                        <span class="notification-time">1 jam yang lalu</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="notification-item notification-item--unread">
-                                    <div class="notification-icon notification-icon--user">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <p class="notification-title">Customer Baru</p>
-                                        <p class="notification-text">3 customer baru mendaftar</p>
-                                        <span class="notification-time">2 jam yang lalu</span>
-                                    </div>
-                                </a>
+                                @empty
+                                <div class="notification-item" style="text-align: center; color: #999;">
+                                    <p>Tidak ada notifikasi</p>
+                                </div>
+                                @endforelse
                             </div>
-                            <a href="#" class="notification-dropdown__footer">
+                            <a href="{{ route('admin.notifikasi') }}" class="notification-dropdown__footer">
                                 Lihat Semua Notifikasi
                             </a>
                         </div>
@@ -230,6 +225,7 @@
     </div>
 
     @vite('resources/js/admin/layout.js')
+    @vite('resources/js/admin/notifications.js')
     @stack('scripts')
 </body>
 </html>

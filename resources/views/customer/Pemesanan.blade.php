@@ -1,21 +1,5 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pemesanan - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    @vite(['resources/css/customer/shared.css', 'resources/css/guest/Pemesanan.css'])
-</head>
-<body class="bg-slate-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="pemesanan" />
-
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <x-customer-header title="Pemesanan" />
+<x-customer-layout title="Pemesanan" active="pemesanan">
+    @vite(['resources/css/guest/Pemesanan.css'])
   
     
 
@@ -158,7 +142,6 @@
             });
         });
     </script>
-        </div>
-    </div>
-</body>
-</html>
+
+    @stack('scripts')
+</x-customer-layout>

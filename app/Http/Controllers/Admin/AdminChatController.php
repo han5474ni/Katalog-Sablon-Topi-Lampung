@@ -7,6 +7,7 @@ use App\Models\ChatConversation;
 use App\Models\ChatMessage;
 use App\Models\User;
 use App\Services\ChatBotService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -168,6 +169,14 @@ class AdminChatController extends Controller
                 'admin_id' => $adminId,
                 'customer_id' => $conversation->user_id
             ]);
+
+            // Send notification to customer (popup badge only, not in notification page)
+            $adminName = Auth::guard('admin')->user()->name ?? 'Admin';
+            app(NotificationService::class)->notifyCustomerChatReply(
+                $conversationId,
+                $conversation->user_id,
+                $adminName
+            );
 
             return response()->json([
                 'success' => true,

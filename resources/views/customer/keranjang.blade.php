@@ -1,23 +1,7 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Keranjang - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    @vite(['resources/css/customer/shared.css', 'resources/js/customer/cart.js'])
-</head>
-<body class="bg-slate-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="keranjang" />
+<x-customer-layout title="Keranjang" active="keranjang">
+    @vite(['resources/js/customer/cart.js'])
 
-        <div class="flex-1 overflow-auto">
-            <x-customer-header title="Keranjang" />
-
-            <div class="p-4 md:p-8">
-                <div class="mx-auto max-w-full">
+    <div class="mx-auto max-w-full">
                     @if(session('success'))
                         <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
                             {{ session('success') }}
@@ -174,9 +158,6 @@
                         </form>
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
 
     <style>
         /* Modal Styles */
@@ -232,6 +213,5 @@
         }
     </style>
 
-
-</body>
-</html>
+    @stack('scripts')
+</x-customer-layout>

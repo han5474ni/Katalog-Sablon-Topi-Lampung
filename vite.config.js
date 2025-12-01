@@ -18,6 +18,7 @@ export default defineConfig({
                 'resources/css/admin/login.css',
                 'resources/css/admin/management-order.css',
                 'resources/css/admin/modern-add-product.css',
+                'resources/css/admin/notifikasi.css',
                 'resources/css/admin/order-list.css',
                 'resources/css/admin/product-management.css',
                 'resources/css/admin/profile.css',
@@ -31,6 +32,7 @@ export default defineConfig({
                 'resources/css/components/navbar.css',
                 'resources/css/components/product-card.css',
                 // Customer CSS
+                'resources/css/customer/Notifikasi.css',
                 'resources/css/customer/Pembayaran.css',
                 'resources/css/customer/all-product.css',
                 'resources/css/customer/profile-form.css',
@@ -42,6 +44,7 @@ export default defineConfig({
                 'resources/css/guest/catalog-inline.css',
                 'resources/css/guest/catalog.css',
                 'resources/css/guest/chatbot.css',
+                'resources/css/guest/chatpage.css',
                 'resources/css/guest/custom-design.css',
                 'resources/css/guest/home.css',
                 'resources/css/guest/login.css',
@@ -56,6 +59,7 @@ export default defineConfig({
                 'resources/js/admin/layout.js',
                 'resources/js/admin/login.js',
                 'resources/js/admin/modern-add-product.js',
+                'resources/js/admin/notifications.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/user-management.js',
                 // Chat JS

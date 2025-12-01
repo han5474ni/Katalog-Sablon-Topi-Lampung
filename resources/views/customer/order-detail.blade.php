@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Detail Pesanan #{{ $order->id }} - LGI Store</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    @vite(['resources/css/customer/shared.css'])
-</head>
-<body class="bg-gray-50">
-    <div class="flex h-screen">
-        <x-customer-sidebar active="order-list" />
-
-        <!-- Main Content -->
-        <div class="flex-1 overflow-auto">
-            <x-customer-header title="Detail Pesanan" />
+<x-customer-layout title="Detail Pesanan" active="order-list">
 
             <!-- Order Detail Content -->
             <div class="p-6">
@@ -313,5 +295,6 @@
             }
         }
     </script>
-</body>
-</html>
+
+    @stack('scripts')
+</x-customer-layout>
