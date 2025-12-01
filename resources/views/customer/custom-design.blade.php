@@ -1,5 +1,5 @@
 <x-customer-layout title="Desain Kustom" active="custom-design">
-    @vite(['resources/css/customer/shared.css', 'resources/css/guest/custom-design.css', 'resources/css/components/footer.css', 'resources/css/app.css'])
+    @vite(['resources/css/customer/shared.css', 'resources/css/guest/custom-design.css', 'resources/css/app.css'])
     @php
         // Prefer server-provided product (from controller) for safety; fallback to request params
         $selectedName = isset($product) ? $product->name : (request('name') ?: 'One Life Graphic T-shirt');
@@ -233,8 +233,6 @@
             <button class="mt-10 bg-yellow-400 hover:bg-yellow-500 text-navy-900 font-bold px-8 py-3 rounded-full" onclick="goToHome()">Kembali ke beranda</button>
         </div>
     </div>
-
-    <x-guest-footer />
 
     <script>
         // Handle image loading error with proper fallback
