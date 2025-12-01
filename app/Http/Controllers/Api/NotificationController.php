@@ -22,12 +22,26 @@ class NotificationController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
-        $notifications = $this->notificationService->getUserNotifications($userId);
+        $notifications = $this->notificationService->getUserNotifications($userId, 10);
         $unreadCount = $this->notificationService->getUnreadCount($userId);
+
+        // Transform for dropdown
+        $transformed = $notifications->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'message' => $notification->message,
+                'priority' => $notification->priority,
+                'read_at' => $notification->read_at,
+                'action_url' => $notification->action_url,
+                'action_text' => $notification->action_text,
+                'created_at' => $notification->created_at->diffForHumans(),
+            ];
+        });
 
         return response()->json([
             'success' => true,
-            'data' => $notifications,
+            'notifications' => $transformed,
             'unread_count' => $unreadCount,
         ]);
     }

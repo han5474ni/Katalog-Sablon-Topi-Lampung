@@ -125,9 +125,10 @@ class NotificationDropdown {
         const isUnread = !notif.read_at;
         const priorityClass = `priority-${notif.priority}`;
         const unreadClass = isUnread ? 'unread' : '';
+        const actionUrl = notif.action_url || '#';
         
         return `
-            <div class="notification-item ${unreadClass} ${priorityClass}" data-id="${notif.id}">
+            <div class="notification-item ${unreadClass} ${priorityClass}" data-id="${notif.id}" data-url="${this.escapeHtml(actionUrl)}">
                 <div class="notification-icon">
                     ${this.getPriorityIcon(notif.priority)}
                 </div>
@@ -175,9 +176,17 @@ class NotificationDropdown {
         const items = this.notificationList.querySelectorAll('.notification-item');
         
         items.forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', async () => {
                 const id = item.dataset.id;
-                this.markAsRead(id, item);
+                const url = item.dataset.url;
+                
+                // Mark as read first
+                await this.markAsRead(id, item);
+                
+                // Then redirect if URL exists and is not '#'
+                if (url && url !== '#') {
+                    window.location.href = url;
+                }
             });
         });
     }

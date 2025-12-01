@@ -81,7 +81,16 @@ class AdminNotificationController extends Controller
     public function markAsRead($id)
     {
         $admin = Auth::guard('admin')->user();
-        $this->notificationService->markAsRead($admin, $id);
+        
+        // Verify notification belongs to this admin
+        $notification = \App\Models\Notification::where('id', $id)
+            ->where('notifiable_type', 'App\\Models\\Admin')
+            ->where('notifiable_id', $admin->id)
+            ->first();
+            
+        if ($notification) {
+            $this->notificationService->markAsRead($id);
+        }
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);
@@ -96,7 +105,7 @@ class AdminNotificationController extends Controller
     public function markAllAsRead()
     {
         $admin = Auth::guard('admin')->user();
-        $this->notificationService->markAllAsRead($admin);
+        $this->notificationService->markAllAsRead($admin->id, 'admin');
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);

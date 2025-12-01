@@ -199,50 +199,6 @@
                     </nav>
                 </div>
                 <div class="page-header__right">
-                    <!-- Notification Bell -->
-                    <div class="notification-bell">
-                        <button class="notification-bell__btn" onclick="toggleNotificationDropdown()">
-                            <i class="fas fa-bell"></i>
-                            @php
-                                $adminUnreadCount = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth('admin')->id(), 'admin') : 0;
-                            @endphp
-                            @if($adminUnreadCount > 0)
-                            <span class="notification-badge">{{ $adminUnreadCount }}</span>
-                            @endif
-                        </button>
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="notification-dropdown__header">
-                                <h3>Notifikasi</h3>
-                                <span class="notification-count">{{ $adminUnreadCount }} baru</span>
-                            </div>
-                            <div class="notification-dropdown__list">
-                                @php
-                                    $adminNotifications = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUserNotifications(auth('admin')->id(), 5, 'admin') : collect();
-                                @endphp
-                                @forelse($adminNotifications as $notification)
-                                <a href="{{ $notification->data['order_type'] ?? 'regular' === 'Custom Design' ? route('admin.order.detail', ['id' => $notification->data['order_id'] ?? 0, 'type' => 'custom']) : route('admin.order.detail', ['id' => $notification->data['order_id'] ?? 0, 'type' => 'regular']) }}" 
-                                   class="notification-item {{ $notification->isRead() ? '' : 'notification-item--unread' }}">
-                                    <div class="notification-icon notification-icon--{{ $notification->type === 'new_order' ? 'order' : ($notification->type === 'va_activated' ? 'product' : 'user') }}">
-                                        <i class="fas fa-{{ $notification->type === 'new_order' ? 'shopping-cart' : ($notification->type === 'va_activated' ? 'credit-card' : 'comment') }}"></i>
-                                    </div>
-                                    <div class="notification-content">
-                                        <p class="notification-title">{{ $notification->title }}</p>
-                                        <p class="notification-text">{{ Str::limit($notification->message, 50) }}</p>
-                                        <span class="notification-time">{{ $notification->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </a>
-                                @empty
-                                <div class="notification-item" style="text-align: center; color: #999;">
-                                    <p>Tidak ada notifikasi</p>
-                                </div>
-                                @endforelse
-                            </div>
-                            <a href="{{ route('admin.notifications.index') }}" class="notification-dropdown__footer">
-                                Lihat Semua Notifikasi
-                            </a>
-                        </div>
-                    </div>
-                    
                     <div class="page-header__date-range">
                         <i class="fas fa-calendar"></i>
                         <span>{{ now()->format('F d, Y') }}</span>
