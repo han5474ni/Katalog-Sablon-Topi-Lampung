@@ -80,7 +80,16 @@ class NotificationController extends Controller
     public function markAsRead($id)
     {
         $user = Auth::user();
-        $this->notificationService->markAsRead($user, $id);
+        
+        // Verify notification belongs to this user
+        $notification = \App\Models\Notification::where('id', $id)
+            ->where('notifiable_type', 'App\\Models\\User')
+            ->where('notifiable_id', $user->id)
+            ->first();
+            
+        if ($notification) {
+            $this->notificationService->markAsRead($id);
+        }
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);
@@ -95,7 +104,7 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         $user = Auth::user();
-        $this->notificationService->markAllAsRead($user);
+        $this->notificationService->markAllAsRead($user->id, 'user');
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);
