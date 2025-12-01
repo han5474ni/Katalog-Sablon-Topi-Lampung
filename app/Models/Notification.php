@@ -11,32 +11,26 @@ class Notification extends Model
 
     protected $fillable = [
         'type',
-        'user_id',
         'notifiable_type',
         'notifiable_id',
         'title',
         'message',
         'data',
-        'is_read',
+        'action_url',
+        'action_text',
+        'priority',
         'read_at',
+        'archived_at',
     ];
 
     protected $casts = [
         'data' => 'array',
-        'is_read' => 'boolean',
         'read_at' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the notification
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the notifiable model
+     * Get the notifiable model (User or Admin)
      */
     public function notifiable()
     {
@@ -49,7 +43,6 @@ class Notification extends Model
     public function markAsRead()
     {
         $this->update([
-            'is_read' => true,
             'read_at' => now(),
         ]);
     }
@@ -59,7 +52,7 @@ class Notification extends Model
      */
     public function scopeUnread($query)
     {
-        return $query->where('is_read', false);
+        return $query->whereNull('read_at');
     }
 
     /**
@@ -67,14 +60,32 @@ class Notification extends Model
      */
     public function scopeRead($query)
     {
-        return $query->where('is_read', true);
+        return $query->whereNotNull('read_at');
     }
 
     /**
-     * Scope for specific user
+     * Scope for specific user (polymorphic)
      */
     public function scopeForUser($query, $userId)
     {
-        return $query->where('user_id', $userId);
+        return $query->where('notifiable_type', 'App\\Models\\User')
+                     ->where('notifiable_id', $userId);
+    }
+
+    /**
+     * Scope for specific admin (polymorphic)
+     */
+    public function scopeForAdmin($query, $adminId)
+    {
+        return $query->where('notifiable_type', 'App\\Models\\Admin')
+                     ->where('notifiable_id', $adminId);
+    }
+
+    /**
+     * Check if notification is read
+     */
+    public function isRead(): bool
+    {
+        return $this->read_at !== null;
     }
 }

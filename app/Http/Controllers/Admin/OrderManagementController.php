@@ -11,7 +11,10 @@ use App\Models\Order;
 use App\Models\VirtualAccount;
 use App\Exports\OrderExport;
 use App\Traits\StockManagementTrait;
-use App\Services\NotificationService;
+use App\Events\OrderApprovedEvent;
+use App\Events\OrderRejectedEvent;
+use App\Events\OrderCompletedEvent;
+use App\Events\PaymentReceivedEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Log, Mail};
 use Maatwebsite\Excel\Facades\Excel;
@@ -232,15 +235,8 @@ class OrderManagementController extends Controller
             // This ensures order is approved even if email fails
             DB::commit();
 
-            // Send notification to customer (always execute regardless of email status)
-            try {
-                app(NotificationService::class)->notifyOrderApproved($order, $order->user_id);
-            } catch (\Exception $notifException) {
-                Log::error('Failed to send notification', [
-                    'order_id' => $order->id,
-                    'error' => $notifException->getMessage()
-                ]);
-            }
+            // Dispatch event for notification
+            OrderApprovedEvent::dispatch($order);
 
             // Send email notification to customer (outside transaction)
             try {
@@ -326,14 +322,8 @@ class OrderManagementController extends Controller
             'rejected_at' => now(),
         ]);
 
-        // Send notification to customer (always execute)
-        try {
-            app(NotificationService::class)->notifyOrderRejected($order, $order->user_id, $request->reason);
-        } catch (\Exception $notifException) {
-            \Log::error('Failed to send rejection notification: ' . $notifException->getMessage(), [
-                'order_id' => $order->id,
-            ]);
-        }
+        // Dispatch event for notification
+        OrderRejectedEvent::dispatch($order, $request->reason);
 
         // Send rejection email notification
         $emailSent = false;

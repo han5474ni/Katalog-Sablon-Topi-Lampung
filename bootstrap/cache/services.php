@@ -38,6 +38,7 @@
     34 => 'Termwind\\Laravel\\TermwindServiceProvider',
     35 => 'App\\Providers\\AppServiceProvider',
     36 => 'App\\Providers\\VoltServiceProvider',
+    37 => 'App\\Providers\\EventServiceProvider',
   ),
   'eager' => 
   array (
@@ -61,6 +62,7 @@
     17 => 'Termwind\\Laravel\\TermwindServiceProvider',
     18 => 'App\\Providers\\AppServiceProvider',
     19 => 'App\\Providers\\VoltServiceProvider',
+    20 => 'App\\Providers\\EventServiceProvider',
   ),
   'deferred' => 
   array (

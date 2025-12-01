@@ -8,6 +8,8 @@ use App\Models\CustomDesignOrder;
 use App\Services\NotificationService;
 use App\Traits\ImageResolutionTrait;
 use App\Traits\StockManagementTrait;
+use App\Events\OrderCreatedEvent;
+use App\Events\CustomDesignUploadedEvent;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -256,10 +258,8 @@ class CustomerController extends Controller
                 'payment_status' => 'unpaid',
             ]);
 
-            \Log::info('Buy Now Success', ['order_id' => $order->id, 'order_number' => $order->order_number]);
-
-            // Notify all admins about new order
-            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
+            // Dispatch event for notification
+            OrderCreatedEvent::dispatch($order);
 
             return response()->json([
                 'success' => true,
@@ -880,6 +880,9 @@ class CustomerController extends Controller
                 'payment_method_id' => $request->payment_method,
             ]);
 
+            // Dispatch event for notification
+            OrderCreatedEvent::dispatch($order);
+
             // Clear session data
             $request->session()->forget(['cart', 'selected_address_id', 'shipping_method']);
 
@@ -1036,6 +1039,9 @@ class CustomerController extends Controller
 
             // Notify all admins about new custom design order
             app(NotificationService::class)->notifyAdminNewOrder($order, $user);
+            
+            // Dispatch event for notification
+            CustomDesignUploadedEvent::dispatch($order);
             
             return response()->json([
                 'success' => true, 
@@ -1200,6 +1206,9 @@ class CustomerController extends Controller
                 'total' => $total,
                 'status' => 'pending',
             ]);
+
+            // Dispatch event for notification
+            OrderCreatedEvent::dispatch($order);
 
             // Clear cart after successful order creation
             $request->session()->forget('cart');

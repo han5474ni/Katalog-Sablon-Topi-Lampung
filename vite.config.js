@@ -8,6 +8,16 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/bootstrap.js',
+                
+                // Components
+                'resources/css/components/navbar.css',
+                'resources/css/components/notification-dropdown.css',
+                'resources/css/components/footer.css',
+                'resources/css/components/product-card.css',
+                'resources/js/components/navbar.js',
+                'resources/js/components/notification-dropdown.js',
+                
                 // Admin CSS
                 'resources/css/admin/all-products.css',
                 'resources/css/admin/analytics.css',

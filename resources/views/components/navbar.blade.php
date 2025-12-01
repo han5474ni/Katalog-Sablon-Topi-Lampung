@@ -1,5 +1,10 @@
 <!-- Navbar Component -->
-@vite(['resources/css/components/navbar.css', 'resources/js/components/navbar.js'])
+@vite([
+    'resources/css/components/navbar.css', 
+    'resources/css/components/notification-dropdown.css',
+    'resources/js/components/navbar.js',
+    'resources/js/components/notification-dropdown.js'
+])
 
 @php
     use Illuminate\Support\Facades\Route;
@@ -48,9 +53,40 @@
             </div>
 
             <div class="header-actions">
-                <a href="#" aria-label="Notifikasi" class="action-button notification-link">
-                    <i class="fas fa-bell"></i>
-                </a>
+                <!-- Notification Bell -->
+                @auth('web')
+                    <div class="notification-wrapper">
+                        <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                        </a>
+                        
+                        <!-- Notification Dropdown -->
+                        <div class="notification-dropdown" id="notification-dropdown" style="display: none;">
+                            <div class="notification-dropdown__header">
+                                <h3>Notifikasi</h3>
+                                <button class="mark-all-read-btn" id="mark-all-read" style="display: none;">
+                                    Tandai Semua Dibaca
+                                </button>
+                            </div>
+                            
+                            <div class="notification-dropdown__body" id="notification-list">
+                                <div class="notification-loading">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Memuat notifikasi...</p>
+                                </div>
+                            </div>
+                            
+                            <div class="notification-dropdown__footer">
+                                <a href="{{ route('notifications.index') }}">Lihat Semua Notifikasi</a>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <a href="#" aria-label="Notifikasi" class="action-button notification-link">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                @endauth
 
                 @if(!$isAdmin && auth()->check())
                     <a href="{{ route('keranjang') }}" aria-label="Buka Keranjang" class="action-button">

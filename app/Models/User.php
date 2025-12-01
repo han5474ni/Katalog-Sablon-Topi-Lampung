@@ -85,4 +85,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(CustomDesignOrder::class, 'user_id');
     }
+
+    /**
+     * Get notifications for this user
+     */
+    public function notifications()
+    {
+        return $this->morphMany(\App\Models\Notification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
+    }
 }

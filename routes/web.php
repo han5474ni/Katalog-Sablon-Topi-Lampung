@@ -19,11 +19,17 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ResendWebhookController;
 use Illuminate\Support\Facades\Auth;
 
 
 use Illuminate\Support\Facades\Http;
 //use Illuminate\Support\Facades\Route;
+
+// Resend Webhook Endpoint (must be before any auth middleware)
+Route::post('/webhooks/resend', [ResendWebhookController::class, 'handle'])
+    ->name('webhooks.resend')
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::get('/test-n8n-integration', function () {
     try {
@@ -305,6 +311,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [CustomerController::class, 'dashboard'])
         ->name('dashboard');
 
+    // Notification routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('read-all');
+        Route::post('/{id}/archive', [App\Http\Controllers\NotificationController::class, 'archive'])->name('archive');
+    });
+
     // Customer-only routes (cart, checkout, orders, custom design)
     Route::middleware(['customer.only'])->group(function () {
         Route::get('/keranjang', [CustomerController::class, 'keranjang'])
@@ -447,8 +461,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
         Route::get('/history', [ActivityLogController::class, 'history'])->name('admin.history');
         
-        // Notifications
-        Route::get('/notifikasi', [App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('admin.notifikasi');
+        // Admin Notification routes
+        Route::prefix('notifications')->name('admin.notifications.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\AdminNotificationController::class, 'index'])->name('index');
+            Route::post('/{id}/read', [App\Http\Controllers\Admin\AdminNotificationController::class, 'markAsRead'])->name('read');
+            Route::post('/read-all', [App\Http\Controllers\Admin\AdminNotificationController::class, 'markAllAsRead'])->name('read-all');
+        });
         
         // Product Management
         Route::get('/management-product', [ProductManagementController::class, 'index'])->name('admin.management-product');

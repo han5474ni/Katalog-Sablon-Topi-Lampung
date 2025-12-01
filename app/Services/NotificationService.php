@@ -3,13 +3,143 @@
 namespace App\Services;
 
 use App\Models\Notification;
+use App\Models\NotificationLog;
+use App\Models\NotificationTemplate;
 use App\Models\User;
 use App\Models\Admin;
+use App\Jobs\SendEmailNotificationJob;
+use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
     /**
-     * Create a new notification
+     * Send notification to a single recipient
+     * Used by Event Listeners
+     * 
+     * @param string $type - notification template type
+     * @param User|Admin $recipient - the recipient model
+     * @param array $data - data to replace in templates
+     * @param string $priority - low, medium, high, urgent
+     * @param bool $sendEmail - whether to send email notification
+     */
+    public function send(string $type, $recipient, array $data = [], string $priority = 'medium', bool $sendEmail = true): ?Notification
+    {
+        try {
+            // Get template for in-app notification
+            $inAppTemplate = NotificationTemplate::active()
+                ->ofType($type)
+                ->channel('in_app')
+                ->first();
+
+            // Get template for email
+            $emailTemplate = NotificationTemplate::active()
+                ->ofType($type)
+                ->channel('email')
+                ->first();
+
+            // Determine notifiable type
+            $notifiableType = get_class($recipient);
+            
+            // Replace variables in template
+            $title = $inAppTemplate ? $this->replacePlaceholders($inAppTemplate->title_template ?? $inAppTemplate->name, $data) : ($data['title'] ?? 'Notifikasi');
+            $message = $inAppTemplate ? $this->replacePlaceholders($inAppTemplate->message_template ?? '', $data) : ($data['message'] ?? '');
+            $actionUrl = $data['action_url'] ?? null;
+            $actionText = $inAppTemplate->action_text ?? 'Lihat Detail';
+
+            // Create notification in database
+            $notification = Notification::create([
+                'type' => $type,
+                'notifiable_type' => $notifiableType,
+                'notifiable_id' => $recipient->id,
+                'title' => $title,
+                'message' => $message,
+                'data' => $data,
+                'action_url' => $actionUrl,
+                'action_text' => $actionText,
+                'priority' => $priority,
+            ]);
+
+            // Send email if enabled and template exists
+            if ($sendEmail && $emailTemplate && $recipient->email) {
+                $this->queueEmail($notification, $emailTemplate, $recipient, $data);
+            }
+
+            return $notification;
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send notification', [
+                'type' => $type,
+                'recipient_id' => $recipient->id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Send notification to multiple recipients
+     * Used for sending to all admins
+     */
+    public function sendToMany(string $type, $recipients, array $data = [], string $priority = 'medium', bool $sendEmail = true): array
+    {
+        $notifications = [];
+        
+        foreach ($recipients as $recipient) {
+            $notification = $this->send($type, $recipient, $data, $priority, $sendEmail);
+            if ($notification) {
+                $notifications[] = $notification;
+            }
+        }
+
+        return $notifications;
+    }
+
+    /**
+     * Queue email notification
+     */
+    protected function queueEmail(Notification $notification, NotificationTemplate $template, $recipient, array $data): void
+    {
+        try {
+            $subject = $this->replacePlaceholders($template->subject ?? $template->name, $data);
+            
+            // Create notification log
+            $log = NotificationLog::create([
+                'notification_id' => $notification->id,
+                'channel' => 'email',
+                'recipient_type' => get_class($recipient),
+                'recipient_id' => $recipient->id,
+                'recipient_email' => $recipient->email,
+                'subject' => $subject,
+                'status' => 'pending',
+            ]);
+
+            // Dispatch email job
+            SendEmailNotificationJob::dispatch($log->id, $data);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to queue email notification', [
+                'notification_id' => $notification->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Replace placeholders in template string
+     */
+    protected function replacePlaceholders(string $template, array $data): string
+    {
+        foreach ($data as $key => $value) {
+            if (is_string($value) || is_numeric($value)) {
+                $template = str_replace("{{$key}}", $value, $template);
+                $template = str_replace("{{ $key }}", $value, $template);
+            }
+        }
+        return $template;
+    }
+
+    /**
+     * Create a new notification (legacy method)
      */
     public function create(array $data)
     {
@@ -17,7 +147,7 @@ class NotificationService
     }
 
     /**
-     * Notify when order is approved
+     * Notify when order is approved (to User)
      */
     public function notifyOrderApproved($order, $userId)
     {
@@ -25,9 +155,8 @@ class NotificationService
         
         return $this->create([
             'type' => 'order_approved',
-            'user_id' => $userId,
-            'notifiable_type' => get_class($order),
-            'notifiable_id' => $order->id,
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $userId,
             'title' => 'Pesanan Disetujui',
             'message' => "Pesanan {$orderType} #{$order->id} Anda telah disetujui! Pesanan sedang diproses.",
             'data' => [
@@ -39,7 +168,7 @@ class NotificationService
     }
 
     /**
-     * Notify when order is rejected
+     * Notify when order is rejected (to User)
      */
     public function notifyOrderRejected($order, $userId, $reason = null)
     {
@@ -51,9 +180,8 @@ class NotificationService
         
         return $this->create([
             'type' => 'order_rejected',
-            'user_id' => $userId,
-            'notifiable_type' => get_class($order),
-            'notifiable_id' => $order->id,
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $userId,
             'title' => 'Pesanan Ditolak',
             'message' => $message,
             'data' => [
@@ -66,7 +194,7 @@ class NotificationService
     }
 
     /**
-     * Notify when order status is updated
+     * Notify when order status is updated (to User)
      */
     public function notifyOrderStatusUpdate($order, $userId, $oldStatus, $newStatus)
     {
@@ -82,9 +210,8 @@ class NotificationService
         
         return $this->create([
             'type' => 'order_status_update',
-            'user_id' => $userId,
-            'notifiable_type' => get_class($order),
-            'notifiable_id' => $order->id,
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $userId,
             'title' => 'Status Pesanan Diperbarui',
             'message' => "Pesanan {$orderType} #{$order->id} diperbarui dari {$statusLabels[$oldStatus]} menjadi {$statusLabels[$newStatus]}.",
             'data' => [
@@ -97,7 +224,7 @@ class NotificationService
     }
 
     /**
-     * Notify admin when new order is created
+     * Notify admin when new order is created (to Admins)
      */
     public function notifyAdminNewOrder($order, $customer)
     {
@@ -107,9 +234,8 @@ class NotificationService
         foreach ($admins as $admin) {
             $this->create([
                 'type' => 'new_order',
-                'user_id' => $admin->id,
-                'notifiable_type' => get_class($order),
-                'notifiable_id' => $order->id,
+                'notifiable_type' => 'App\\Models\\Admin',
+                'notifiable_id' => $admin->id,
                 'title' => 'Pesanan Baru',
                 'message' => "Pesanan {$orderType} baru #{$order->id} dari {$customer->name}.",
                 'data' => [
@@ -123,7 +249,7 @@ class NotificationService
     }
 
     /**
-     * Notify admin when VA is activated
+     * Notify admin when VA is activated (to Admins)
      */
     public function notifyAdminVAActivated($order, $vaNumber)
     {
@@ -133,9 +259,8 @@ class NotificationService
         foreach ($admins as $admin) {
             $this->create([
                 'type' => 'va_activated',
-                'user_id' => $admin->id,
-                'notifiable_type' => get_class($order),
-                'notifiable_id' => $order->id,
+                'notifiable_type' => 'App\\Models\\Admin',
+                'notifiable_id' => $admin->id,
                 'title' => 'Virtual Account Aktif',
                 'message' => "VA #{$vaNumber} untuk pesanan {$orderType} #{$order->id} telah diaktifkan.",
                 'data' => [
@@ -148,15 +273,14 @@ class NotificationService
     }
 
     /**
-     * Notify customer when admin replies to chat
+     * Notify customer when admin replies to chat (to User)
      */
     public function notifyCustomerChatReply($conversationId, $customerId, $adminName)
     {
         return $this->create([
             'type' => 'chat_reply',
-            'user_id' => $customerId,
-            'notifiable_type' => 'App\Models\ChatConversation',
-            'notifiable_id' => $conversationId,
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $customerId,
             'title' => 'Balasan Baru',
             'message' => "{$adminName} membalas chat Anda.",
             'data' => [
@@ -169,18 +293,43 @@ class NotificationService
     /**
      * Get unread count for user
      */
-    public function getUnreadCount($userId)
+    public function getUnreadCount($userId, $type = 'user')
     {
+        if ($type === 'admin') {
+            return Notification::forAdmin($userId)->unread()->count();
+        }
         return Notification::forUser($userId)->unread()->count();
     }
 
     /**
-     * Get notifications for user
+     * Get notifications query builder for user or admin
+     * Used by controllers for pagination
      */
-    public function getUserNotifications($userId, $limit = 20)
+    public function getNotifications($recipient, $limit = null)
     {
-        return Notification::forUser($userId)
-            ->orderBy('created_at', 'desc')
+        $notifiableType = get_class($recipient);
+        
+        $query = Notification::where('notifiable_type', $notifiableType)
+            ->where('notifiable_id', $recipient->id)
+            ->orderBy('created_at', 'desc');
+            
+        if ($limit) {
+            $query->limit($limit);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Get notifications for user or admin (returns collection)
+     */
+    public function getUserNotifications($userId, $limit = 20, $type = 'user')
+    {
+        $query = $type === 'admin' 
+            ? Notification::forAdmin($userId) 
+            : Notification::forUser($userId);
+            
+        return $query->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
     }
@@ -198,14 +347,16 @@ class NotificationService
     }
 
     /**
-     * Mark all notifications as read for user
+     * Mark all notifications as read for user or admin
      */
-    public function markAllAsRead($userId)
+    public function markAllAsRead($userId, $type = 'user')
     {
-        return Notification::forUser($userId)
-            ->unread()
+        $query = $type === 'admin' 
+            ? Notification::forAdmin($userId) 
+            : Notification::forUser($userId);
+            
+        return $query->unread()
             ->update([
-                'is_read' => true,
                 'read_at' => now(),
             ]);
     }
@@ -213,13 +364,18 @@ class NotificationService
     /**
      * Mark selected notifications as read
      */
-    public function markSelectedAsRead(array $notificationIds, $userId)
+    public function markSelectedAsRead(array $notificationIds, $userId, $type = 'user')
     {
-        return Notification::whereIn('id', $notificationIds)
-            ->forUser($userId)
-            ->unread()
+        $query = Notification::whereIn('id', $notificationIds);
+        
+        if ($type === 'admin') {
+            $query->forAdmin($userId);
+        } else {
+            $query->forUser($userId);
+        }
+        
+        return $query->unread()
             ->update([
-                'is_read' => true,
                 'read_at' => now(),
             ]);
     }

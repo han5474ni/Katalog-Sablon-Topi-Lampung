@@ -147,4 +147,13 @@ class Admin extends Authenticatable
             ->where('is_escalated', true)
             ->where('taken_over_by_admin', true);
     }
+
+    /**
+     * Get notifications for this admin
+     */
+    public function notifications()
+    {
+        return $this->morphMany(\App\Models\Notification::class, 'notifiable')
+            ->orderBy('created_at', 'desc');
+    }
 }

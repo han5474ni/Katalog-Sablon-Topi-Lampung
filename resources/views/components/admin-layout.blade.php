@@ -13,7 +13,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    @vite(['resources/css/admin/dashboard.css'])
+    @vite([
+        'resources/css/admin/dashboard.css',
+        'resources/css/components/notification-dropdown.css',
+        'resources/js/components/notification-dropdown.js'
+    ])
     @stack('styles')
 </head>
 <body>
@@ -36,6 +40,35 @@
             </div>
         </div>
         <div class="top-navbar__right">
+            <!-- Notification Bell for Admin -->
+            <div class="notification-wrapper" style="margin-right: 20px; display: inline-flex; align-items: center;">
+                <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 12px; border-radius: 8px; position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.3s ease;">
+                    <i class="fas fa-bell" style="font-size: 18px; color: #fff;"></i>
+                    <span class="notification-badge" id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; min-width: 18px; text-align: center;">0</span>
+                </a>
+                
+                <!-- Notification Dropdown -->
+                <div class="notification-dropdown" id="notification-dropdown" style="display: none;">
+                    <div class="notification-dropdown__header">
+                        <h3>Notifikasi</h3>
+                        <button class="mark-all-read-btn" id="mark-all-read" style="display: none;">
+                            Tandai Semua Dibaca
+                        </button>
+                    </div>
+                    
+                    <div class="notification-dropdown__body" id="notification-list">
+                        <div class="notification-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Memuat notifikasi...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-dropdown__footer">
+                        <a href="{{ route('admin.notifications.index') }}">Lihat Semua Notifikasi</a>
+                    </div>
+                </div>
+            </div>
+            
             <div class="admin-dropdown">
                 <button class="admin-dropdown__btn" onclick="toggleAdminDropdown()">
                     @if(auth('admin')->user()->avatar)
@@ -166,12 +199,13 @@
                     </nav>
                 </div>
                 <div class="page-header__right">
+<<<<<<< Updated upstream
                     <!-- Notification Bell -->
                     <div class="notification-bell">
                         <button class="notification-bell__btn" onclick="toggleNotificationDropdown()">
                             <i class="fas fa-bell"></i>
                             @php
-                                $adminUnreadCount = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth('admin')->id()) : 0;
+                                $adminUnreadCount = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth('admin')->id(), 'admin') : 0;
                             @endphp
                             @if($adminUnreadCount > 0)
                             <span class="notification-badge">{{ $adminUnreadCount }}</span>
@@ -184,11 +218,11 @@
                             </div>
                             <div class="notification-dropdown__list">
                                 @php
-                                    $adminNotifications = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUserNotifications(auth('admin')->id(), 5) : collect();
+                                    $adminNotifications = auth('admin')->check() ? app(\App\Services\NotificationService::class)->getUserNotifications(auth('admin')->id(), 5, 'admin') : collect();
                                 @endphp
                                 @forelse($adminNotifications as $notification)
-                                <a href="{{ $notification->notifiable_type === 'App\\Models\\Order' ? route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'regular']) : route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'custom']) }}" 
-                                   class="notification-item {{ $notification->is_read ? '' : 'notification-item--unread' }}">
+                                <a href="{{ $notification->data['order_type'] ?? 'regular' === 'Custom Design' ? route('admin.order.detail', ['id' => $notification->data['order_id'] ?? 0, 'type' => 'custom']) : route('admin.order.detail', ['id' => $notification->data['order_id'] ?? 0, 'type' => 'regular']) }}" 
+                                   class="notification-item {{ $notification->isRead() ? '' : 'notification-item--unread' }}">
                                     <div class="notification-icon notification-icon--{{ $notification->type === 'new_order' ? 'order' : ($notification->type === 'va_activated' ? 'product' : 'user') }}">
                                         <i class="fas fa-{{ $notification->type === 'new_order' ? 'shopping-cart' : ($notification->type === 'va_activated' ? 'credit-card' : 'comment') }}"></i>
                                     </div>
@@ -204,7 +238,7 @@
                                 </div>
                                 @endforelse
                             </div>
-                            <a href="{{ route('admin.notifikasi') }}" class="notification-dropdown__footer">
+                            <a href="{{ route('admin.notifications.index') }}" class="notification-dropdown__footer">
                                 Lihat Semua Notifikasi
                             </a>
                         </div>
