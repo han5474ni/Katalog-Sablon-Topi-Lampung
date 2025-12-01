@@ -4,13 +4,9 @@ namespace App\Listeners;
 
 use App\Events\OrderCompletedEvent;
 use App\Services\NotificationService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class SendOrderCompletedNotification implements ShouldQueue
+class SendOrderCompletedNotification
 {
-    use InteractsWithQueue;
-
     protected NotificationService $notificationService;
 
     public function __construct(NotificationService $notificationService)
@@ -25,37 +21,18 @@ class SendOrderCompletedNotification implements ShouldQueue
     {
         $order = $event->order;
 
-        $data = [
-            'customer_name' => $order->user->name,
-            'order_number' => $order->order_number,
-            'completed_date' => $order->completed_at ? $order->completed_at->format('d M Y H:i') : now()->format('d M Y H:i'),
-            'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
-            'delivery_info' => $this->getDeliveryInfo($order),
-            'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
-        ];
-
         $this->notificationService->send(
             'order_completed',
             $order->user,
-            $data,
+            [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->user->name,
+                'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+                'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
+            ],
             'medium',
-            true
+            false
         );
-    }
-    
-    /**
-     * Get delivery/pickup information
-     */
-    private function getDeliveryInfo($order): string
-    {
-        if (!empty($order->admin_notes)) {
-            return $order->admin_notes;
-        }
-        
-        if (!empty($order->shipping_service)) {
-            return "Pesanan Anda telah dikirim melalui {$order->shipping_service}.";
-        }
-        
-        return 'Pesanan Anda telah selesai dan siap diambil.';
     }
 }

@@ -4,13 +4,9 @@ namespace App\Listeners;
 
 use App\Events\OrderCreatedEvent;
 use App\Services\NotificationService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class SendOrderCreatedNotification implements ShouldQueue
+class SendOrderCreatedNotification
 {
-    use InteractsWithQueue;
-
     protected NotificationService $notificationService;
 
     public function __construct(NotificationService $notificationService)
@@ -25,69 +21,35 @@ class SendOrderCreatedNotification implements ShouldQueue
     {
         $order = $event->order;
 
-        // Prepare customer notification data
-        $customerData = [
-            'customer_name' => $order->user->name,
-            'order_number' => $order->order_number,
-            'order_date' => $order->created_at->format('d M Y H:i'),
-            'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
-            'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
-        ];
-
-        // Send to customer
+        // Send notification to customer
         $this->notificationService->send(
             'order_created',
             $order->user,
-            $customerData,
+            [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->user->name,
+                'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+                'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
+            ],
             'medium',
-            true
+            false // no email for now
         );
 
-        // Prepare admin notification data
-        $adminData = [
-            'order_number' => $order->order_number,
-            'customer_name' => $order->user->name,
-            'customer_email' => $order->user->email,
-            'customer_phone' => $order->user->phone ?? '-',
-            'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
-            'order_date' => $order->created_at->format('d M Y H:i'),
-            'order_items' => $this->formatOrderItems($order),
-            'customer_notes' => $order->customer_notes ?? '-',
-            'action_url' => route('admin.order.detail', ['id' => $order->id]),
-        ];
-
-        // Send to admins
+        // Send notification to all active admins
         $admins = \App\Models\Admin::where('status', 'active')->get();
         $this->notificationService->sendToMany(
             'new_order_admin',
             $admins,
-            $adminData,
+            [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->user->name,
+                'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+                'action_url' => route('admin.order.detail', ['id' => $order->id, 'type' => 'regular']),
+            ],
             'high',
-            true
+            false // no email for now
         );
-    }
-    
-    /**
-     * Format order items for email display
-     */
-    private function formatOrderItems($order): string
-    {
-        if (empty($order->items)) {
-            return '<p>-</p>';
-        }
-        
-        $html = '<ul style="margin: 0; padding-left: 20px;">';
-        foreach ($order->items as $item) {
-            $html .= '<li>';
-            $html .= e($item['product_name'] ?? 'Produk');
-            if (!empty($item['variant_name'])) {
-                $html .= ' - ' . e($item['variant_name']);
-            }
-            $html .= ' (' . ($item['quantity'] ?? 1) . ' pcs)';
-            $html .= '</li>';
-        }
-        $html .= '</ul>';
-        
-        return $html;
     }
 }

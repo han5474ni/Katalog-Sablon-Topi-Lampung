@@ -177,6 +177,21 @@
             </div>
         @endif
 
+        <!-- Initialize Button (show when no data) -->
+        @if($uploadSections->isEmpty() && $cuttingTypes->isEmpty())
+            <div class="section-card" style="text-align: center; padding: 40px;">
+                <div style="font-size: 48px; margin-bottom: 16px;">⚙️</div>
+                <h3 style="margin-bottom: 12px; color: #374151;">Belum Ada Data Harga</h3>
+                <p style="margin-bottom: 20px; color: #6b7280;">Klik tombol di bawah untuk menginisialisasi data harga default.</p>
+                <form action="{{ route('admin.custom-design-prices.init') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="save-btn" style="padding: 12px 24px; font-size: 16px;">
+                        <i class="fas fa-magic"></i> Initialize Default Prices
+                    </button>
+                </form>
+            </div>
+        @endif
+
         <!-- Upload Sections -->
         <div class="section-card">
             <h2 class="section-title">

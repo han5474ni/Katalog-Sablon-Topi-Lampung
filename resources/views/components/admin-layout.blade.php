@@ -199,7 +199,6 @@
                     </nav>
                 </div>
                 <div class="page-header__right">
-<<<<<<< Updated upstream
                     <!-- Notification Bell -->
                     <div class="notification-bell">
                         <button class="notification-bell__btn" onclick="toggleNotificationDropdown()">

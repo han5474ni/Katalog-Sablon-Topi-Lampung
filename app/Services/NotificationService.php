@@ -13,38 +13,25 @@ use Illuminate\Support\Facades\Log;
 class NotificationService
 {
     /**
-     * Send notification to a single recipient
-     * Used by Event Listeners
+     * Send notification to a single recipient (SIMPLIFIED - always creates notification)
      * 
-     * @param string $type - notification template type
+     * @param string $type - notification type
      * @param User|Admin $recipient - the recipient model
-     * @param array $data - data to replace in templates
+     * @param array $data - notification data including title, message, action_url
      * @param string $priority - low, medium, high, urgent
      * @param bool $sendEmail - whether to send email notification
      */
-    public function send(string $type, $recipient, array $data = [], string $priority = 'medium', bool $sendEmail = true): ?Notification
+    public function send(string $type, $recipient, array $data = [], string $priority = 'medium', bool $sendEmail = false): ?Notification
     {
         try {
-            // Get template for in-app notification
-            $inAppTemplate = NotificationTemplate::active()
-                ->ofType($type)
-                ->channel('in_app')
-                ->first();
-
-            // Get template for email
-            $emailTemplate = NotificationTemplate::active()
-                ->ofType($type)
-                ->channel('email')
-                ->first();
-
             // Determine notifiable type
             $notifiableType = get_class($recipient);
             
-            // Replace variables in template
-            $title = $inAppTemplate ? $this->replacePlaceholders($inAppTemplate->title_template ?? $inAppTemplate->name, $data) : ($data['title'] ?? 'Notifikasi');
-            $message = $inAppTemplate ? $this->replacePlaceholders($inAppTemplate->message_template ?? '', $data) : ($data['message'] ?? '');
+            // Get title and message from data or use defaults
+            $title = $data['title'] ?? $this->getDefaultTitle($type);
+            $message = $data['message'] ?? $this->getDefaultMessage($type, $data);
             $actionUrl = $data['action_url'] ?? null;
-            $actionText = $inAppTemplate->action_text ?? 'Lihat Detail';
+            $actionText = $data['action_text'] ?? 'Lihat Detail';
 
             // Create notification in database
             $notification = Notification::create([
@@ -59,9 +46,15 @@ class NotificationService
                 'priority' => $priority,
             ]);
 
-            // Send email if enabled and template exists
-            if ($sendEmail && $emailTemplate && $recipient->email) {
-                $this->queueEmail($notification, $emailTemplate, $recipient, $data);
+            Log::info('Notification created', [
+                'id' => $notification->id,
+                'type' => $type,
+                'recipient' => $notifiableType . '#' . $recipient->id,
+            ]);
+
+            // Send email if enabled
+            if ($sendEmail && $recipient->email) {
+                $this->queueEmailSimple($notification, $recipient, $data);
             }
 
             return $notification;
@@ -71,16 +64,56 @@ class NotificationService
                 'type' => $type,
                 'recipient_id' => $recipient->id ?? null,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return null;
         }
     }
 
     /**
-     * Send notification to multiple recipients
-     * Used for sending to all admins
+     * Get default title based on notification type
      */
-    public function sendToMany(string $type, $recipients, array $data = [], string $priority = 'medium', bool $sendEmail = true): array
+    protected function getDefaultTitle(string $type): string
+    {
+        $titles = [
+            'order_created' => 'Pesanan Berhasil Dibuat',
+            'new_order_admin' => 'Pesanan Baru Masuk',
+            'order_approved' => 'Pesanan Disetujui',
+            'order_rejected' => 'Pesanan Ditolak',
+            'order_completed' => 'Pesanan Selesai',
+            'payment_received' => 'Pembayaran Diterima',
+            'custom_design_uploaded' => 'Design Custom Diunggah',
+        ];
+        
+        return $titles[$type] ?? 'Notifikasi';
+    }
+
+    /**
+     * Get default message based on type and data
+     */
+    protected function getDefaultMessage(string $type, array $data): string
+    {
+        $orderNumber = $data['order_number'] ?? '';
+        $customerName = $data['customer_name'] ?? '';
+        $totalAmount = $data['total_amount'] ?? '';
+        
+        $messages = [
+            'order_created' => "Pesanan {$orderNumber} berhasil dibuat dengan total {$totalAmount}",
+            'new_order_admin' => "Pesanan baru {$orderNumber} dari {$customerName} dengan total {$totalAmount}",
+            'order_approved' => "Pesanan {$orderNumber} Anda telah disetujui dan sedang diproses",
+            'order_rejected' => "Pesanan {$orderNumber} Anda ditolak. " . ($data['reason'] ?? ''),
+            'order_completed' => "Pesanan {$orderNumber} telah selesai",
+            'payment_received' => "Pembayaran untuk pesanan {$orderNumber} telah diterima",
+            'custom_design_uploaded' => "Design custom untuk pesanan {$orderNumber} telah diunggah",
+        ];
+        
+        return $messages[$type] ?? 'Ada notifikasi baru untuk Anda';
+    }
+
+    /**
+     * Send notification to multiple recipients
+     */
+    public function sendToMany(string $type, $recipients, array $data = [], string $priority = 'medium', bool $sendEmail = false): array
     {
         $notifications = [];
         
@@ -95,13 +128,11 @@ class NotificationService
     }
 
     /**
-     * Queue email notification
+     * Simple email queue (without template dependency)
      */
-    protected function queueEmail(Notification $notification, NotificationTemplate $template, $recipient, array $data): void
+    protected function queueEmailSimple(Notification $notification, $recipient, array $data): void
     {
         try {
-            $subject = $this->replacePlaceholders($template->subject ?? $template->name, $data);
-            
             // Create notification log
             $log = NotificationLog::create([
                 'notification_id' => $notification->id,
@@ -109,23 +140,23 @@ class NotificationService
                 'recipient_type' => get_class($recipient),
                 'recipient_id' => $recipient->id,
                 'recipient_email' => $recipient->email,
-                'subject' => $subject,
+                'subject' => $notification->title,
                 'status' => 'pending',
             ]);
 
-            // Dispatch email job
-            SendEmailNotificationJob::dispatch($log->id, $data);
+            // Dispatch email job (optional - can be disabled for now)
+            // SendEmailNotificationJob::dispatch($log->id, $data);
 
         } catch (\Exception $e) {
-            Log::error('Failed to queue email notification', [
+            Log::error('Failed to create email log', [
                 'notification_id' => $notification->id,
                 'error' => $e->getMessage(),
             ]);
         }
     }
-
+    
     /**
-     * Replace placeholders in template string
+     * Replace placeholders in template
      */
     protected function replacePlaceholders(string $template, array $data): string
     {
