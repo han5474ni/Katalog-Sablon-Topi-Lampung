@@ -880,14 +880,11 @@ class CustomerController extends Controller
                 'payment_method_id' => $request->payment_method,
             ]);
 
-            // Dispatch event for notification
+            // Dispatch event for notification (handles both customer and admin notifications)
             OrderCreatedEvent::dispatch($order);
 
             // Clear session data
             $request->session()->forget(['cart', 'selected_address_id', 'shipping_method']);
-
-            // Notify all admins about new order
-            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
 
             return response()->json([
                 'success' => true,
@@ -1036,11 +1033,8 @@ class CustomerController extends Controller
 
             \DB::commit();
             \Log::info('✅ Order completed successfully');
-
-            // Notify all admins about new custom design order
-            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
             
-            // Dispatch event for notification
+            // Dispatch event for notification (handles both customer and admin notifications)
             CustomDesignUploadedEvent::dispatch($order);
             
             return response()->json([
@@ -1207,14 +1201,11 @@ class CustomerController extends Controller
                 'status' => 'pending',
             ]);
 
-            // Dispatch event for notification
+            // Dispatch event for notification (handles both customer and admin notifications)
             OrderCreatedEvent::dispatch($order);
 
             // Clear cart after successful order creation
             $request->session()->forget('cart');
-
-            // Notify all admins about new order
-            app(NotificationService::class)->notifyAdminNewOrder($order, $user);
 
             return redirect()->route('order-list')->with('success', 'Pesanan berhasil dibuat dan menunggu konfirmasi admin.');
         } catch (\Exception $e) {
