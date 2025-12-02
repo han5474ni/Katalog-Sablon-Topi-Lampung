@@ -146,6 +146,7 @@ class AdminChatController extends Controller
             // Create admin message
             $message = ChatMessage::create([
                 'conversation_id' => $conversationId,
+                'chat_conversation_id' => $conversationId,
                 'sender_type' => 'admin',
                 'message' => $request->message,
                 'is_admin_reply' => true,

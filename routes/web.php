@@ -219,6 +219,12 @@ Route::get('/test-chat-interface', function () {
 Route::post('/test-chat-send', [ChatController::class, 'testSendMessage']);
 Route::get('/test-chat-quick', [ChatController::class, 'quickTest']);
 
+// Customer chatbot polling routes (untuk menerima pesan admin)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat/new-messages', [ChatController::class, 'getNewMessages'])->name('chat.new-messages');
+    Route::get('/chat/status', [ChatController::class, 'getConversationStatus'])->name('chat.status');
+});
+
 // ===== API Routes untuk Stock & Product Info (untuk future use) =====
 Route::prefix('api')->group(function () {
     // Get fresh stock information untuk product spesifik

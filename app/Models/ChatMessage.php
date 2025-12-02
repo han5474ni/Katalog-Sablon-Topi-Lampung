@@ -10,7 +10,8 @@ class ChatMessage extends Model
     use HasFactory;
 
     protected $fillable = [
-        'chat_conversation_id',
+        'conversation_id',
+        'chat_conversation_id', // backward compatibility
         'user_id',
         'message',
         'sender_type',
@@ -32,7 +33,8 @@ class ChatMessage extends Model
 
     public function conversation()
     {
-        return $this->belongsTo(ChatConversation::class, 'chat_conversation_id', 'id');
+        // Support both column names for backward compatibility
+        return $this->belongsTo(ChatConversation::class, 'conversation_id', 'id');
     }
 
     /**

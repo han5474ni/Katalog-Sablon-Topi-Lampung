@@ -1,9 +1,9 @@
-// Product ChatBot Functionality - Fixed Version
+// Product ChatBot Functionality - Fixed Version with Database Integration & Admin Takeover Support
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing Product ChatBot...');
     
     // Initialize chatbot
-    new ProductChatBot();
+    window.chatBotInstance = new ProductChatBot();
 });
 
 class ProductChatBot {
@@ -11,8 +11,18 @@ class ProductChatBot {
         this.modal = document.getElementById('chatbotModal');
         this.chatMessages = document.getElementById('chatMessages');
         this.chatForm = document.getElementById('chatForm');
-        this.conversationId = document.getElementById('conversationId');
+        this.conversationIdInput = document.getElementById('conversationId');
         this.productName = document.getElementById('chatProductName');
+        
+        // Track actual conversation ID from database for session continuity
+        this.actualConversationId = null;
+        
+        // Track last message ID for polling
+        this.lastMessageId = 0;
+        
+        // Polling interval for admin messages
+        this.pollingInterval = null;
+        this.isAdminActive = false;
         
         console.log('Product ChatBot constructor called');
         console.log('Modal element:', this.modal);
@@ -22,7 +32,7 @@ class ProductChatBot {
     }
 
     init() {
-        console.log('Initializing Product ChatBot...');
+        console.log('Initializing Product ChatBot with database integration...');
         this.bindEvents();
     }
 
@@ -101,6 +111,9 @@ class ProductChatBot {
         // Set product name in header
         this.productName.textContent = productData.name;
         
+        // Start polling for admin messages
+        this.startPolling();
+        
         console.log('Chat modal opened successfully');
     }
 
@@ -108,11 +121,102 @@ class ProductChatBot {
         console.log('Closing chat modal...');
         this.modal.classList.remove('show');
         document.body.style.overflow = ''; // Restore scroll
+        
+        // Stop polling
+        this.stopPolling();
     }
 
-    addMessage(message, isUser = false) {
+    // Start polling for new messages from admin
+    startPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+        }
+        
+        // Poll every 3 seconds
+        this.pollingInterval = setInterval(() => {
+            this.pollNewMessages();
+        }, 3000);
+        
+        console.log('Started polling for admin messages');
+    }
+
+    stopPolling() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+        }
+        console.log('Stopped polling');
+    }
+
+    async pollNewMessages() {
+        if (!this.actualConversationId) return;
+        
+        try {
+            const response = await fetch(`/chat/new-messages?conversation_id=${this.actualConversationId}&last_message_id=${this.lastMessageId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.messages && data.messages.length > 0) {
+                data.messages.forEach(msg => {
+                    // Only add messages from admin that we haven't shown yet
+                    if (msg.is_from_admin || msg.sender_type === 'admin') {
+                        this.addMessage(msg.message, false, true); // isAdmin = true
+                    }
+                    // Update lastMessageId
+                    if (msg.id > this.lastMessageId) {
+                        this.lastMessageId = msg.id;
+                    }
+                });
+            }
+            
+            // Update admin status
+            if (data.taken_over_by_admin !== this.isAdminActive) {
+                this.isAdminActive = data.taken_over_by_admin;
+                this.updateAdminStatus(data.taken_over_by_admin, data.admin_name);
+            }
+            
+        } catch (error) {
+            console.log('Polling error (non-critical):', error.message);
+        }
+    }
+
+    updateAdminStatus(isActive, adminName) {
+        const headerTitle = document.querySelector('.chatbot-title h3');
+        if (headerTitle) {
+            if (isActive) {
+                headerTitle.innerHTML = `<i class="fas fa-headset"></i> Live Chat dengan Admin`;
+                // Show notification
+                this.addSystemMessage(`🎯 Admin ${adminName || ''} sedang menangani chat Anda`);
+            } else {
+                headerTitle.innerHTML = `<i class="fas fa-robot"></i> Chat Support`;
+            }
+        }
+    }
+
+    addSystemMessage(message) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `${isUser ? 'user' : 'bot'}-message`;
+        messageDiv.className = 'system-message';
+        messageDiv.innerHTML = `
+            <div class="message-content system">${message}</div>
+        `;
+        this.chatMessages.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    addMessage(message, isUser = false, isFromAdmin = false) {
+        const messageDiv = document.createElement('div');
+        
+        if (isUser) {
+            messageDiv.className = 'user-message';
+        } else if (isFromAdmin) {
+            messageDiv.className = 'bot-message admin-message';
+        } else {
+            messageDiv.className = 'bot-message';
+        }
         
         const now = new Date();
         const timeString = now.toLocaleTimeString('id-ID', { 
@@ -120,7 +224,10 @@ class ProductChatBot {
             minute: '2-digit' 
         });
 
+        const senderLabel = isFromAdmin ? '<small class="admin-badge">👨‍💼 Admin</small>' : '';
+
         messageDiv.innerHTML = `
+            ${senderLabel}
             <div class="message-content">${message}</div>
             <small class="message-time">${timeString}</small>
         `;
@@ -168,20 +275,22 @@ class ProductChatBot {
         sendButton.disabled = true;
 
         try {
-            // ENHANCED: Send only product ID, let backend query fresh stock data
+            // Build payload with product data for backend processing
             const payload = {
                 message: message,
-                conversation_id: productData.id,
-                user_id: 1,
                 product: {
                     id: productData.id,
                     name: productData.name,
                     price: productData.price,
                     price_min: productData.price_min,
                     price_max: productData.price_max
-                    // ← Jangan kirim colors, sizes, stock - biarkan backend query fresh data!
                 }
             };
+            
+            // Include existing conversation_id if we have one from previous messages
+            if (this.actualConversationId) {
+                payload.conversation_id = this.actualConversationId;
+            }
 
             console.log('Sending payload to backend:', payload);
 
@@ -198,13 +307,33 @@ class ProductChatBot {
             console.log('Received response:', data);
 
             if (data.success) {
-                const botMessage = data.bot_response.message || 'Maaf, ada kesalahan saat memproses respons.';
-                this.addMessage(botMessage);
+                // Store the conversation_id for future messages in this session
+                if (data.conversation_id) {
+                    this.actualConversationId = data.conversation_id;
+                    console.log('✓ Conversation ID stored:', this.actualConversationId);
+                }
+                
+                // Check if admin has taken over
+                if (data.admin_active) {
+                    this.isAdminActive = true;
+                    this.updateAdminStatus(true, data.admin_name);
+                    // Show waiting message
+                    this.addMessage(data.bot_response.message, false, true);
+                } else {
+                    const botMessage = data.bot_response.message || 'Maaf, ada kesalahan saat memproses respons.';
+                    this.addMessage(botMessage);
+                }
+                
+                // Log if saved to database (visible to admin)
+                if (data.metadata?.saved_to_database) {
+                    console.log('✓ Chat saved to database - Admin can see this conversation');
+                } else {
+                    console.log('⚠ Chat not saved to database - User may not be logged in');
+                }
                 
                 // Log if fresh stock data was queried
                 if (data.metadata?.stock_query_executed) {
-                    console.log('✓ Fresh stock data was queried and included in response');
-                    console.log('Stock metadata:', data.metadata.fresh_stock_data);
+                    console.log('✓ Fresh stock data was queried');
                 }
             } else {
                 this.addMessage('Maaf, sedang ada gangguan. Silakan coba lagi nanti.');

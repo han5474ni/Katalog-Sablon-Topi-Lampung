@@ -9,6 +9,7 @@ use App\Services\ChatBotService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -164,8 +165,8 @@ class ChatController extends Controller
             'product' => 'nullable|array'
         ]);
 
-        // Get N8N URL from config, fallback to localhost for testing
-        $n8nUrl = config('services.n8n.webhook_url') ?? 'http://localhost:5678/webhook/chatbot';
+        // Get N8N URL from config, fallback to production URL
+        $n8nUrl = config('services.n8n.webhook_url') ?? 'https://sablontopilampung.app.n8n.cloud/webhook/chatbot';
 
         // DEBUG: Log request data
         \Log::info('testSendMessage Request:', $request->all());
@@ -252,74 +253,415 @@ class ChatController extends Controller
             if ($response->successful()) {
                 $responseData = $response->json();
                 
-                // Simpan ke database jika authenticated dan ada product
-                if (Auth::check() && isset($payload['product'])) {
-                    try {
-                        $productId = $payload['product']['id'] ?? null;
-                        $productName = $payload['product']['name'] ?? 'Unknown Product';
-                        
-                        $conversation = ChatConversation::firstOrCreate([
-                            'user_id' => Auth::id(),
-                            'product_id' => $productId,
-                            'status' => 'active'
-                        ], [
-                            'subject' => "Chat: {$productName}"
-                        ]);
+                // Simpan ke database menggunakan helper function
+                $botMessage = $responseData['message'] ?? 'Response received';
+                $saveResult = $this->saveConversationToDatabase(
+                    $request->message,
+                    $botMessage,
+                    $payload['product'] ?? null
+                );
+                
+                $savedConversationId = $saveResult['conversation_id'] ?? null;
+                $adminActive = $saveResult['admin_active'] ?? false;
 
-                        // Simpan user message
-                        ChatMessage::create([
-                            'conversation_id' => $conversation->id,
-                            'sender_type' => 'user',
-                            'message' => $request->message
-                        ]);
-
-                        // Simpan bot response
-                        ChatMessage::create([
-                            'conversation_id' => $conversation->id,
-                            'sender_type' => 'bot',
-                            'message' => $responseData['message'],
-                            'metadata' => $responseData['metadata'] ?? null
-                        ]);
-                        
-                        \Log::info('Chat saved to database', [
-                            'conversation_id' => $conversation->id,
-                            'product_id' => $productId
-                        ]);
-                        
-                    } catch (\Exception $dbError) {
-                        \Log::error('Database save error:', ['error' => $dbError->getMessage()]);
-                        // Continue tanpa gagal request
-                    }
+                // Jika admin sudah take over, jangan kirim bot response ke customer
+                if ($adminActive) {
+                    return response()->json([
+                        'success' => true,
+                        'bot_response' => [
+                            'message' => '⏳ Admin sedang menangani chat Anda. Mohon tunggu balasan dari admin.'
+                        ],
+                        'user_message' => $request->message,
+                        'conversation_id' => $savedConversationId,
+                        'admin_active' => true,
+                        'admin_name' => $saveResult['admin_name'] ?? null,
+                        'metadata' => [
+                            'admin_takeover' => true,
+                            'saved_to_database' => $savedConversationId !== null
+                        ]
+                    ]);
                 }
 
                 return response()->json([
                     'success' => true,
                     'bot_response' => $responseData,
                     'user_message' => $request->message,
+                    'conversation_id' => $savedConversationId,
+                    'admin_active' => false,
                     'metadata' => [
                         'stock_query_executed' => isset($payload['product']['metadata']),
-                        'fresh_stock_data' => $payload['product']['metadata'] ?? null
+                        'fresh_stock_data' => $payload['product']['metadata'] ?? null,
+                        'saved_to_database' => $savedConversationId !== null
                     ]
                 ]);
             } else {
+                // N8N tidak tersedia - gunakan fallback response berdasarkan data produk
+                \Log::warning('N8N unavailable, using fallback response', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                
+                $fallbackResponse = $this->generateFallbackResponse(
+                    $request->message, 
+                    $payload['product'] ?? null
+                );
+                
+                // TETAP SIMPAN KE DATABASE meskipun n8n tidak tersedia
+                $saveResult = $this->saveConversationToDatabase(
+                    $request->message,
+                    $fallbackResponse['message'] ?? 'Fallback response',
+                    $payload['product'] ?? null
+                );
+                
+                $savedConversationId = $saveResult['conversation_id'] ?? null;
+                $adminActive = $saveResult['admin_active'] ?? false;
+                
+                // Jika admin sudah take over
+                if ($adminActive) {
+                    return response()->json([
+                        'success' => true,
+                        'bot_response' => [
+                            'message' => '⏳ Admin sedang menangani chat Anda. Mohon tunggu balasan dari admin.'
+                        ],
+                        'user_message' => $request->message,
+                        'conversation_id' => $savedConversationId,
+                        'admin_active' => true,
+                        'admin_name' => $saveResult['admin_name'] ?? null,
+                        'metadata' => [
+                            'admin_takeover' => true,
+                            'saved_to_database' => $savedConversationId !== null
+                        ]
+                    ]);
+                }
+                
                 return response()->json([
-                    'success' => false,
-                    'error' => 'n8n service unavailable',
-                    'status_code' => $response->status()
-                ], 500);
+                    'success' => true,
+                    'bot_response' => $fallbackResponse,
+                    'user_message' => $request->message,
+                    'conversation_id' => $savedConversationId,
+                    'admin_active' => false,
+                    'metadata' => [
+                        'fallback_used' => true,
+                        'n8n_status' => $response->status(),
+                        'saved_to_database' => $savedConversationId !== null
+                    ]
+                ]);
             }
 
         } catch (\Exception $e) {
             \Log::error('testSendMessage Exception:', [
                 'error' => $e->getMessage(),
-                'payload' => $payload
+                'payload' => $payload ?? []
             ]);
             
+            // Fallback jika terjadi exception
+            $fallbackResponse = $this->generateFallbackResponse(
+                $request->message, 
+                $payload['product'] ?? null
+            );
+            
+            // TETAP SIMPAN KE DATABASE meskipun ada exception
+            $saveResult = $this->saveConversationToDatabase(
+                $request->message,
+                $fallbackResponse['message'] ?? 'Fallback response',
+                $payload['product'] ?? null
+            );
+            
+            $savedConversationId = $saveResult['conversation_id'] ?? null;
+            $adminActive = $saveResult['admin_active'] ?? false;
+            
+            // Jika admin sudah take over
+            if ($adminActive) {
+                return response()->json([
+                    'success' => true,
+                    'bot_response' => [
+                        'message' => '⏳ Admin sedang menangani chat Anda. Mohon tunggu balasan dari admin.'
+                    ],
+                    'user_message' => $request->message,
+                    'conversation_id' => $savedConversationId,
+                    'admin_active' => true,
+                    'metadata' => [
+                        'admin_takeover' => true,
+                        'saved_to_database' => $savedConversationId !== null
+                    ]
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'bot_response' => $fallbackResponse,
+                'user_message' => $request->message,
+                'conversation_id' => $savedConversationId,
+                'admin_active' => false,
+                'metadata' => [
+                    'fallback_used' => true,
+                    'error' => $e->getMessage(),
+                    'saved_to_database' => $savedConversationId !== null
+                ]
+            ]);
+        }
+    }
+    
+    /**
+     * Save conversation and messages to database
+     * Returns array with conversation_id and admin_active status
+     */
+    private function saveConversationToDatabase($userMessage, $botResponse, $productData = null)
+    {
+        if (!Auth::check()) {
+            \Log::info('Chat not saved - user not authenticated');
+            return ['conversation_id' => null, 'admin_active' => false];
+        }
+        
+        try {
+            $productId = $productData['id'] ?? null;
+            $productName = $productData['name'] ?? 'Unknown Product';
+            
+            // Cari conversation yang sudah ada atau buat baru
+            $conversation = ChatConversation::where('user_id', Auth::id())
+                ->where('product_id', $productId)
+                ->whereIn('status', ['open', 'active'])
+                ->first();
+            
+            if (!$conversation) {
+                $conversation = ChatConversation::create([
+                    'user_id' => Auth::id(),
+                    'product_id' => $productId,
+                    'status' => 'open',
+                    'subject' => "Chat: {$productName}",
+                    'chat_source' => 'product_detail'
+                ]);
+            }
+
+            // Simpan user message
+            ChatMessage::create([
+                'conversation_id' => $conversation->id,
+                'chat_conversation_id' => $conversation->id,
+                'sender_type' => 'customer',
+                'message' => $userMessage,
+                'is_read_by_admin' => false
+            ]);
+
+            // CEK: Jika admin sudah take over, JANGAN simpan bot response
+            // Biarkan admin yang membalas
+            $adminActive = $conversation->taken_over_by_admin || $conversation->is_admin_active;
+            
+            if (!$adminActive && $botResponse) {
+                // Simpan bot response hanya jika admin belum take over
+                ChatMessage::create([
+                    'conversation_id' => $conversation->id,
+                    'chat_conversation_id' => $conversation->id,
+                    'sender_type' => 'admin',
+                    'message' => $botResponse,
+                    'is_admin_reply' => false, // false karena ini dari bot, bukan admin manusia
+                    'is_read_by_user' => true
+                ]);
+            }
+            
+            // Update conversation timestamp
+            $conversation->touch();
+            
+            \Log::info('Chat saved to database', [
+                'conversation_id' => $conversation->id,
+                'product_id' => $productId,
+                'user_id' => Auth::id(),
+                'admin_active' => $adminActive,
+                'bot_response_saved' => !$adminActive
+            ]);
+            
+            return [
+                'conversation_id' => $conversation->id,
+                'admin_active' => $adminActive,
+                'admin_name' => $conversation->admin ? $conversation->admin->name : null
+            ];
+            
+        } catch (\Exception $dbError) {
+            \Log::error('Database save error:', ['error' => $dbError->getMessage()]);
+            return null;
+        }
+    }
+    
+    /**
+     * Generate fallback response when n8n is unavailable
+     */
+    private function generateFallbackResponse($userMessage, $productData = null)
+    {
+        $message = strtolower($userMessage);
+        $productName = $productData['name'] ?? 'produk ini';
+        $productPrice = $productData['price'] ?? null;
+        $productStock = $productData['stock'] ?? $productData['total_variant_stock'] ?? null;
+        $productColors = $productData['colors'] ?? [];
+        $productSizes = $productData['sizes'] ?? [];
+        $isInStock = $productData['is_in_stock'] ?? false;
+        
+        // Deteksi intent dari pesan
+        if (str_contains($message, 'harga') || str_contains($message, 'berapa') || str_contains($message, 'price')) {
+            if ($productPrice) {
+                $formattedPrice = 'Rp ' . number_format($productPrice, 0, ',', '.');
+                return [
+                    'message' => "Harga {$productName} adalah {$formattedPrice}. Silakan hubungi admin jika ada pertanyaan lebih lanjut! 😊"
+                ];
+            }
+            return ['message' => "Untuk informasi harga {$productName}, silakan hubungi admin kami."];
+        }
+        
+        if (str_contains($message, 'stok') || str_contains($message, 'stock') || str_contains($message, 'ready') || str_contains($message, 'tersedia')) {
+            if ($isInStock && $productStock > 0) {
+                return [
+                    'message' => "Ya, {$productName} ready stock! Stok tersedia: {$productStock} item. Silakan order sekarang! 🛒"
+                ];
+            } else {
+                return ['message' => "Mohon maaf, stok {$productName} sedang habis. Silakan hubungi admin untuk info restock."];
+            }
+        }
+        
+        if (str_contains($message, 'warna') || str_contains($message, 'color') || str_contains($message, 'pilihan warna')) {
+            if (!empty($productColors)) {
+                $colorList = implode(', ', $productColors);
+                return [
+                    'message' => "Warna yang tersedia untuk {$productName}: {$colorList}. Silakan pilih warna favorit Anda! 🎨"
+                ];
+            }
+            return ['message' => "Untuk pilihan warna {$productName}, silakan lihat opsi warna di halaman produk atau hubungi admin."];
+        }
+        
+        if (str_contains($message, 'ukuran') || str_contains($message, 'size') || str_contains($message, 'besar')) {
+            if (!empty($productSizes)) {
+                $sizeList = implode(', ', $productSizes);
+                return [
+                    'message' => "Ukuran yang tersedia untuk {$productName}: {$sizeList}. Pilih ukuran yang sesuai! 📏"
+                ];
+            }
+            return ['message' => "Untuk pilihan ukuran {$productName}, silakan lihat opsi ukuran di halaman produk."];
+        }
+        
+        if (str_contains($message, 'custom') || str_contains($message, 'design') || str_contains($message, 'desain')) {
+            return [
+                'message' => "Kami menerima pesanan custom design untuk {$productName}! Silakan klik tombol Custom Design di halaman produk atau hubungi admin untuk detail. ✨"
+            ];
+        }
+        
+        if (str_contains($message, 'bahan') || str_contains($message, 'material') || str_contains($message, 'kualitas')) {
+            return [
+                'message' => "Produk kami menggunakan bahan berkualitas tinggi. Untuk detail spesifikasi bahan {$productName}, silakan hubungi admin. 👕"
+            ];
+        }
+        
+        if (str_contains($message, 'kirim') || str_contains($message, 'pengiriman') || str_contains($message, 'ongkir')) {
+            return [
+                'message' => "Kami melayani pengiriman ke seluruh Indonesia melalui berbagai ekspedisi. Ongkir dihitung saat checkout. Untuk estimasi, silakan hubungi admin. 🚚"
+            ];
+        }
+        
+        // Default response
+        return [
+            'message' => "Terima kasih atas pertanyaan Anda tentang {$productName}! Untuk informasi lebih lanjut, silakan hubungi admin kami atau gunakan tombol pertanyaan cepat di bawah. 😊"
+        ];
+    }
+
+    /**
+     * Get new messages for customer (polling endpoint)
+     * Customer dapat menerima pesan baru dari admin melalui endpoint ini
+     */
+    public function getNewMessages(Request $request)
+    {
+        if (!Auth::check()) {
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage()
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $conversationId = $request->conversation_id;
+        $lastMessageId = $request->last_message_id ?? 0;
+
+        if (!$conversationId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Conversation ID required'
+            ], 400);
+        }
+
+        try {
+            $conversation = ChatConversation::where('id', $conversationId)
+                ->where('user_id', Auth::id())
+                ->first();
+
+            if (!$conversation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Conversation not found'
+                ], 404);
+            }
+
+            // Get new messages after last_message_id
+            $newMessages = ChatMessage::where('conversation_id', $conversationId)
+                ->where('id', '>', $lastMessageId)
+                ->orderBy('created_at', 'asc')
+                ->get()
+                ->map(function ($msg) {
+                    return [
+                        'id' => $msg->id,
+                        'message' => $msg->message,
+                        'sender_type' => $msg->sender_type,
+                        'is_admin_reply' => $msg->is_admin_reply,
+                        'created_at' => $msg->created_at->format('H:i'),
+                        'is_from_admin' => $msg->sender_type === 'admin' && $msg->is_admin_reply
+                    ];
+                });
+
+            // Mark admin messages as read by user
+            ChatMessage::where('conversation_id', $conversationId)
+                ->where('sender_type', 'admin')
+                ->where('is_read_by_user', false)
+                ->update(['is_read_by_user' => true]);
+
+            return response()->json([
+                'success' => true,
+                'messages' => $newMessages,
+                'is_admin_active' => $conversation->is_admin_active,
+                'taken_over_by_admin' => $conversation->taken_over_by_admin,
+                'admin_name' => $conversation->admin ? $conversation->admin->name : null
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error getting new messages:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching messages'
             ], 500);
         }
+    }
+
+    /**
+     * Get conversation status for customer
+     */
+    public function getConversationStatus(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['success' => false], 401);
+        }
+
+        $conversationId = $request->conversation_id;
+        
+        if (!$conversationId) {
+            return response()->json(['success' => false, 'message' => 'No conversation'], 404);
+        }
+
+        $conversation = ChatConversation::where('id', $conversationId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$conversation) {
+            return response()->json(['success' => false], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_admin_active' => $conversation->is_admin_active,
+            'taken_over_by_admin' => $conversation->taken_over_by_admin,
+            'status' => $conversation->status
+        ]);
     }
 
     /**
@@ -340,7 +682,7 @@ class ChatController extends Controller
 
         $message = $tests[$testType] ?? 'harga produk berapa?';
 
-        $n8nUrl = 'https://tokolgilampung.app.n8n.cloud/webhook/chatbot';
+        $n8nUrl = 'https://sablontopilampung.app.n8n.cloud/webhook/chatbot';
         
         $payload = [
             'message' => $message,
