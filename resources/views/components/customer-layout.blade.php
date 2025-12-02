@@ -62,14 +62,15 @@
                         $unreadCount = auth()->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth()->id()) : 0;
                     @endphp
                     @if($unreadCount > 0)
-                    <span class="notification-badge text-xs font-semibold px-2 py-0.5 rounded-full {{ $active === 'notifikasi' ? 'bg-navy-900 text-yellow-300' : 'bg-yellow-400 text-navy-900' }}">
+                    <span class="sidebar-notification-badge text-xs font-semibold px-2 py-0.5 rounded-full {{ $active === 'notifikasi' ? 'bg-navy-900 text-yellow-300' : 'bg-red-500 text-white' }}">
                         {{ $unreadCount }}
                     </span>
-                    @else
-                    <span class="notification-badge text-xs font-semibold px-2 py-0.5 rounded-full {{ $active === 'notifikasi' ? 'bg-navy-900 text-yellow-300' : 'bg-yellow-400 text-navy-900' }} hidden">
-                        0
-                    </span>
                     @endif
+                </a>
+                <a href="{{ route('profile') }}"
+                   class="flex items-center p-3 rounded-lg {{ $active === 'profile' ? 'bg-yellow-400 text-navy-900' : 'text-white hover:bg-navy-800' }}">
+                    <span class="material-icons mr-3">person</span>
+                    Profil
                 </a>
             </nav>
 
@@ -77,9 +78,9 @@
             <div class="border-t border-navy-700 pt-4">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full flex items-center p-3 rounded-lg text-white hover:bg-red-600 transition">
+                    <button type="submit" class="w-full flex items-center p-3 rounded-lg bg-yellow-400 text-navy-900 hover:bg-yellow-500 transition font-medium">
                         <span class="material-icons mr-3">logout</span>
-                        Logout
+                        Keluar
                     </button>
                 </form>
             </div>
@@ -97,53 +98,31 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <!-- Notification Bell -->
-                        <div class="relative notification-bell-wrapper">
-                            <button class="notification-bell relative p-2 hover:bg-gray-100 rounded-full transition-colors" onclick="toggleCustomerNotificationDropdown()" aria-label="Notifikasi">
+                        <div class="notification-wrapper relative" data-user-type="customer">
+                            <a href="#" class="relative p-2 hover:bg-gray-100 rounded-full transition-colors inline-flex" id="notification-bell" aria-label="Notifikasi">
                                 <i class="fas fa-bell text-gray-600 text-xl"></i>
-                                @php
-                                    $customerUnreadCount = auth()->check() ? app(\App\Services\NotificationService::class)->getUnreadCount(auth()->id()) : 0;
-                                @endphp
-                                @if($customerUnreadCount > 0)
-                                <span class="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">{{ $customerUnreadCount }}</span>
-                                @endif
-                            </button>
+                                <span class="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" id="notification-badge" style="display: none;">0</span>
+                            </a>
 
                             <!-- Notification Dropdown -->
-                            <div class="customer-notification-dropdown hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50" id="customerNotificationDropdown">
-                                <div class="p-4 border-b border-gray-200">
-                                    <div class="flex justify-between items-center">
-                                        <h3 class="text-base font-semibold text-gray-800">Notifikasi</h3>
-                                        <span class="text-xs text-gray-500">{{ $customerUnreadCount }} baru</span>
+                            <div class="notification-dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50" id="notification-dropdown" style="display: none;">
+                                <div class="notification-dropdown__header">
+                                    <h3>Notifikasi</h3>
+                                    <button class="mark-all-read-btn" id="mark-all-read" style="display: none;">
+                                        Tandai Semua Dibaca
+                                    </button>
+                                </div>
+                                
+                                <div class="notification-dropdown__body" id="notification-list">
+                                    <div class="notification-loading">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Memuat notifikasi...</p>
                                     </div>
                                 </div>
-                                <div class="max-h-96 overflow-y-auto">
-                                    @php
-                                        $customerNotifications = auth()->check() ? app(\App\Services\NotificationService::class)->getUserNotifications(auth()->id(), 5) : collect();
-                                    @endphp
-                                    @forelse($customerNotifications as $notification)
-                                    <a href="{{ $notification->action_url ?? route('notifications.index') }}" 
-                                       class="block px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 {{ $notification->read_at ? '' : 'bg-blue-50' }}">
-                                        <div class="flex items-start gap-3">
-                                            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center {{ $notification->type === 'order_approved' || $notification->type === 'custom_order_approved' ? 'bg-green-100' : ($notification->type === 'order_rejected' || $notification->type === 'custom_order_rejected' ? 'bg-red-100' : 'bg-blue-100') }}">
-                                                <i class="fas fa-{{ $notification->type === 'order_approved' || $notification->type === 'custom_order_approved' ? 'check-circle' : ($notification->type === 'order_rejected' || $notification->type === 'custom_order_rejected' ? 'times-circle' : ($notification->type === 'chat_reply' ? 'comment' : 'box')) }} text-{{ $notification->type === 'order_approved' || $notification->type === 'custom_order_approved' ? 'green' : ($notification->type === 'order_rejected' || $notification->type === 'custom_order_rejected' ? 'red' : 'blue') }}-600"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-medium text-gray-900">{{ $notification->title }}</p>
-                                                <p class="text-xs text-gray-600 mt-1">{{ Str::limit($notification->message, 60) }}</p>
-                                                <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    @empty
-                                    <div class="px-4 py-8 text-center">
-                                        <i class="fas fa-bell-slash text-gray-300 text-3xl mb-2"></i>
-                                        <p class="text-sm text-gray-500">Tidak ada notifikasi</p>
-                                    </div>
-                                    @endforelse
+                                
+                                <div class="notification-dropdown__footer">
+                                    <a href="{{ route('notifikasi') }}">Lihat Semua Notifikasi</a>
                                 </div>
-                                <a href="{{ route('notifikasi') }}" class="block p-3 text-center text-sm text-blue-600 hover:bg-gray-50 font-medium border-t border-gray-200">
-                                    Lihat Semua Notifikasi
-                                </a>
                             </div>
                         </div>
 
@@ -185,7 +164,10 @@
         </div>
     </div>
 
-    @vite('resources/js/customer/notifications.js')
+    @vite([
+        'resources/css/components/notification-dropdown.css',
+        'resources/js/components/notification-dropdown.js'
+    ])
     @stack('scripts')
 </body>
 </html>

@@ -706,12 +706,24 @@ document.addEventListener('DOMContentLoaded', function() {
         avatarInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('File harus berupa gambar');
+                return;
+            }
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran file maksimal 2MB');
+                return;
+            }
             
             const formData = new FormData();
             formData.append('avatar', file);
             
             const loadingOverlay = document.getElementById('loading-overlay');
-            loadingOverlay.style.display = 'flex';
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
             
             try {
                 const response = await fetch('/profile/avatar', {
@@ -726,9 +738,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('avatar-preview').src = data.avatar_url;
+                    // Update avatar preview
+                    const avatarPreview = document.getElementById('avatar-preview');
+                    const noAvatarPlaceholder = document.getElementById('no-avatar-placeholder');
+                    const deleteBtn = document.getElementById('delete-avatar-btn');
+                    
+                    if (avatarPreview) {
+                        avatarPreview.src = data.avatar_url;
+                        avatarPreview.style.display = 'block';
+                    }
+                    if (noAvatarPlaceholder) {
+                        noAvatarPlaceholder.style.display = 'none';
+                    }
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'inline-flex';
+                    }
+                    
                     alert('Avatar berhasil diperbarui!');
-                    window.location.reload();
                 } else {
                     alert('Gagal upload avatar: ' + (data.message || 'Unknown error'));
                 }
@@ -736,7 +762,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat upload avatar');
             } finally {
-                loadingOverlay.style.display = 'none';
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
             }
         });
     }
@@ -748,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!confirm('Yakin ingin menghapus foto profil?')) return;
             
             const loadingOverlay = document.getElementById('loading-overlay');
-            loadingOverlay.style.display = 'flex';
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
             
             try {
                 const response = await fetch('/profile/avatar', {
@@ -762,8 +788,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Update UI
+                    const avatarPreview = document.getElementById('avatar-preview');
+                    const noAvatarPlaceholder = document.getElementById('no-avatar-placeholder');
+                    const deleteBtn = document.getElementById('delete-avatar-btn');
+                    
+                    if (avatarPreview) {
+                        avatarPreview.src = '';
+                        avatarPreview.style.display = 'none';
+                    }
+                    if (noAvatarPlaceholder) {
+                        noAvatarPlaceholder.style.display = 'flex';
+                    }
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
+                    
                     alert('Avatar berhasil dihapus!');
-                    window.location.reload();
                 } else {
                     alert('Gagal menghapus avatar: ' + (data.message || 'Unknown error'));
                 }
@@ -771,7 +812,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat menghapus avatar');
             } finally {
-                loadingOverlay.style.display = 'none';
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
             }
         });
     }

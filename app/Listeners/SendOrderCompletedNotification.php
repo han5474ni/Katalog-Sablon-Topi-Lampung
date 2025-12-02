@@ -32,7 +32,7 @@ class SendOrderCompletedNotification
                 'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
             ],
             'medium',
-            false
+            true // send email
         );
     }
 }

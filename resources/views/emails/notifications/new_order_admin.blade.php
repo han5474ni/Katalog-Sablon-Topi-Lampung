@@ -10,11 +10,11 @@
     <div class="info-box info-box-warning">
         <div class="info-item">
             <span class="info-label">Nomor Pesanan:</span>
-            <span class="info-value"><strong>{{ $data['order_number'] }}</strong></span>
+            <span class="info-value"><strong>{{ $data['order_number'] ?? 'N/A' }}</strong></span>
         </div>
         <div class="info-item">
             <span class="info-label">Nama Customer:</span>
-            <span class="info-value">{{ $data['customer_name'] }}</span>
+            <span class="info-value">{{ $data['customer_name'] ?? 'N/A' }}</span>
         </div>
         @if(isset($data['customer_email']))
             <div class="info-item">
@@ -30,12 +30,14 @@
         @endif
         <div class="info-item">
             <span class="info-label">Total Pesanan:</span>
-            <span class="info-value"><strong>{{ $data['total_amount'] }}</strong></span>
+            <span class="info-value"><strong>{{ $data['total_amount'] ?? 'N/A' }}</strong></span>
         </div>
+        @if(isset($data['order_date']))
         <div class="info-item">
             <span class="info-label">Tanggal Pesanan:</span>
             <span class="info-value">{{ $data['order_date'] }}</span>
         </div>
+        @endif
         <div class="info-item">
             <span class="info-label">Status:</span>
             <span class="info-value"><strong style="color: #f2994a;">Menunggu Verifikasi</strong></span>

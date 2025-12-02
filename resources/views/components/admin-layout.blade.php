@@ -214,7 +214,7 @@
     </div>
 
     @vite('resources/js/admin/layout.js')
-    @vite('resources/js/admin/notifications.js')
+    {{-- notifications.js removed - using notification-dropdown.js instead --}}
     @stack('scripts')
 </body>
 </html>

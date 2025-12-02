@@ -29,11 +29,13 @@ class SendOrderCreatedNotification
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'customer_name' => $order->user->name,
+                'customer_email' => $order->user->email,
                 'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+                'order_date' => $order->created_at->format('d M Y, H:i'),
                 'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
             ],
             'medium',
-            false // no email for now
+            true // send email
         );
 
         // Send notification to all active admins
@@ -45,11 +47,14 @@ class SendOrderCreatedNotification
                 'order_id' => $order->id,
                 'order_number' => $order->order_number,
                 'customer_name' => $order->user->name,
+                'customer_email' => $order->user->email,
+                'customer_phone' => $order->user->phone ?? '-',
                 'total_amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
+                'order_date' => $order->created_at->format('d M Y, H:i'),
                 'action_url' => route('admin.order.detail', ['id' => $order->id, 'type' => 'regular']),
             ],
             'high',
-            false // no email for now
+            true // send email to admin
         );
     }
 }

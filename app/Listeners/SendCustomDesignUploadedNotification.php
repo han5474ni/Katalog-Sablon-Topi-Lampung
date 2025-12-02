@@ -32,7 +32,7 @@ class SendCustomDesignUploadedNotification
                 'action_url' => route('order-detail', ['type' => 'custom', 'id' => $customDesign->id]),
             ],
             'low',
-            false
+            true // send email
         );
 
         // Notify all active admins
@@ -48,7 +48,7 @@ class SendCustomDesignUploadedNotification
                 'action_url' => route('admin.order.detail', ['id' => $customDesign->id, 'type' => 'custom']),
             ],
             'high',
-            false
+            true // send email to admin
         );
     }
 }

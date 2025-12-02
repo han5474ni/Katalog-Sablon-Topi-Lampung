@@ -7,11 +7,28 @@ class NotificationDropdown {
         this.notificationList = document.getElementById('notification-list');
         this.markAllReadBtn = document.getElementById('mark-all-read');
         
-        // Detect if admin or customer
-        this.isAdmin = window.location.pathname.startsWith('/admin');
+        // Get CSRF token safely
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        this.csrfToken = csrfMeta ? csrfMeta.content : '';
+        
+        // Detect if admin or customer - check data attribute first, then URL path
+        const wrapper = document.querySelector('.notification-wrapper');
+        const userType = wrapper ? wrapper.dataset.userType : null;
+        this.isAdmin = userType === 'admin' || window.location.pathname.startsWith('/admin');
         this.baseUrl = this.isAdmin ? '/admin/notifications' : '/notifications';
         
+        console.log('NotificationDropdown initialized:', {
+            isAdmin: this.isAdmin,
+            userType: userType,
+            baseUrl: this.baseUrl,
+            bellIcon: !!this.bellIcon,
+            csrfToken: !!this.csrfToken
+        });
+        
         if (!this.bellIcon) return;
+        if (!this.csrfToken) {
+            console.error('CSRF token not found!');
+        }
         
         this.init();
     }
@@ -20,12 +37,16 @@ class NotificationDropdown {
         // Toggle dropdown on click
         this.bellIcon.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             this.toggleDropdown();
         });
         
         // Mark all as read
         if (this.markAllReadBtn) {
-            this.markAllReadBtn.addEventListener('click', () => {
+            this.markAllReadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Mark all as read clicked');
                 this.markAllAsRead();
             });
         }
@@ -101,6 +122,8 @@ class NotificationDropdown {
     }
     
     updateMarkAllButton(count) {
+        if (!this.markAllReadBtn) return;
+        
         if (count > 0) {
             this.markAllReadBtn.style.display = 'block';
         } else {
@@ -176,12 +199,19 @@ class NotificationDropdown {
         const items = this.notificationList.querySelectorAll('.notification-item');
         
         items.forEach(item => {
-            item.addEventListener('click', async () => {
+            item.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const id = item.dataset.id;
                 const url = item.dataset.url;
                 
-                // Mark as read first
-                await this.markAsRead(id, item);
+                // Mark as read first and wait for completion
+                try {
+                    await this.markAsRead(id, item);
+                } catch (error) {
+                    console.error('Error marking as read:', error);
+                }
                 
                 // Then redirect if URL exists and is not '#'
                 if (url && url !== '#') {
@@ -192,48 +222,97 @@ class NotificationDropdown {
     }
     
     async markAsRead(id, element) {
+        console.log('markAsRead called:', { id, url: `${this.baseUrl}/${id}/read` });
         try {
             const response = await fetch(`${this.baseUrl}/${id}/read`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-CSRF-TOKEN': this.csrfToken,
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
+            console.log('markAsRead response:', response.status, response.ok);
+            
             if (response.ok) {
-                element.classList.remove('unread');
-                const dot = element.querySelector('.notification-dot');
-                if (dot) dot.remove();
+                // Update UI immediately
+                if (element) {
+                    element.classList.remove('unread');
+                    const dot = element.querySelector('.notification-dot');
+                    if (dot) dot.remove();
+                }
                 
-                // Reload to update badge
-                this.loadNotifications();
+                // Update badge count immediately
+                if (this.badge) {
+                    const currentCount = parseInt(this.badge.textContent) || 0;
+                    if (currentCount > 0) {
+                        const newCount = currentCount - 1;
+                        if (newCount > 0) {
+                            this.badge.textContent = newCount;
+                        } else {
+                            this.badge.style.display = 'none';
+                        }
+                    }
+                }
+                
+                return true;
+            } else {
+                const errorText = await response.text();
+                console.error('markAsRead failed:', response.status, errorText);
             }
+            return false;
         } catch (error) {
             console.error('Error marking notification as read:', error);
+            return false;
         }
     }
     
     async markAllAsRead() {
+        console.log('markAllAsRead called:', { url: `${this.baseUrl}/read-all` });
         try {
             const response = await fetch(`${this.baseUrl}/read-all`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-CSRF-TOKEN': this.csrfToken,
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
+            console.log('markAllAsRead response:', response.status, response.ok);
+            
             if (response.ok) {
-                // Reload notifications
-                this.loadNotifications();
+                // Update UI immediately
+                if (this.badge) {
+                    this.badge.style.display = 'none';
+                    this.badge.textContent = '0';
+                }
+                
+                // Remove unread class from all items
+                const items = this.notificationList.querySelectorAll('.notification-item.unread');
+                items.forEach(item => {
+                    item.classList.remove('unread');
+                    const dot = item.querySelector('.notification-dot');
+                    if (dot) dot.remove();
+                });
+                
+                // Hide mark all read button
+                if (this.markAllReadBtn) {
+                    this.markAllReadBtn.style.display = 'none';
+                }
+                
+                return true;
+            } else {
+                const errorText = await response.text();
+                console.error('markAllAsRead failed:', response.status, errorText);
             }
+            return false;
         } catch (error) {
             console.error('Error marking all as read:', error);
+            return false;
         }
     }
     

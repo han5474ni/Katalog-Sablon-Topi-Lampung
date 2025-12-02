@@ -8,7 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @vite(['resources/css/customer/shared.css', 'resources/css/customer/profile-form.css', 'resources/js/customer/profile-dropdown.js'])
+    @vite([
+        'resources/css/customer/shared.css', 
+        'resources/css/customer/profile-form.css', 
+        'resources/js/customer/profile-dropdown.js',
+        'resources/js/components/notification-dropdown.js'
+    ])
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen">
@@ -28,24 +33,22 @@
                             <h3 class="card-title">Foto Profil</h3>
                             <div class="photo-upload-section">
                                 <div class="photo-preview-large">
-                                    @if($user->avatar)
-                                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="Avatar" id="avatar-preview">
-                                    @else
-                                        <div class="no-photo-large">
-                                            <i class="fas fa-user"></i>
-                                        </div>
-                                    @endif
+                                    <img src="{{ $user->avatar ? asset('storage/' . $user->avatar) : '' }}" 
+                                         alt="Avatar" 
+                                         id="avatar-preview"
+                                         style="{{ $user->avatar ? '' : 'display: none;' }}">
+                                    <div class="no-photo-large" id="no-avatar-placeholder" style="{{ $user->avatar ? 'display: none;' : '' }}">
+                                        <i class="fas fa-user"></i>
+                                    </div>
                                 </div>
                                 <div class="photo-actions-centered">
                                     <label for="avatar-input" class="btn-upload">
                                         <i class="fas fa-camera"></i> Upload Foto
                                     </label>
                                     <input type="file" id="avatar-input" accept="image/*" style="display: none;">
-                                    @if($user->avatar)
-                                        <button type="button" id="delete-avatar-btn" class="btn-delete">
-                                            <i class="fas fa-trash"></i> Hapus Foto
-                                        </button>
-                                    @endif
+                                    <button type="button" id="delete-avatar-btn" class="btn-delete" style="{{ $user->avatar ? '' : 'display: none;' }}">
+                                        <i class="fas fa-trash"></i> Hapus Foto
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -475,6 +478,130 @@
         document.getElementById('addressModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 hideAddressModal();
+            }
+        });
+
+        // =====================================================
+        // Avatar Upload Handler (Inline backup)
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatarInput = document.getElementById('avatar-input');
+            const deleteAvatarBtn = document.getElementById('delete-avatar-btn');
+            
+            console.log('Avatar input element:', avatarInput);
+            
+            if (avatarInput) {
+                avatarInput.addEventListener('change', async function(e) {
+                    console.log('File selected:', e.target.files[0]);
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert('File harus berupa gambar');
+                        return;
+                    }
+
+                    // Validate file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file maksimal 2MB');
+                        return;
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('avatar', file);
+                    
+                    const loadingOverlay = document.getElementById('loading-overlay');
+                    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+                    
+                    try {
+                        console.log('Uploading avatar...');
+                        const response = await fetch('/profile/avatar', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: formData
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        const data = await response.json();
+                        console.log('Response data:', data);
+                        
+                        if (data.success) {
+                            // Update avatar preview
+                            const avatarPreview = document.getElementById('avatar-preview');
+                            const noAvatarPlaceholder = document.getElementById('no-avatar-placeholder');
+                            const deleteBtn = document.getElementById('delete-avatar-btn');
+                            
+                            if (avatarPreview) {
+                                avatarPreview.src = data.avatar_url;
+                                avatarPreview.style.display = 'block';
+                            }
+                            if (noAvatarPlaceholder) {
+                                noAvatarPlaceholder.style.display = 'none';
+                            }
+                            if (deleteBtn) {
+                                deleteBtn.style.display = 'inline-flex';
+                            }
+                            
+                            alert('Avatar berhasil diperbarui!');
+                        } else {
+                            alert('Gagal upload avatar: ' + (data.message || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat upload avatar: ' + error.message);
+                    } finally {
+                        if (loadingOverlay) loadingOverlay.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Delete avatar handler
+            if (deleteAvatarBtn) {
+                deleteAvatarBtn.addEventListener('click', async function() {
+                    if (!confirm('Yakin ingin menghapus foto profil?')) return;
+                    
+                    const loadingOverlay = document.getElementById('loading-overlay');
+                    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+                    
+                    try {
+                        const response = await fetch('/profile/avatar', {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const avatarPreview = document.getElementById('avatar-preview');
+                            const noAvatarPlaceholder = document.getElementById('no-avatar-placeholder');
+                            
+                            if (avatarPreview) {
+                                avatarPreview.src = '';
+                                avatarPreview.style.display = 'none';
+                            }
+                            if (noAvatarPlaceholder) {
+                                noAvatarPlaceholder.style.display = 'flex';
+                            }
+                            deleteAvatarBtn.style.display = 'none';
+                            
+                            alert('Avatar berhasil dihapus!');
+                        } else {
+                            alert('Gagal menghapus avatar: ' + (data.message || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat menghapus avatar');
+                    } finally {
+                        if (loadingOverlay) loadingOverlay.style.display = 'none';
+                    }
+                });
             }
         });
     </script>

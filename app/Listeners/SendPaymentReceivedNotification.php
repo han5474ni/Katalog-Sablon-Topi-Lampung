@@ -37,7 +37,7 @@ class SendPaymentReceivedNotification
                 'action_url' => $actionUrl,
             ],
             'medium',
-            false
+            true // send email
         );
     }
     

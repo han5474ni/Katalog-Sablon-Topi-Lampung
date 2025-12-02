@@ -33,7 +33,7 @@ class SendOrderApprovedNotification
                 'action_url' => route('order-detail', ['type' => 'regular', 'id' => $order->id]),
             ],
             'high',
-            false
+            true // send email
         );
     }
 }

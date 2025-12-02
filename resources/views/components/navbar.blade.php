@@ -54,8 +54,8 @@
 
             <div class="header-actions">
                 <!-- Notification Bell -->
-                @auth('web')
-                    <div class="notification-wrapper">
+                @if(auth('web')->check() || auth('admin')->check())
+                    <div class="notification-wrapper" data-user-type="{{ auth('admin')->check() ? 'admin' : 'customer' }}">
                         <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell">
                             <i class="fas fa-bell"></i>
                             <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
@@ -78,7 +78,11 @@
                             </div>
                             
                             <div class="notification-dropdown__footer">
-                                <a href="{{ route('notifications.index') }}">Lihat Semua Notifikasi</a>
+                                @if(auth('admin')->check())
+                                    <a href="{{ route('admin.notifications.index') }}">Lihat Semua Notifikasi</a>
+                                @else
+                                    <a href="{{ route('notifications.index') }}">Lihat Semua Notifikasi</a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -86,7 +90,7 @@
                     <a href="#" aria-label="Notifikasi" class="action-button notification-link">
                         <i class="fas fa-bell"></i>
                     </a>
-                @endauth
+                @endif
 
                 @if(!$isAdmin && auth()->check())
                     <a href="{{ route('keranjang') }}" aria-label="Buka Keranjang" class="action-button">

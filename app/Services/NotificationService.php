@@ -144,8 +144,14 @@ class NotificationService
                 'status' => 'pending',
             ]);
 
-            // Dispatch email job (optional - can be disabled for now)
-            // SendEmailNotificationJob::dispatch($log->id, $data);
+            // Dispatch email job
+            SendEmailNotificationJob::dispatch($log->id, $data);
+
+            Log::info('Email notification queued', [
+                'notification_id' => $notification->id,
+                'recipient_email' => $recipient->email,
+                'type' => $notification->type,
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Failed to create email log', [

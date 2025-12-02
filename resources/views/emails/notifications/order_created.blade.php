@@ -3,22 +3,24 @@
 @section('content')
     <h2>Pesanan Berhasil Dibuat! 🎉</h2>
     
-    <p>Halo <strong>{{ $data['customer_name'] }}</strong>,</p>
+    <p>Halo <strong>{{ $data['customer_name'] ?? 'Pelanggan' }}</strong>,</p>
     
     <p>Terima kasih telah berbelanja di {{ config('app.name') }}! Pesanan Anda telah berhasil kami terima dan sedang dalam proses verifikasi.</p>
     
     <div class="info-box info-box-success">
         <div class="info-item">
             <span class="info-label">Nomor Pesanan:</span>
-            <span class="info-value"><strong>{{ $data['order_number'] }}</strong></span>
+            <span class="info-value"><strong>{{ $data['order_number'] ?? 'N/A' }}</strong></span>
         </div>
+        @if(isset($data['order_date']))
         <div class="info-item">
             <span class="info-label">Tanggal Pesanan:</span>
             <span class="info-value">{{ $data['order_date'] }}</span>
         </div>
+        @endif
         <div class="info-item">
             <span class="info-label">Total Pembayaran:</span>
-            <span class="info-value"><strong>{{ $data['total_amount'] }}</strong></span>
+            <span class="info-value"><strong>{{ $data['total_amount'] ?? 'N/A' }}</strong></span>
         </div>
         <div class="info-item">
             <span class="info-label">Status:</span>

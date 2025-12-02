@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Lainnya - LGI Store</title>
     @vite(['resources/css/guest/other-info.css', 'resources/css/components/footer.css'])
 </head>
