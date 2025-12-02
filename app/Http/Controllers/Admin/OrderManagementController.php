@@ -15,6 +15,8 @@ use App\Events\OrderApprovedEvent;
 use App\Events\OrderRejectedEvent;
 use App\Events\OrderCompletedEvent;
 use App\Events\PaymentReceivedEvent;
+use App\Events\CustomDesignApprovedEvent;
+use App\Events\CustomDesignRejectedEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Log, Mail};
 use Maatwebsite\Excel\Facades\Excel;
@@ -235,8 +237,12 @@ class OrderManagementController extends Controller
             // This ensures order is approved even if email fails
             DB::commit();
 
-            // Dispatch event for notification
-            OrderApprovedEvent::dispatch($order);
+            // Dispatch event for notification based on order type
+            if ($orderType === 'custom') {
+                CustomDesignApprovedEvent::dispatch($order);
+            } else {
+                OrderApprovedEvent::dispatch($order);
+            }
 
             // Send email notification to customer (outside transaction)
             try {
@@ -322,13 +328,17 @@ class OrderManagementController extends Controller
             'rejected_at' => now(),
         ]);
 
-        // Dispatch event for notification
-        OrderRejectedEvent::dispatch($order, $request->reason);
+        // Dispatch event for notification based on order type
+        if ($orderType === 'custom') {
+            CustomDesignRejectedEvent::dispatch($order, $request->reason ?? '');
+        } else {
+            OrderRejectedEvent::dispatch($order, $request->reason ?? '');
+        }
 
         // Send rejection email notification
         $emailSent = false;
         try {
-            Mail::to($order->user->email)->send(new OrderRejectionMail($order, $request->reason));
+            Mail::to($order->user->email)->send(new OrderRejectionMail($order, $request->reason, $orderType));
             
             \Log::info('Order rejection email sent', [
                 'order_id' => $order->id,

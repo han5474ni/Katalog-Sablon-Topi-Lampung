@@ -83,6 +83,9 @@ class NotificationService
             'order_completed' => 'Pesanan Selesai',
             'payment_received' => 'Pembayaran Diterima',
             'custom_design_uploaded' => 'Design Custom Diunggah',
+            'new_custom_design_admin' => 'Design Custom Baru',
+            'custom_design_approved' => 'Design Custom Disetujui',
+            'custom_design_rejected' => 'Design Custom Ditolak',
         ];
         
         return $titles[$type] ?? 'Notifikasi';
@@ -93,9 +96,11 @@ class NotificationService
      */
     protected function getDefaultMessage(string $type, array $data): string
     {
-        $orderNumber = $data['order_number'] ?? '';
+        $orderNumber = $data['order_number'] ?? $data['design_number'] ?? '';
         $customerName = $data['customer_name'] ?? '';
         $totalAmount = $data['total_amount'] ?? '';
+        $designName = $data['design_name'] ?? 'Desain Custom';
+        $rejectionReason = $data['rejection_reason'] ?? '';
         
         $messages = [
             'order_created' => "Pesanan {$orderNumber} berhasil dibuat dengan total {$totalAmount}",
@@ -104,7 +109,10 @@ class NotificationService
             'order_rejected' => "Pesanan {$orderNumber} Anda ditolak. " . ($data['reason'] ?? ''),
             'order_completed' => "Pesanan {$orderNumber} telah selesai",
             'payment_received' => "Pembayaran untuk pesanan {$orderNumber} telah diterima",
-            'custom_design_uploaded' => "Design custom untuk pesanan {$orderNumber} telah diunggah",
+            'custom_design_uploaded' => "Design custom untuk pesanan telah diunggah",
+            'new_custom_design_admin' => "Design custom baru dari {$customerName} untuk {$designName}",
+            'custom_design_approved' => "Design custom {$orderNumber} Anda telah disetujui. Silakan lakukan pembayaran.",
+            'custom_design_rejected' => "Design custom {$orderNumber} Anda ditolak. {$rejectionReason}",
         ];
         
         return $messages[$type] ?? 'Ada notifikasi baru untuk Anda';

@@ -31,6 +31,12 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\CustomDesignUploadedEvent::class => [
             \App\Listeners\SendCustomDesignUploadedNotification::class,
         ],
+        \App\Events\CustomDesignApprovedEvent::class => [
+            \App\Listeners\SendCustomDesignApprovedNotification::class,
+        ],
+        \App\Events\CustomDesignRejectedEvent::class => [
+            \App\Listeners\SendCustomDesignRejectedNotification::class,
+        ],
     ];
 
     /**
