@@ -60,7 +60,18 @@
         
         <!-- Action Buttons (Both White with Black Icons) -->
         <div class="product-actions" role="group" aria-label="Aksi produk">
-            <button class="action-btn action-chat" type="button" aria-label="Chat tentang produk" onclick="window.location.href='{{ route('chatbot') }}'">
+            <button class="action-btn action-chat" 
+                    type="button" 
+                    aria-label="Chat tentang produk" 
+                    onclick="event.stopPropagation(); openProductChatModal({
+                        id: {{ $product->id }},
+                        name: '{{ addslashes($product->name) }}',
+                        price: {{ $product->price ?? 0 }},
+                        formatted_price: '{{ $product->formatted_price }}',
+                        custom_allowed: {{ $product->custom_design_allowed ? 'true' : 'false' }},
+                        category: '{{ addslashes($product->category->name ?? '') }}',
+                        description: '{{ addslashes(Str::limit($product->description ?? '', 100)) }}'
+                    })">
                 <i class="fas fa-comments" aria-hidden="true"></i>
             </button>
             <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">

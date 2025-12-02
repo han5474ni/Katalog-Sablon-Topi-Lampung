@@ -503,5 +503,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Product Chat Modal Component -->
+    <x-product-chat-modal />
 </body>
 </html>
