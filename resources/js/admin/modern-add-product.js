@@ -750,18 +750,35 @@ class ModernAddProductManager {
 
     // ============ VARIANTS AUTO GENERATION ============
     updateVariants() {
+        // Simpan data varian yang sudah ada sebelumnya
+        const existingVariants = {};
+        this.variants.forEach(v => {
+            const key = `${v.color}_${v.size}`;
+            existingVariants[key] = {
+                price: v.price,
+                original_price: v.original_price,
+                stock: v.stock,
+                image: v.image,
+                imagePreview: v.imagePreview
+            };
+        });
+
         this.variants = [];
 
         // Generate variants from colors x sizes
         this.selectedColors.forEach(color => {
             this.selectedSizes.forEach(size => {
+                const key = `${color}_${size}`;
+                const existing = existingVariants[key];
+                
                 this.variants.push({
                     color: color,
                     size: size,
-                    price: 0,
-                    original_price: 0,
-                    stock: 0,
-                    image: null
+                    price: existing ? existing.price : 0,
+                    original_price: existing ? existing.original_price : 0,
+                    stock: existing ? existing.stock : 0,
+                    image: existing ? existing.image : null,
+                    imagePreview: existing ? existing.imagePreview : null
                 });
             });
         });
