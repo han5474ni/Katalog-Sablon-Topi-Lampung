@@ -56,7 +56,7 @@
 
 <!-- Chat Button - Only show for logged in customers (not admin) -->
 @auth
-    @if(auth()->user()->role === 'customer')
+    @if(!auth()->guard('admin')->check())
     <a href="{{ route('customer.chatbot') }}" class="chat-btn">
         <i class="fas fa-comment"></i>
     </a>

@@ -102,8 +102,8 @@
     <x-guest-footer />
 
     <!-- Chatbot Popup - Only show for logged in customers -->
-    @auth
-        @if(auth()->user()->role === 'customer')
+    @auth('web')
+        @if(!auth()->guard('admin')->check())
         <!-- Chatbot Trigger Button -->
         <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
             <i class="fas fa-comment" aria-hidden="true"></i>

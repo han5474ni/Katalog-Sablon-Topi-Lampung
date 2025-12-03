@@ -272,6 +272,11 @@ Route::get('/all-products', [ProductController::class, 'allProducts'])->name('al
 
 Route::get('/public/detail', [ProductController::class, 'detail'])->name('product.detail');
 
+// About Us page
+Route::get('/tentang-kami', function () {
+    return view('pages.about');
+})->name('about');
+
 // Catalog routes
 Route::get('/catalog/{category}', [CatalogController::class, 'index'])->name('catalog');
 

@@ -47,7 +47,7 @@
                         <a href="{{ route('catalog', 'jaket') }}" class="nav-link {{ $currentCategory === 'jaket' ? 'active' : '' }}">Jaket</a>
                         <a href="{{ route('catalog', 'lainnya') }}" class="nav-link {{ $currentCategory === 'lainnya' ? 'active' : '' }}">Lainnya</a>
                         <span class="nav-separator">|</span>
-                        <a href="#" class="nav-link">Tentang kami</a>
+                        <a href="{{ route('about') }}" class="nav-link {{ $currentRoute === 'about' ? 'active' : '' }}">Tentang kami</a>
                     </nav>
                 </div>
             </div>

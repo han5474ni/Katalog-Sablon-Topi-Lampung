@@ -60,8 +60,8 @@
         
         <!-- Action Buttons - Only functional for customers, not admin -->
         @php
-            $isAdmin = auth()->guard('admin')->check() || (auth()->check() && auth()->user()->role === 'admin');
-            $isCustomer = auth()->check() && auth()->user()->role === 'customer';
+            $isAdmin = auth()->guard('admin')->check();
+            $isCustomer = auth('web')->check() && !$isAdmin;
         @endphp
         
         <div class="product-actions" role="group" aria-label="Aksi produk">

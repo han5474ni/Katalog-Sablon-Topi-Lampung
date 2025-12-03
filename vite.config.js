@@ -49,6 +49,7 @@ export default defineConfig({
                 'resources/css/customer/shared.css',
                 // Guest CSS
                 'resources/css/guest/Pemesanan.css',
+                'resources/css/guest/about.css',
                 'resources/css/guest/alamat.css',
                 'resources/css/guest/auth-layout.css',
                 'resources/css/guest/catalog-inline.css',
