@@ -383,12 +383,8 @@ function openProductChatModal(product) {
         customDesignBtn.style.display = product.custom_allowed ? 'inline-block' : 'none';
     }
     
-    // Clear previous messages except welcome
-    const welcomeMessage = messagesContainer.querySelector('.welcome-message');
-    messagesContainer.innerHTML = '';
-    if (welcomeMessage) {
-        messagesContainer.appendChild(welcomeMessage);
-    }
+    // Load chat history and add welcome message
+    loadModalChatHistory();
     
     // Show modal
     modal.classList.add('show');
@@ -400,6 +396,62 @@ function openProductChatModal(product) {
     }, 300);
 }
 
+async function loadModalChatHistory() {
+    const messagesContainer = document.getElementById('modalChatMessages');
+    
+    try {
+        const response = await fetch('/api/chatbot/history', {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                modalConversationId = data.conversation_id;
+                messagesContainer.innerHTML = '';
+                
+                // Add welcome message for current product
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'bot-message welcome-message';
+                welcomeDiv.innerHTML = `
+                    <div class="message-content">
+                        <strong>Halo! 👋</strong><br>
+                        Saya siap membantu Anda dengan produk <strong>${currentModalProduct?.name || 'ini'}</strong>. 
+                        Ada yang bisa saya bantu?
+                    </div>
+                    <small class="message-time">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</small>
+                `;
+                messagesContainer.appendChild(welcomeDiv);
+                
+                // Add history messages
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(msg => {
+                        addModalMessageToUI(msg.message, msg.sender_type === 'user' ? 'user' : 'bot', msg.created_at);
+                    });
+                }
+                
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+    } catch (error) {
+        console.log('Could not load chat history:', error);
+        // Show welcome message anyway
+        messagesContainer.innerHTML = `
+            <div class="bot-message welcome-message">
+                <div class="message-content">
+                    <strong>Halo! 👋</strong><br>
+                    Saya siap membantu Anda dengan produk <strong>${currentModalProduct?.name || 'ini'}</strong>. 
+                    Ada yang bisa saya bantu?
+                </div>
+                <small class="message-time">${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</small>
+            </div>
+        `;
+    }
+}
+
 function closeProductChatModal() {
     const modal = document.getElementById('productChatModal');
     modal.classList.remove('show');
@@ -407,7 +459,7 @@ function closeProductChatModal() {
     currentModalProduct = null;
 }
 
-function sendModalTemplateQuestion(type) {
+async function sendModalTemplateQuestion(type) {
     if (!currentModalProduct) return;
     
     const questions = {
@@ -422,21 +474,55 @@ function sendModalTemplateQuestion(type) {
     
     const question = questions[type] || `Pertanyaan tentang ${currentModalProduct.name}`;
     
-    // Add user message
+    // Add user message to UI
     addModalMessage(question, 'user');
     
     // Show typing indicator
     showModalTyping();
     
-    // Get bot response
-    setTimeout(() => {
+    // Send to server
+    try {
+        const response = await fetch('/api/chatbot/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+            },
+            body: JSON.stringify({
+                message: question,
+                conversation_id: modalConversationId,
+                product_context: {
+                    id: currentModalProduct.id,
+                    name: currentModalProduct.name,
+                    price: currentModalProduct.price,
+                    custom_allowed: currentModalProduct.custom_allowed
+                }
+            })
+        });
+        
         hideModalTyping();
-        const response = getModalBotResponse(type);
-        addModalMessage(response, 'bot');
-    }, 800);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                modalConversationId = data.conversation_id;
+                addModalMessage(data.bot_response, 'bot');
+            }
+        } else {
+            // Fallback to local response
+            const localResponse = getModalBotResponse(type);
+            addModalMessage(localResponse, 'bot');
+        }
+    } catch (error) {
+        hideModalTyping();
+        // Fallback to local response
+        const localResponse = getModalBotResponse(type);
+        addModalMessage(localResponse, 'bot');
+    }
 }
 
-function sendModalMessage(event) {
+async function sendModalMessage(event) {
     event.preventDefault();
     
     const input = document.getElementById('modalMessageInput');
@@ -444,19 +530,53 @@ function sendModalMessage(event) {
     
     if (!message) return;
     
-    // Add user message
+    // Add user message to UI
     addModalMessage(message, 'user');
     input.value = '';
     
     // Show typing indicator
     showModalTyping();
     
-    // Process and respond
-    setTimeout(() => {
+    // Send to server
+    try {
+        const response = await fetch('/api/chatbot/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+            },
+            body: JSON.stringify({
+                message: message,
+                conversation_id: modalConversationId,
+                product_context: currentModalProduct ? {
+                    id: currentModalProduct.id,
+                    name: currentModalProduct.name,
+                    price: currentModalProduct.price,
+                    custom_allowed: currentModalProduct.custom_allowed
+                } : null
+            })
+        });
+        
         hideModalTyping();
-        const response = processModalUserMessage(message);
-        addModalMessage(response, 'bot');
-    }, 800);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                modalConversationId = data.conversation_id;
+                addModalMessage(data.bot_response, 'bot');
+            }
+        } else {
+            // Fallback to local response
+            const localResponse = processModalUserMessage(message);
+            addModalMessage(localResponse, 'bot');
+        }
+    } catch (error) {
+        hideModalTyping();
+        // Fallback to local response
+        const localResponse = processModalUserMessage(message);
+        addModalMessage(localResponse, 'bot');
+    }
 }
 
 function addModalMessage(text, type) {
@@ -472,6 +592,21 @@ function addModalMessage(text, type) {
     
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function addModalMessageToUI(text, type, timestamp) {
+    const messagesContainer = document.getElementById('modalChatMessages');
+    const time = timestamp ? new Date(timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) 
+                          : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'user' ? 'user-message' : 'bot-message';
+    messageDiv.innerHTML = `
+        <div class="message-content">${text}</div>
+        <small class="message-time">${time}</small>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
 }
 
 function showModalTyping() {

@@ -178,15 +178,6 @@
                 flex-wrap: wrap;
             }
 
-            .badge-escalated {
-                background: #fff3cd;
-                color: #856404;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 500;
-            }
-
             .badge-needs-response {
                 background: #f8d7da;
                 color: #721c24;
@@ -623,9 +614,6 @@
                     <button class="filter-btn {{ $filter === 'all' ? 'active' : '' }}" onclick="filterConversations('all')">
                         Semua
                     </button>
-                    <button class="filter-btn {{ $filter === 'escalated' ? 'active' : '' }}" onclick="filterConversations('escalated')">
-                        Escalated
-                    </button>
                     <button class="filter-btn {{ $filter === 'needs_response' ? 'active' : '' }}" onclick="filterConversations('needs_response')">
                         Butuh Respons
                     </button>
@@ -654,9 +642,6 @@
                                 {{ $conversation->latestMessage->message ?? 'Tidak ada pesan' }}
                             </div>
                             <div class="conversation-badges">
-                                @if($conversation->is_escalated)
-                                    <span class="badge-escalated">🔥 Escalated</span>
-                                @endif
                                 @if($conversation->needs_admin_response)
                                     <span class="badge-needs-response">⚠️ Butuh Respons</span>
                                 @endif
@@ -813,8 +798,10 @@
                                     <button class="action-btn danger" onclick="closeConversation(${conversation.id})">Tutup</button>
                                 ` : `
                                     <button class="action-btn primary" onclick="takeOverConversation(${conversation.id})">Ambil Alih</button>
-                                    <button class="action-btn" onclick="escalateConversation(${conversation.id})">Escalated</button>
                                 `}
+                                <button class="action-btn danger" onclick="clearChatHistory(${conversation.id})" title="Hapus Riwayat Chat">
+                                    <i class="fas fa-trash"></i> Hapus Riwayat
+                                </button>
                             </div>
                         </div>
 
@@ -931,28 +918,6 @@
                 });
             }
 
-            function escalateConversation(conversationId) {
-                const reason = prompt('Alasan escalation:');
-                if (!reason) return;
-
-                fetch(`/admin/chatbot/conversation/${conversationId}/escalate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ reason })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Konversasi berhasil di-escalate');
-                        loadConversation(conversationId);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-
             function releaseConversation(conversationId) {
                 if (!confirm('Lepas konversasi ini kembali ke chatbot otomatis?')) return;
 
@@ -991,6 +956,31 @@
                     }
                 })
                 .catch(error => console.error('Error:', error));
+            }
+
+            function clearChatHistory(conversationId) {
+                if (!confirm('Apakah Anda yakin ingin menghapus riwayat chat ini? Tindakan ini tidak dapat dibatalkan.')) return;
+
+                fetch(`/admin/chatbot/conversation/${conversationId}/clear-history`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Riwayat chat berhasil dihapus');
+                        loadConversation(conversationId);
+                    } else {
+                        alert(data.message || 'Gagal menghapus riwayat chat');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat menghapus riwayat chat');
+                });
             }
 
             function filterConversations(filter) {

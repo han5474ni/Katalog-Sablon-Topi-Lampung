@@ -477,32 +477,9 @@
             });
         });
     </script>
-<!-- Floating Chat Button (catalog) -->
-    <button class="chat-btn" id="chatbotTrigger" aria-label="Buka chat">
-        <i class="fas fa-comment"></i>
-    </button>
 
-    <!-- Chatbot Popup -->
-    <div class="chatbot-popup" id="chatbotPopup">
-        <div class="chatbot-header">
-            <div class="chatbot-avatar">
-                <span class="material-icons">support_agent</span>
-            </div>
-            <div class="chatbot-info">
-                <div class="chatbot-name">LGI STORE</div>
-                <div class="chatbot-status">Online - Balas Cepat</div>
-            </div>
-        </div>
-        <div class="chatbot-container">
-            <div class="chatbot-messages" id="chatbotMessages"></div>
-            <div class="chatbot-input-wrapper">
-                <div class="chatbot-input-container">
-                    <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ketik pesan Anda...">
-                    <button class="chatbot-send" id="chatbotSend">Kirim</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Unified Chatbot Popup Component -->
+    <x-unified-chatbot-popup />
 
     <!-- Product Chat Modal Component -->
     <x-product-chat-modal />

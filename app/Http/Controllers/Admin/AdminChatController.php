@@ -27,7 +27,7 @@ class AdminChatController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = $request->get('filter', 'all'); // all, escalated, needs_response, handled
+        $filter = $request->get('filter', 'all'); // all, needs_response, handled
         $search = $request->get('search', '');
         $page = $request->get('page', 1);
         $perPage = 20;
@@ -36,9 +36,7 @@ class AdminChatController extends Controller
             ->orderBy('updated_at', 'desc');
 
         // Apply filters
-        if ($filter === 'escalated') {
-            $query->where('is_escalated', true);
-        } elseif ($filter === 'needs_response') {
+        if ($filter === 'needs_response') {
             $query->where('needs_admin_response', true);
         } elseif ($filter === 'handled') {
             $query->where('taken_over_by_admin', true);
@@ -208,11 +206,8 @@ class AdminChatController extends Controller
 
         try {
             $conversation->update([
-                'is_escalated' => true,
-                'escalated_at' => now(),
                 'needs_admin_response' => true,
                 'needs_response_since' => now(),
-                'escalation_reason' => $request->get('reason', 'Customer meminta jawaban langsung admin')
             ]);
 
             // Create system notification message
@@ -222,7 +217,7 @@ class AdminChatController extends Controller
                 'message' => '⚠️ Customer meminta jawaban langsung dari admin',
                 'metadata' => [
                     'system_notification' => true,
-                    'type' => 'escalation'
+                    'type' => 'needs_response'
                 ]
             ]);
 
@@ -248,58 +243,6 @@ class AdminChatController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengirim notifikasi ke admin'
-            ], 500);
-        }
-    }
-
-    /**
-     * Escalate conversation ke admin dengan alasan
-     */
-    public function escalateConversation(Request $request, $conversationId)
-    {
-        $request->validate([
-            'reason' => 'required|string|max:500'
-        ]);
-
-        $conversation = ChatConversation::findOrFail($conversationId);
-
-        try {
-            $conversation->update([
-                'is_escalated' => true,
-                'escalated_at' => now(),
-                'escalation_reason' => $request->reason
-            ]);
-
-            // Create system message
-            ChatMessage::create([
-                'conversation_id' => $conversationId,
-                'sender_type' => 'system',
-                'message' => "Konversasi di-escalate: {$request->reason}",
-                'metadata' => [
-                    'system_notification' => true,
-                    'type' => 'escalation'
-                ]
-            ]);
-
-            Log::info('Conversation escalated', [
-                'conversation_id' => $conversationId,
-                'reason' => $request->reason
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Konversasi berhasil di-escalate ke admin'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Failed to escalate conversation', [
-                'conversation_id' => $conversationId,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal melakukan escalation'
             ], 500);
         }
     }
@@ -404,10 +347,6 @@ class AdminChatController extends Controller
      */
     public function getUnreadCount()
     {
-        $unreadEscalated = ChatConversation::where('is_escalated', true)
-            ->where('taken_over_by_admin', false)
-            ->count();
-
         $unreadNeedsResponse = ChatConversation::where('needs_admin_response', true)
             ->where('taken_over_by_admin', false)
             ->count();
@@ -417,10 +356,9 @@ class AdminChatController extends Controller
             ->count();
 
         return response()->json([
-            'escalated' => $unreadEscalated,
             'needs_response' => $unreadNeedsResponse,
             'unread_messages' => $unreadMessages,
-            'total' => $unreadEscalated + $unreadNeedsResponse
+            'total' => $unreadNeedsResponse
         ]);
     }
 
@@ -429,10 +367,7 @@ class AdminChatController extends Controller
      */
     public function getConversationsNeedingAttention()
     {
-        $conversations = ChatConversation::where(function ($query) {
-            $query->where('is_escalated', true)
-                  ->orWhere('needs_admin_response', true);
-        })
+        $conversations = ChatConversation::where('needs_admin_response', true)
         ->where('taken_over_by_admin', false)
         ->with(['user', 'product', 'latestMessage'])
         ->orderBy('updated_at', 'desc')
@@ -468,6 +403,86 @@ class AdminChatController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menandai sebagai dibaca'
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete conversation and all messages
+     */
+    public function deleteConversation($conversationId)
+    {
+        $conversation = ChatConversation::findOrFail($conversationId);
+
+        try {
+            // Delete all messages first
+            $conversation->messages()->delete();
+            
+            // Delete conversation
+            $conversation->delete();
+
+            Log::info('Admin deleted conversation', [
+                'conversation_id' => $conversationId,
+                'admin_id' => Auth::guard('admin')->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Riwayat chat berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to delete conversation', [
+                'conversation_id' => $conversationId,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus riwayat chat'
+            ], 500);
+        }
+    }
+
+    /**
+     * Clear chat history (messages only, keep conversation)
+     */
+    public function clearChatHistory($conversationId)
+    {
+        $conversation = ChatConversation::findOrFail($conversationId);
+
+        try {
+            // Delete all messages
+            $conversation->messages()->delete();
+            
+            // Add system message
+            ChatMessage::create([
+                'conversation_id' => $conversation->id,
+                'chat_conversation_id' => $conversation->id,
+                'sender_type' => 'bot',
+                'message' => 'Riwayat chat telah dihapus oleh admin.',
+                'is_read_by_user' => false
+            ]);
+
+            Log::info('Admin cleared chat history', [
+                'conversation_id' => $conversationId,
+                'admin_id' => Auth::guard('admin')->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Riwayat chat berhasil dihapus'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to clear chat history', [
+                'conversation_id' => $conversationId,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus riwayat chat'
             ], 500);
         }
     }

@@ -292,14 +292,14 @@
                                 <p class="recommendation-price">Rp {{ $item['price'] }}</p>
                             </div>
                         </a>
-                        <div class="product-actions" role="group" aria-label="Aksi produk">
+                        <!-- <div class="product-actions" role="group" aria-label="Aksi produk">
                             <button class="action-btn action-chat" onclick="event.stopPropagation(); window.location.href='https://wa.me/6282178396916?text=Halo, saya tertarik dengan {{ urlencode($recName) }}'" title="Chat">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                             <button class="action-btn action-cart" onclick="event.stopPropagation(); alert('Produk ditambahkan ke keranjang')" title="Keranjang">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                 @endforeach
             </div>

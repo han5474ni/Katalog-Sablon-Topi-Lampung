@@ -173,6 +173,9 @@
 
     <x-guest-footer />
 
+    <!-- Unified Chatbot Popup Component -->
+    <x-unified-chatbot-popup />
+
     <!-- Product Chat Modal Component -->
     <x-product-chat-modal />
 </body>

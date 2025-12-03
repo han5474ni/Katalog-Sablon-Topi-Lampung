@@ -97,9 +97,6 @@
         <div class="chatpage-input-footer">
             <div class="chatpage-footer-content">
                 <span class="chatpage-char-count">{{ strlen($message) }}/500</span>
-                <button class="chatpage-clear-btn" wire:click="clearHistory" wire:confirm="Apakah Anda yakin ingin menghapus riwayat chat?">
-                    <i class="fas fa-trash-alt"></i> Hapus Riwayat
-                </button>
             </div>
         </div>
     </div>

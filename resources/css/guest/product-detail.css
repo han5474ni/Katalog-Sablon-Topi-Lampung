@@ -506,7 +506,7 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     background: #6b7280;
 }
 
-/* Chat button - same style as cart (INLINE VERSION - more specific selector) */
+/* Chat button - BLACK circular style */
 .button-row-top .chat-btn {
     flex: 0 0 auto;
     border: none;
@@ -525,17 +525,20 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     position: static !important; /* Override any position styling */
     z-index: 1;
     margin: 0 !important; /* Remove any margin */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .button-row-top .chat-btn:hover:not(:disabled) {
-    background: #1f2937;
+    background: #333333;
     transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .button-row-top .chat-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background: #6b7280;
+    box-shadow: none;
 }
 
 /* Tombol Buy Now (Beli Sekarang) */
@@ -920,17 +923,26 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     }
 
     .custom-design-btn,
-    .button-row-top .chat-btn,
     .add-to-cart-btn {
         width: 100%;
         border-radius: 12px;
         height: 50px;
         font-size: 16px;
     }
+    
+    /* Chat button tetap bulat dan hitam di mobile */
+    .button-row-top .chat-btn {
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px;
+        max-width: 50px;
+        border-radius: 50% !important;
+        background: #000000 !important;
+        flex-shrink: 0;
+    }
 
-    .button-row-top .chat-btn,
-    .custom-design-btn,
-    .add-to-cart-btn {
+    .add-to-cart-btn,
+    .custom-design-btn {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -938,9 +950,7 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     }
 
     .button-row-top .chat-btn::before {
-        content: 'Chat';
-        font-size: 14px;
-        font-weight: 500;
+        content: none;
     }
 
     .custom-design-btn::before {
@@ -1064,9 +1074,18 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     }
 
     .custom-design-btn,
-    .button-row-top .chat-btn,
     .add-to-cart-btn {
         height: 48px;
+    }
+    
+    /* Chat button tetap bulat dan hitam */
+    .button-row-top .chat-btn {
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px;
+        max-width: 50px;
+        border-radius: 50% !important;
+        background: #000000 !important;
     }
 
     /* Ensure quantity selector is properly sized */
@@ -1123,7 +1142,7 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
 
     /* Button text labels for extra small screens */
     .button-row-top .chat-btn::before {
-        content: 'Chat Kami';
+        content: none;
     }
 
     .custom-design-btn::before {
@@ -1138,10 +1157,19 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
 
     /* Even more compact buttons */
     .custom-design-btn,
-    .button-row-top .chat-btn,
     .add-to-cart-btn {
         height: 46px;
         font-size: 15px;
+    }
+    
+    /* Chat button tetap bulat dan hitam di extra small */
+    .button-row-top .chat-btn {
+        width: 50px !important;
+        height: 50px !important;
+        min-width: 50px;
+        max-width: 50px;
+        border-radius: 50% !important;
+        background: #000000 !important;
     }
 
     .buy-now-btn {

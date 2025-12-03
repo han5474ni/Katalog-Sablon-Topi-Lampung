@@ -15,9 +15,6 @@ class ChatConversation extends Model
         'status', 
         'subject',
         'admin_id',
-        'is_escalated',
-        'escalated_at',
-        'escalation_reason',
         'taken_over_by_admin',
         'taken_over_at',
         'needs_admin_response',
@@ -30,12 +27,10 @@ class ChatConversation extends Model
     ];
 
     protected $casts = [
-        'is_escalated' => 'boolean',
         'taken_over_by_admin' => 'boolean',
         'needs_admin_response' => 'boolean',
         'is_admin_active' => 'boolean',
         'keywords' => 'array',
-        'escalated_at' => 'datetime',
         'taken_over_at' => 'datetime',
         'needs_response_since' => 'datetime',
         'expires_at' => 'datetime'
@@ -87,6 +82,6 @@ class ChatConversation extends Model
      */
     public function isWaitingForAdminResponse(): bool
     {
-        return $this->needs_admin_response && $this->is_escalated;
+        return $this->needs_admin_response;
     }
 }

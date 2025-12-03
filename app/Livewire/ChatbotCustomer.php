@@ -49,9 +49,9 @@ class ChatbotCustomer extends Component
     {
         $userId = Auth::id();
         
-        // Find existing open conversation or create new one
+        // Find existing open conversation or create new one - use unified 'chatbot' source
         $this->conversation = ChatConversation::where('user_id', $userId)
-            ->where('chat_source', 'chatbot_page')
+            ->where('chat_source', 'chatbot')
             ->where('status', 'open')
             ->first();
             
@@ -59,8 +59,8 @@ class ChatbotCustomer extends Component
             $this->conversation = ChatConversation::create([
                 'user_id' => $userId,
                 'status' => 'open',
-                'chat_source' => 'chatbot_page',
-                'subject' => 'Chatbot Customer Support',
+                'chat_source' => 'chatbot',
+                'subject' => 'Customer Chatbot',
                 'expires_at' => now()->addDays(30)
             ]);
         }

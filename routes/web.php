@@ -255,6 +255,10 @@ Route::prefix('api')->group(function () {
         Route::post('/notifications/read-all', [App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);
         Route::post('/notifications/read-selected', [App\Http\Controllers\Api\NotificationController::class, 'markSelectedAsRead']);
     });
+    
+    // Chatbot API routes
+    Route::get('/chatbot/history', [App\Http\Controllers\Api\ChatbotApiController::class, 'getHistory'])->name('api.chatbot.history');
+    Route::post('/chatbot/send', [App\Http\Controllers\Api\ChatbotApiController::class, 'sendMessage'])->name('api.chatbot.send');
 });
 
 
@@ -485,11 +489,12 @@ Route::prefix('admin')->group(function () {
             Route::get('/conversation/{id}', [App\Http\Controllers\Admin\AdminChatController::class, 'getConversation'])->name('conversation.show');
             Route::post('/conversation/{id}/take-over', [App\Http\Controllers\Admin\AdminChatController::class, 'takeOverConversation'])->name('conversation.takeover');
             Route::post('/conversation/{id}/send-message', [App\Http\Controllers\Admin\AdminChatController::class, 'sendAdminMessage'])->name('conversation.send');
-            Route::post('/conversation/{id}/escalate', [App\Http\Controllers\Admin\AdminChatController::class, 'escalateConversation'])->name('conversation.escalate');
             Route::post('/conversation/{id}/needs-response', [App\Http\Controllers\Admin\AdminChatController::class, 'markNeedsAdminResponse'])->name('conversation.needs-response');
             Route::post('/conversation/{id}/close', [App\Http\Controllers\Admin\AdminChatController::class, 'closeConversation'])->name('conversation.close');
             Route::post('/conversation/{id}/release', [App\Http\Controllers\Admin\AdminChatController::class, 'releaseConversation'])->name('conversation.release');
             Route::post('/conversation/{id}/mark-read', [App\Http\Controllers\Admin\AdminChatController::class, 'markConversationAsRead'])->name('conversation.mark-read');
+            Route::delete('/conversation/{id}/delete', [App\Http\Controllers\Admin\AdminChatController::class, 'deleteConversation'])->name('conversation.delete');
+            Route::post('/conversation/{id}/clear-history', [App\Http\Controllers\Admin\AdminChatController::class, 'clearChatHistory'])->name('conversation.clear-history');
             
             // Chatbot Settings
             Route::get('/settings', [App\Http\Controllers\Admin\ChatbotSettingsController::class, 'index'])->name('settings');
