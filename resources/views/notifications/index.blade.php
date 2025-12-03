@@ -1,4 +1,4 @@
-<x-layouts.main-layout title="Notifikasi">
+<x-customer-layout title="Notifikasi" active="notifications">
     @push('styles')
         <style>
             .notifications-container {
@@ -280,4 +280,4 @@
             @endif
         </div>
     </div>
-</x-layouts.main-layout>
+</x-customer-layout>
