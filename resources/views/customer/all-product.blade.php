@@ -123,11 +123,6 @@
 
                 <main class="products-main">
                     <div class="products-header">
-                        <button class="filter-toggle-btn mobile-only" id="filter-toggle-mobile">
-                            <span>Filters</span>
-                            <!-- <i class="fas fa-sliders-h"></i> -->
-                        </button>
-                        
                         <div class="header-center">
                             <h2>Semua Produk</h2>
                             <small class="products-count" id="products-count">Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} Produk</small>

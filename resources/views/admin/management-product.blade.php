@@ -115,29 +115,23 @@
 
                     <div class="field-group">
                         <label for="modern-product-category">Kategori <span class="required">*</span></label>
-                        <div class="select-wrapper">
-                            <select id="modern-product-category" name="category" required class="form-select">
-                                <option value="">Pilih kategori</option>
-                                <option value="topi">Topi</option>
-                                <option value="kaos">Kaos</option>
-                                <option value="polo">Polo</option>
-                                <option value="jaket">Jaket</option>
-                                <option value="jersey">Jersey</option>
-                                <option value="celana">Celana</option>
-                                <option value="lainnya">Lainnya</option>
-                            </select>
-                            <span class="select-arrow">▾</span>
-                        </div>
+                        <select id="modern-product-category" name="category" required class="form-select">
+                            <option value="">Pilih kategori</option>
+                            <option value="topi">Topi</option>
+                            <option value="kaos">Kaos</option>
+                            <option value="polo">Polo</option>
+                            <option value="jaket">Jaket</option>
+                            <option value="jersey">Jersey</option>
+                            <option value="celana">Celana</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
                     </div>
 
                     <div class="field-group" id="subcategory-select-group">
                         <label for="modern-product-subcategory">Sub Kategori</label>
-                        <div class="select-wrapper">
-                            <select id="modern-product-subcategory" name="subcategory" class="form-select">
-                                <option value="">Pilih kategori terlebih dahulu</option>
-                            </select>
-                            <span class="select-arrow">▾</span>
-                        </div>
+                        <select id="modern-product-subcategory" name="subcategory" class="form-select">
+                            <option value="">Pilih kategori terlebih dahulu</option>
+                        </select>
                     </div>
 
                     <div class="field-group" id="subcategory-custom-group" style="display: none;">

@@ -2,88 +2,144 @@
    FOOTER SECTION
    =================================== */
 .site-footer {
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     color: white;
-    padding: 60px 24px 40px;
+    padding: 28px 24px 20px;
     width: 100%;
     box-sizing: border-box;
 }
 
 .footer-content {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 .footer-title {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 4px;
     letter-spacing: 0.5px;
-    color: #ffffff;
+    color: #fbbf24;
+}
+
+.footer-subtitle {
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .footer-stores {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 60px;
-    margin-bottom: 50px;
+    gap: 24px;
+    margin-bottom: 20px;
 }
 
 .store-info {
     color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.store-info:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.store-name-link {
+    text-decoration: none;
+    display: block;
+}
+
+.store-name-link:hover .store-name {
+    color: #fbbf24;
 }
 
 .store-name {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: #ffffff;
-    line-height: 1.5;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #fbbf24;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.store-address-detail {
+    font-size: 12px;
+    margin-bottom: 2px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
 }
 
 .store-address {
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
+    font-size: 11px;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
 }
 
 .store-hours {
-    font-size: 14px;
-    margin-bottom: 4px;
+    font-size: 11px;
+    margin-bottom: 2px;
     color: rgba(255, 255, 255, 0.9);
 }
 
 .store-hours-detail {
-    font-size: 13px;
-    margin-bottom: 12px;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 10px;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
 }
 
 .store-maps {
-    display: inline-block;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #fbbf24;
     text-decoration: none;
-    transition: color 0.3s;
+    font-weight: 500;
+    padding: 6px 12px;
+    background: rgba(251, 191, 36, 0.15);
+    border-radius: 16px;
+    transition: all 0.3s;
 }
 
 .store-maps:hover {
-    color: #fbbf24;
+    background: #fbbf24;
+    color: #1a1a1a;
 }
 
 .footer-social {
     display: flex;
-    justify-content: center;
-    gap: 20px;
-    padding-top: 30px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.social-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+
 .social-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.1);
     display: flex;
@@ -92,13 +148,25 @@
     color: white;
     text-decoration: none;
     transition: all 0.3s;
-    font-size: 18px;
+    font-size: 14px;
 }
 
 .social-icon:hover {
     background-color: #fbbf24;
-    color: #1a2332;
+    color: #1a1a1a;
     transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.copyright {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
 }
 
 /* Chat Button Floating - Unified Style */
@@ -161,44 +229,65 @@
 /* Responsive */
 @media (max-width: 1200px) {
     .site-footer {
-        padding: 60px 20px 40px;
+        padding: 24px 20px 18px;
     }
 }
 
 @media (max-width: 768px) {
     .site-footer {
-        padding: 40px 16px 30px;
+        padding: 20px 16px 16px;
     }
 
     .footer-title {
         font-size: 16px;
-        margin-bottom: 30px;
+        margin-bottom: 4px;
+    }
+
+    .footer-subtitle {
+        font-size: 11px;
+        margin-bottom: 16px;
     }
 
     .footer-stores {
         grid-template-columns: 1fr;
-        gap: 30px;
-        margin-bottom: 30px;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .store-info {
+        padding: 12px;
     }
 
     .store-name {
-        font-size: 14px;
-    }
-
-    .store-address,
-    .store-hours,
-    .store-maps {
         font-size: 13px;
     }
 
+    .store-address-detail {
+        font-size: 11px;
+    }
+
+    .store-address,
+    .store-hours {
+        font-size: 10px;
+    }
+
     .store-hours-detail {
-        font-size: 12px;
+        font-size: 9px;
+    }
+
+    .store-maps {
+        font-size: 10px;
+        padding: 5px 10px;
     }
 
     .social-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .copyright {
+        font-size: 9px;
     }
 }
 

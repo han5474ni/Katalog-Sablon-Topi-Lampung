@@ -41,12 +41,12 @@ $login = function () {
 
     <div class="container">
         <div class="logo-section">
-            <div class="logo-circle">
-                <img src="{{ asset('images/logo-lgi-Photoroom.png') }}" alt="LGI Store Logo">
-            </div>
             <div class="logo-text-container">
                 <div class="logo-text">LGI STORE</div>
                 <div class="logo-tagline">PEDULI KUALITAS, BUKAN KUANTITAS</div>
+            </div>
+            <div class="logo-circle">
+                <img src="{{ asset('images/logo-lgi-Photoroom.png') }}" alt="LGI Store Logo">
             </div>
         </div>
 

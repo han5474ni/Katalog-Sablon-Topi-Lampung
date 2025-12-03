@@ -17,15 +17,9 @@ return new class extends Migration
         DB::table('orders')->whereNotIn('status', ['pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled'])->update(['status' => 'pending']);
         DB::table('custom_design_orders')->whereNotIn('status', ['pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled'])->update(['status' => 'pending']);
 
-        // Update orders table status enum to include 'approved' and 'rejected'
-        Schema::table('orders', function (Blueprint $table) {
-            DB::statement("ALTER TABLE orders MODIFY status ENUM('pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
-        });
-
-        // Update custom_design_orders table status enum to include 'approved' and 'rejected'
-        Schema::table('custom_design_orders', function (Blueprint $table) {
-            DB::statement("ALTER TABLE custom_design_orders MODIFY status ENUM('pending', 'approved', 'rejected', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
-        });
+        // For SQLite, the status column already accepts string values
+        // No need to modify enum - SQLite doesn't have native ENUM support
+        // The validation should be handled at the application level
     }
 
     /**
@@ -38,13 +32,6 @@ return new class extends Migration
         DB::table('orders')->whereIn('status', ['approved', 'rejected'])->update(['status' => 'pending']);
         DB::table('custom_design_orders')->whereIn('status', ['approved', 'rejected'])->update(['status' => 'pending']);
 
-        // Revert to original enum
-        Schema::table('orders', function (Blueprint $table) {
-            DB::statement("ALTER TABLE orders MODIFY status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
-        });
-
-        Schema::table('custom_design_orders', function (Blueprint $table) {
-            DB::statement("ALTER TABLE custom_design_orders MODIFY status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending'");
-        });
+        // For SQLite, no schema changes needed
     }
 };

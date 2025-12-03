@@ -470,6 +470,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs');
         Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])->name('admin.activity-logs.export');
         Route::get('/history', [ActivityLogController::class, 'history'])->name('admin.history');
+        Route::get('/history/{id}', [ActivityLogController::class, 'historyDetail'])->name('admin.history.detail');
         
         // Admin Notification routes
         Route::prefix('notifications')->name('admin.notifications.')->group(function () {

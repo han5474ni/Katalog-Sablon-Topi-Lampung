@@ -11,9 +11,9 @@
         });
     </script>
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-2">
         <!-- Filters -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-3 sticky top-0 z-10">
                     <h3 class="text-lg font-semibold mb-4">Filter Pesanan</h3>
                     <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <!-- Kategori Filter -->
@@ -362,7 +362,7 @@
                     @endif
             </div>
         @empty
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <div class="p-8 text-center">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
                 <i class="fas fa-shopping-bag text-3xl text-gray-400"></i>
             </div>

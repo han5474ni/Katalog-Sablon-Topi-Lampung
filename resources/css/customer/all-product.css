@@ -1,15 +1,53 @@
-/* Filter Sidebar Container */
-.sidebar {
-    width: 100%;
-    max-width: 280px;
+/* ===== All Products Page Specific Styles ===== */
+/* This file contains ONLY page-specific overrides for /all-products */
+/* Base styles come from catalog.css, product-card.css */
+
+/* =============================================
+   LAYOUT OVERRIDES
+   ============================================= */
+
+/* Widen container to fit 4 columns */
+.catalog-content-section .catalog-inner-container {
+    max-width: 1440px;
+    padding: 0 40px;
 }
 
-.filters-card {
+/* Remove white background from products main area */
+.catalog-content-section .products-main {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Adjust layout grid for 4-column products */
+.catalog-content-section .catalog-layout {
+    grid-template-columns: 240px 1fr;
+    gap: 32px;
+}
+
+/* Make products grid 4 columns */
+.catalog-content-section .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* =============================================
+   SIDEBAR FILTER STYLES
+   ============================================= */
+
+/* Sidebar container */
+.catalog-content-section .sidebar {
+    width: 100%;
+    max-width: 240px;
+}
+
+.catalog-content-section .filters-card {
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Filter Sidebar Styles - Updated Design */
+/* Filter checkbox section (top filters: promo, ready, custom) */
 .filter-checkbox-section {
     display: flex;
     flex-direction: column;
@@ -19,6 +57,7 @@
     border-bottom: 1px solid #e5e7eb;
 }
 
+/* Checkbox item styling */
 .checkbox-item {
     display: flex;
     align-items: center;
@@ -43,10 +82,9 @@
     cursor: pointer;
     user-select: none;
     line-height: 1.4;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
+/* Filter group section (kategori, harga) */
 .filter-group-section {
     margin-bottom: 20px;
     padding-bottom: 20px;
@@ -77,7 +115,10 @@
     width: 100%;
 }
 
-/* Price Range Styles */
+/* =============================================
+   PRICE RANGE FILTER
+   ============================================= */
+
 .price-range-wrapper {
     display: flex;
     flex-direction: column;
@@ -124,32 +165,11 @@
     flex-shrink: 0;
 }
 
-.price-slider-container {
-    position: relative;
-    height: 6px;
-    margin-top: 4px;
-    width: 100%;
-}
+/* =============================================
+   APPLY FILTER BUTTON
+   ============================================= */
 
-.price-slider-track {
-    position: absolute;
-    width: 100%;
-    height: 6px;
-    background: #e5e7eb;
-    border-radius: 3px;
-}
-
-.price-slider-range {
-    position: absolute;
-    height: 6px;
-    background: #1a1a1a;
-    border-radius: 3px;
-    left: 0%;
-    width: 100%;
-}
-
-/* Apply Filter Button */
-.apply-filter-btn {
+.catalog-content-section .apply-filter-btn {
     width: 100%;
     padding: 11px 16px;
     background: #1a1a1a;
@@ -164,22 +184,60 @@
     box-sizing: border-box;
 }
 
-.apply-filter-btn:hover {
+.catalog-content-section .apply-filter-btn:hover {
     background: #2d2d2d;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-.apply-filter-btn:active {
+.catalog-content-section .apply-filter-btn:active {
     transform: translateY(0);
 }
 
-/* Responsive adjustments */
+/* =============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================= */
+
+/* Large desktops (1600px and below) */
+@media (max-width: 1600px) {
+    .catalog-content-section .catalog-inner-container {
+        max-width: 1280px;
+        padding: 0 30px;
+    }
+}
+
+/* Medium desktops (1400px and below) - switch to 3 columns */
+@media (max-width: 1400px) {
+    .catalog-content-section .catalog-inner-container {
+        max-width: 1140px;
+        padding: 0 24px;
+    }
+    
+    .catalog-content-section .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Small desktops / tablets landscape (1200px and below) */
 @media (max-width: 1200px) {
-    .sidebar {
-        max-width: 260px;
+    .catalog-content-section .catalog-inner-container {
+        max-width: 100%;
+        padding: 0 20px;
+    }
+    
+    .catalog-content-section .catalog-layout {
+        grid-template-columns: 200px 1fr;
+        gap: 24px;
+    }
+    
+    .catalog-content-section .sidebar {
+        max-width: 200px;
     }
 
+    .catalog-content-section .products-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
     .checkbox-item label {
         font-size: 12px;
     }
@@ -190,8 +248,30 @@
     }
 }
 
+/* Tablets (768px and below) - stack sidebar, 2 columns */
 @media (max-width: 768px) {
-    .sidebar {
+    .catalog-content-section .catalog-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .catalog-content-section .sidebar {
         max-width: 100%;
+    }
+
+    .catalog-content-section .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Mobile (480px and below) - single column */
+@media (max-width: 480px) {
+    .catalog-content-section .catalog-inner-container {
+        padding: 0 16px;
+    }
+    
+    .catalog-content-section .products-grid {
+        grid-template-columns: 1fr;
     }
 }

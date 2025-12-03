@@ -90,8 +90,8 @@
 }
 
 .lgi-login .logo-circle {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     background-color: #fff;
     border-radius: 50%;
     border: 3px solid #0a1f3d;
@@ -99,6 +99,13 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+}
+
+.lgi-login .logo-circle img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
 }
 
 .lgi-login .logo-circle i {

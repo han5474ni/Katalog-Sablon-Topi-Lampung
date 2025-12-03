@@ -94,19 +94,51 @@
                 <i class="fas fa-paper-plane"></i> Kirim
             </button>
         </div>
-        <div class="chatpage-input-footer">
-            <div class="chatpage-footer-content">
-                <span class="chatpage-char-count">{{ strlen($message) }}/500</span>
-            </div>
-        </div>
     </div>
 
     <style>
         .chatbot-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+        
+        .chatpage-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            margin-bottom: 70px;
+        }
+        
+        /* Scrollbar hanya muncul jika ada konten yang overflow */
+        .chatpage-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chatpage-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chatpage-messages::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        .chatpage-messages::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
+        }
+        
+        .chatpage-input-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 256px; /* Width of sidebar */
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 12px 16px;
+            z-index: 100;
+        }
     
     .product-recommendations {
         display: flex;

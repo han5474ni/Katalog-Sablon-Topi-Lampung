@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\Admin;
+use App\Models\User;
 use App\Exports\ActivityLogsExport;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -52,19 +54,62 @@ class ActivityLogController extends Controller
         $query = ActivityLog::orderBy('created_at', 'desc');
 
         // Optional quick filters to match UI tabs
-        $entity = $request->get('entity'); // order|product|user|chatbot|login
+        $entity = $request->get('entity'); // order|product|user
+        $sub = $request->get('sub'); // proses|cancel|selesai | ditambahkan|update|hapus | admin|superadmin|customer
+        
         if ($entity) {
-            $map = [
-                'order' => 'App\\Models\\CustomDesignOrder',
-                'product' => 'App\\Models\\Product',
-                'user' => 'App\\Models\\User',
-                'chatbot' => 'App\\Models\\ActivityLog', // fallback; adjust if chatbot has its own subject
-            ];
-
-            if ($entity === 'login') {
-                $query->where('action', 'login');
-            } elseif (isset($map[$entity])) {
-                $query->where('subject_type', $map[$entity]);
+            if ($entity === 'order') {
+                // Filter aktivitas terkait Order
+                $query->where('subject_type', 'App\\Models\\CustomDesignOrder');
+                
+                if ($sub) {
+                    $statusMap = [
+                        'proses' => ['created', 'pending', 'processing', 'approved'],
+                        'cancel' => ['cancelled', 'rejected'],
+                        'selesai' => ['completed', 'delivered', 'finished'],
+                    ];
+                    if (isset($statusMap[$sub])) {
+                        $query->where(function ($q) use ($statusMap, $sub) {
+                            foreach ($statusMap[$sub] as $status) {
+                                $q->orWhere('action', 'like', "%{$status}%")
+                                  ->orWhere('description', 'like', "%{$status}%");
+                            }
+                        });
+                    }
+                }
+            } elseif ($entity === 'product') {
+                // Filter aktivitas terkait Product
+                $query->where('subject_type', 'App\\Models\\Product');
+                
+                if ($sub) {
+                    $actionMap = [
+                        'ditambahkan' => 'created',
+                        'update' => 'updated',
+                        'hapus' => 'deleted',
+                    ];
+                    if (isset($actionMap[$sub])) {
+                        $query->where('action', $actionMap[$sub]);
+                    }
+                }
+            } elseif ($entity === 'user') {
+                // Filter berdasarkan SIAPA yang melakukan aktivitas
+                if ($sub === 'admin') {
+                    // Aktivitas yang dilakukan oleh Admin (bukan superadmin)
+                    $adminIds = Admin::where('role', 'admin')->pluck('id')->toArray();
+                    $query->where('user_type', 'App\\Models\\Admin')
+                          ->whereIn('user_id', $adminIds);
+                } elseif ($sub === 'superadmin') {
+                    // Aktivitas yang dilakukan oleh Superadmin
+                    $superadminIds = Admin::where('role', 'super_admin')->pluck('id')->toArray();
+                    $query->where('user_type', 'App\\Models\\Admin')
+                          ->whereIn('user_id', $superadminIds);
+                } elseif ($sub === 'customer') {
+                    // Aktivitas yang dilakukan oleh Customer
+                    $query->where('user_type', 'App\\Models\\User');
+                } else {
+                    // Semua user (tidak filter subject_type, hanya tampilkan semua)
+                    // Tidak perlu filter tambahan
+                }
             }
         }
 
@@ -82,6 +127,49 @@ class ActivityLogController extends Controller
         $logs = $query->paginate($perPage)->withQueryString();
 
         return view('admin.history', compact('logs'));
+    }
+
+    /**
+     * Show detail of a specific activity log
+     */
+    public function historyDetail($id)
+    {
+        $log = ActivityLog::findOrFail($id);
+        
+        // Get user who performed the action
+        $performer = null;
+        if ($log->user_type === 'App\\Models\\Admin') {
+            $performer = Admin::find($log->user_id);
+        } else {
+            $performer = User::find($log->user_id);
+        }
+        
+        // Get subject (the object that was affected)
+        $subject = null;
+        if ($log->subject_type && $log->subject_id) {
+            $subjectClass = $log->subject_type;
+            if (class_exists($subjectClass)) {
+                $subject = $subjectClass::find($log->subject_id);
+            }
+        }
+        
+        // Get related logs (same subject or same user in last 24h)
+        $relatedLogs = ActivityLog::where('id', '!=', $log->id)
+            ->where(function ($q) use ($log) {
+                $q->where(function ($q2) use ($log) {
+                    $q2->where('subject_type', $log->subject_type)
+                       ->where('subject_id', $log->subject_id);
+                })->orWhere(function ($q2) use ($log) {
+                    $q2->where('user_type', $log->user_type)
+                       ->where('user_id', $log->user_id)
+                       ->where('created_at', '>=', $log->created_at->subDay());
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+        
+        return view('admin.history-detail', compact('log', 'performer', 'subject', 'relatedLogs'));
     }
 
     /**

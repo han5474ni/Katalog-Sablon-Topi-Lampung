@@ -235,10 +235,15 @@
                                 </div>
                             @endif
                             
-                            <div class="quantity-selector" aria-label="Pilih kuantitas">
-                                <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah" {{ $disableAttr }}>−</button>
-                                <span class="quantity-value" id="quantityValue" aria-live="polite">1</span>
-                                <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah" {{ $disableAttr }}>+</button>
+                            <div class="quantity-wrapper">
+                                <div class="quantity-selector" aria-label="Pilih kuantitas">
+                                    <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah" {{ $disableAttr }}>−</button>
+                                    <input type="number" class="quantity-input" id="quantityValue" value="1" min="1" max="99" aria-live="polite" {{ $disableAttr }}>
+                                    <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah" {{ $disableAttr }}>+</button>
+                                </div>
+                                <div class="quantity-warning" id="quantityWarning">
+                                    <i class="fas fa-exclamation-triangle"></i> Jumlah produk tidak mencukupi
+                                </div>
                             </div>
 
                             <button type="button" class="buy-now-btn" data-product-name="{{ $product['name'] ?? '' }}" {{ $disableAttr }}>
@@ -292,14 +297,6 @@
                                 <p class="recommendation-price">Rp {{ $item['price'] }}</p>
                             </div>
                         </a>
-                        <!-- <div class="product-actions" role="group" aria-label="Aksi produk">
-                            <button class="action-btn action-chat" onclick="event.stopPropagation(); window.location.href='https://wa.me/6282178396916?text=Halo, saya tertarik dengan {{ urlencode($recName) }}'" title="Chat">
-                                <i class="fas fa-comment-dots"></i>
-                            </button>
-                            <button class="action-btn action-cart" onclick="event.stopPropagation(); alert('Produk ditambahkan ke keranjang')" title="Keranjang">
-                                <i class="fas fa-shopping-cart"></i>
-                            </button>
-                        </div> -->
                     </div>
                 @endforeach
             </div>
