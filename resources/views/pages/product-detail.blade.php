@@ -235,10 +235,15 @@
                                 </div>
                             @endif
                             
-                            <div class="quantity-selector" aria-label="Pilih kuantitas">
-                                <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah" {{ $disableAttr }}>−</button>
-                                <span class="quantity-value" id="quantityValue" aria-live="polite">1</span>
-                                <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah" {{ $disableAttr }}>+</button>
+                            <div class="quantity-wrapper">
+                                <div class="quantity-selector" aria-label="Pilih kuantitas">
+                                    <button type="button" class="quantity-btn" data-quantity-action="decrease" aria-label="Kurangi jumlah" {{ $disableAttr }}>−</button>
+                                    <input type="number" class="quantity-input" id="quantityValue" value="1" min="1" max="99" aria-live="polite" {{ $disableAttr }}>
+                                    <button type="button" class="quantity-btn" data-quantity-action="increase" aria-label="Tambah jumlah" {{ $disableAttr }}>+</button>
+                                </div>
+                                <div class="quantity-warning" id="quantityWarning">
+                                    <i class="fas fa-exclamation-triangle"></i> Jumlah produk tidak mencukupi
+                                </div>
                             </div>
 
                             <button type="button" class="buy-now-btn" data-product-name="{{ $product['name'] ?? '' }}" {{ $disableAttr }}>
