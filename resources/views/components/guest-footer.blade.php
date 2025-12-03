@@ -54,7 +54,11 @@
     </div>
 </footer>
 
-<!-- Chat Button -->
-<div class="chat-btn">
-    <i class="fas fa-comment"></i>
-</div>
+<!-- Chat Button - Only show for logged in customers (not admin) -->
+@auth
+    @if(auth()->user()->role === 'customer')
+    <a href="{{ route('customer.chatbot') }}" class="chat-btn">
+        <i class="fas fa-comment"></i>
+    </a>
+    @endif
+@endauth

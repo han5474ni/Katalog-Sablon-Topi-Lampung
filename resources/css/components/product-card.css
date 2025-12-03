@@ -185,6 +185,24 @@
     pointer-events: none;
 }
 
+/* Disabled state for admin users */
+.action-btn.disabled,
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #f0f0f0;
+    border-color: #e0e0e0;
+    color: #999999;
+}
+
+.action-btn.disabled:hover,
+.action-btn:disabled:hover {
+    background: #f0f0f0;
+    border-color: #e0e0e0;
+    transform: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .product-card {

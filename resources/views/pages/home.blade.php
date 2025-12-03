@@ -101,84 +101,88 @@
     <!-- Footer Component -->
     <x-guest-footer />
 
-    <!-- Chatbot Popup -->
-    <!-- Chatbot Trigger Button -->
-    <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
-        <i class="fas fa-comment" aria-hidden="true"></i>
-    </button>
+    <!-- Chatbot Popup - Only show for logged in customers -->
+    @auth
+        @if(auth()->user()->role === 'customer')
+        <!-- Chatbot Trigger Button -->
+        <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
+            <i class="fas fa-comment" aria-hidden="true"></i>
+        </button>
 
-    
-    <div class="chatbot-popup" id="chatbotPopup">
-        <!-- Chatbot Header -->
-        <div class="chatbot-header">
-            <div class="chatbot-avatar">
-                <span class="material-icons">support_agent</span>
+        
+        <div class="chatbot-popup" id="chatbotPopup">
+            <!-- Chatbot Header -->
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">
+                    <span class="material-icons">support_agent</span>
+                </div>
+                <div class="chatbot-info">
+                    <div class="chatbot-name">LGI STORE</div>
+                    <div class="chatbot-status">Online - Balas Cepat</div>
+                </div>
             </div>
-            <div class="chatbot-info">
-                <div class="chatbot-name">LGI STORE</div>
-                <div class="chatbot-status">Online - Balas Cepat</div>
-            </div>
-        </div>
 
-        <div class="chatbot-container">
-            <!-- Chatbot Messages -->
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="message bot-message">
-                    <div class="message-avatar">
-                        <span class="material-icons">support_agent</span>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>Halo! Selamat datang di LGI Store! Ada yang bisa saya bantu hari ini?</p>
+            <div class="chatbot-container">
+                <!-- Chatbot Messages -->
+                <div class="chatbot-messages" id="chatbotMessages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <span class="material-icons">support_agent</span>
                         </div>
-                        <span class="message-time">{{ now()->format('H:i') }}</span>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>Halo! Selamat datang di LGI Store! Ada yang bisa saya bantu hari ini?</p>
+                            </div>
+                            <span class="message-time">{{ now()->format('H:i') }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Quick Replies -->
-            <div class="chatbot-input-wrapper" style="border-top:none;padding-bottom:8px;">
-                <div class="quick-replies" style="display:flex;flex-wrap:wrap;gap:8px;">
-                    <button type="button" class="quick-reply" data-text="Apakah stok produk ini tersedia?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Cek stok</button>
-                    <button type="button" class="quick-reply" data-text="Berapa estimasi harga untuk produk ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi harga</button>
-                    <button type="button" class="quick-reply" data-text="Berapa lama estimasi pengiriman?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi kirim</button>
-                    <button type="button" class="quick-reply" data-text="Apakah bisa custom desain?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Custom desain</button>
-                    <button type="button" class="quick-reply" data-text="Ada diskon atau promo saat ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Promo</button>
+                <!-- Quick Replies -->
+                <div class="chatbot-input-wrapper" style="border-top:none;padding-bottom:8px;">
+                    <div class="quick-replies" style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <button type="button" class="quick-reply" data-text="Apakah stok produk ini tersedia?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Cek stok</button>
+                        <button type="button" class="quick-reply" data-text="Berapa estimasi harga untuk produk ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi harga</button>
+                        <button type="button" class="quick-reply" data-text="Berapa lama estimasi pengiriman?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi kirim</button>
+                        <button type="button" class="quick-reply" data-text="Apakah bisa custom desain?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Custom desain</button>
+                        <button type="button" class="quick-reply" data-text="Ada diskon atau promo saat ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Promo</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Chatbot Input -->
-            <div class="chatbot-input-wrapper">
-                <div class="chatbot-input-container">
-                    <input
-                        type="text"
-                        class="chatbot-input"
-                        id="chatbotInput"
-                        placeholder="Ketik pesan Anda..."
-                    >
-                    <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                <!-- Chatbot Input -->
+                <div class="chatbot-input-wrapper">
+                    <div class="chatbot-input-container">
+                        <input
+                            type="text"
+                            class="chatbot-input"
+                            id="chatbotInput"
+                            placeholder="Ketik pesan Anda..."
+                        >
+                        <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                    </div>
                 </div>
-            </div>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', function(){
-                    const container = document.getElementById('chatbotPopup');
-                    if(!container) return;
-                    const input = container.querySelector('#chatbotInput');
-                    const sendBtn = container.querySelector('#chatbotSend');
-                    container.querySelectorAll('.quick-reply').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            if(!input) return;
-                            input.value = btn.getAttribute('data-text') || btn.textContent;
-                            input.focus();
-                            // Optional: langsung kirim
-                            // sendBtn?.click();
+                <script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        const container = document.getElementById('chatbotPopup');
+                        if(!container) return;
+                        const input = container.querySelector('#chatbotInput');
+                        const sendBtn = container.querySelector('#chatbotSend');
+                        container.querySelectorAll('.quick-reply').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                if(!input) return;
+                                input.value = btn.getAttribute('data-text') || btn.textContent;
+                                input.focus();
+                                // Optional: langsung kirim
+                                // sendBtn?.click();
+                            });
                         });
                     });
-                });
-            </script>
+                </script>
+            </div>
         </div>
-    </div>
+        @endif
+    @endauth
 
     <!-- Product Chat Modal Component -->
     <x-product-chat-modal />
