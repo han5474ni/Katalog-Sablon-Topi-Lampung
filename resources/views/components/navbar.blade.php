@@ -81,7 +81,7 @@
                                 @if(auth('admin')->check())
                                     <a href="{{ route('admin.notifications.index') }}">Lihat Semua Notifikasi</a>
                                 @else
-                                    <a href="{{ route('notifications.index') }}">Lihat Semua Notifikasi</a>
+                                    <a href="{{ route('notifikasi') }}">Lihat Semua Notifikasi</a>
                                 @endif
                             </div>
                         </div>

@@ -118,7 +118,7 @@
         @if(count($notifications) > 0)
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center">
                 <a 
-                    href="{{ $guardType === 'admin' ? route('admin.notifications.index') : route('notifications.index') }}" 
+                    href="{{ $guardType === 'admin' ? route('admin.notifications.index') : route('notifikasi') }}" 
                     class="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
                 >
                     Lihat Semua Notifikasi
