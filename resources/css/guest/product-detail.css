@@ -397,9 +397,15 @@ body {
 }
 
 /* Hide floating chat button on product detail page (we have inline button) */
-.product-detail-page .chat-btn:not(.button-row-top .chat-btn),
-.product-detail-page .chat-btn:not(.button-row-top > .chat-btn) {
+/* Only hide chat buttons that are NOT in button-row-top */
+.product-detail-page .chat-btn:not(.button-row-top .chat-btn) {
     display: none !important;
+}
+
+.product-detail-page .button-row-top .chat-btn {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* Ensure floating button from footer doesn't interfere */
@@ -506,36 +512,42 @@ body.product-detail-page .chat-btn[style*="position: fixed"] {
     background: #6b7280;
 }
 
-/* Chat button - same style as cart (INLINE VERSION - more specific selector) */
-.button-row-top .chat-btn {
-    flex: 0 0 auto;
-    border: none;
-    border-radius: 50%;
-    background: #000000;
-    color: #ffffff;
-    padding: 0;
-    width: 50px;
-    height: 50px;
-    font-size: 18px;
+/* Chat button - same style as custom design button */
+.button-row-top .chat-btn,
+.product-detail-page .button-row-top .chat-btn,
+.chat-btn {
+    flex: 0 0 auto !important;
+    border: none !important;
+    border-radius: 50% !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    padding: 0 !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 18px !important;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: static !important; /* Override any position styling */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: static !important;
     z-index: 1;
-    margin: 0 !important; /* Remove any margin */
+    margin: 0 !important;
+    bottom: auto !important;
+    right: auto !important;
+    box-shadow: none !important;
 }
 
-.button-row-top .chat-btn:hover:not(:disabled) {
-    background: #1f2937;
+.button-row-top .chat-btn:hover:not(:disabled),
+.product-detail-page .button-row-top .chat-btn:hover:not(:disabled) {
+    background: #1f2937 !important;
     transform: scale(1.05);
 }
 
 .button-row-top .chat-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: #6b7280;
+    background: #6b7280 !important;
 }
 
 /* Tombol Buy Now (Beli Sekarang) */
