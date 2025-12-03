@@ -159,7 +159,7 @@
             </header>
 
             <!-- Page Content -->
-            <div class="flex-1 overflow-auto p-6">
+            <div class="flex-1 overflow-auto p-2">
                 {{ $slot }}
             </div>
         </div>

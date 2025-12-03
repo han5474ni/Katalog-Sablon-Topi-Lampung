@@ -30,13 +30,9 @@
             <option value="va_active" {{ request('payment_status') == 'va_active' ? 'selected' : '' }}>⏳ VA Aktif</option>
         </select>
         
-        <div class="date-range-filter">
-            <label for="start-date" class="date-label">Dari:</label>
-            <input type="date" name="start_date" id="start-date" class="date-input" value="{{ request('start_date') }}" />
-            <span class="date-separator">-</span>
-            <label for="end-date" class="date-label">Sampai:</label>
-            <input type="date" name="end_date" id="end-date" class="date-input" value="{{ request('end_date') }}" />
-        </div>
+        <input type="date" name="start_date" class="date-input" value="{{ request('start_date') }}" title="Dari tanggal" />
+        <span class="date-separator">-</span>
+        <input type="date" name="end_date" class="date-input" value="{{ request('end_date') }}" title="Sampai tanggal" />
         
         <button type="submit" class="btn btn-primary btn-icon" title="Filter">
             <i class="fas fa-filter"></i>
@@ -50,11 +46,10 @@
     {{-- Kartu Daftar Pesanan --}}
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Pesanan Terbaru</h3>
             <div class="header-actions">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan" form="filter-form" />
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Pesanan..." form="filter-form" />
                 </div>
                 <a href="{{ route('admin.order-list.export', request()->all()) }}" class="btn btn-success">
                     <i class="fas fa-file-excel"></i>

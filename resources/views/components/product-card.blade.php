@@ -58,25 +58,63 @@
             Rp {{ $product->formatted_price }}
         </p>
         
-        <!-- Action Buttons (Both White with Black Icons) -->
+        <!-- Action Buttons - Only functional for customers, not admin -->
+        @php
+            $isAdmin = auth()->guard('admin')->check() || (auth()->check() && auth()->user()->role === 'admin');
+            $isCustomer = auth()->check() && auth()->user()->role === 'customer';
+        @endphp
+        
         <div class="product-actions" role="group" aria-label="Aksi produk">
-            <button class="action-btn action-chat" 
-                    type="button" 
-                    aria-label="Chat tentang produk" 
-                    onclick="event.stopPropagation(); openProductChatModal({
-                        id: {{ $product->id }},
-                        name: '{{ addslashes($product->name) }}',
-                        price: {{ $product->price ?? 0 }},
-                        formatted_price: '{{ $product->formatted_price }}',
-                        custom_allowed: {{ $product->custom_design_allowed ? 'true' : 'false' }},
-                        category: '{{ addslashes($product->category->name ?? '') }}',
-                        description: '{{ addslashes(Str::limit($product->description ?? '', 100)) }}'
-                    })">
-                <i class="fas fa-comments" aria-hidden="true"></i>
-            </button>
-            <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
-                <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-            </button>
+            @if($isCustomer)
+                {{-- Customer: buttons are clickable --}}
+                <button class="action-btn action-chat" 
+                        type="button" 
+                        aria-label="Chat tentang produk" 
+                        onclick="event.stopPropagation(); openProductChatModal({
+                            id: {{ $product->id }},
+                            name: '{{ addslashes($product->name) }}',
+                            price: {{ $product->price ?? 0 }},
+                            formatted_price: '{{ $product->formatted_price }}',
+                            custom_allowed: {{ $product->custom_design_allowed ? 'true' : 'false' }},
+                            category: '{{ addslashes($product->category->name ?? '') }}',
+                            description: '{{ addslashes(Str::limit($product->description ?? '', 100)) }}'
+                        })">
+                    <i class="fas fa-comments" aria-hidden="true"></i>
+                </button>
+                <button class="action-btn action-cart" type="button" aria-label="Tambahkan ke keranjang" data-product-id="{{ $product->id }}">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                </button>
+            @elseif($isAdmin)
+                {{-- Admin: buttons are disabled --}}
+                <button class="action-btn action-chat disabled" 
+                        type="button" 
+                        aria-label="Chat tidak tersedia untuk admin"
+                        disabled
+                        title="Admin tidak dapat menggunakan fitur chat"
+                        onclick="event.stopPropagation();">
+                    <i class="fas fa-comments" aria-hidden="true"></i>
+                </button>
+                <button class="action-btn action-cart disabled" 
+                        type="button" 
+                        aria-label="Keranjang tidak tersedia untuk admin"
+                        disabled
+                        title="Admin tidak dapat menambah ke keranjang"
+                        onclick="event.stopPropagation();">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                </button>
+            @else
+                {{-- Guest: show buttons but redirect to login --}}
+                <a href="{{ route('login') }}" class="action-btn action-chat" 
+                   onclick="event.stopPropagation();"
+                   aria-label="Login untuk chat">
+                    <i class="fas fa-comments" aria-hidden="true"></i>
+                </a>
+                <a href="{{ route('login') }}" class="action-btn action-cart"
+                   onclick="event.stopPropagation();"
+                   aria-label="Login untuk tambah keranjang">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                </a>
+            @endif
         </div>
     </div>
 </div>

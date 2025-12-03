@@ -16,30 +16,33 @@
 
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>CARI STYLE JERSEY FAVORITMU</h1>
-            <p>Bukan cuma jersey, topi, celana, dan lain-lain juga ada loh. Kamu juga bisa kustom mereka tanpa minimal pembelian. Buruan, daftarkan akunmu dan checkout sekarang!</p>
-            <a href="{{ route('login') }}" class="shop-btn-link"><button class="shop-btn">Shop Now</button></a>
-
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number">2</div>
-                    <div class="stat-label">Cabang</div>
+    <section class="hero hero-elegant">
+        <div class="hero-background">
+            <img src="{{ asset('images/hero-products.png') }}" alt="Koleksi Produk Fashion" class="hero-bg-img">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content-elegant">
+            <span class="hero-badge">✨ Custom Design Available</span>
+            <h1 class="hero-title">Ekspresikan <span class="highlight">Gayamu</span></h1>
+            <div class="hero-cta">
+                <a href="{{ route('login') }}" class="btn-primary-hero">
+                    <span>Mulai Belanja</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="{{ url('/all-products') }}" class="btn-secondary-hero">
+                    <span>Lihat Koleksi</span>
+                </a>
+            </div>
+            <div class="hero-features">
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Custom Design</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">200+</div>
-                    <div class="stat-label">Custom Design</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">1,000+</div>
-                    <div class="stat-label">Pembelian</div>
+                <div class="feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Kualitas Premium</span>
                 </div>
             </div>
-        </div>
-
-        <div class="hero-image">
-            <img src="https://i.pinimg.com/originals/e9/04/53/e904533ed00df550bb4fc87064217f18.png" alt="Minimalist Jersey" class="hero-img" width="640" height="640" decoding="async" fetchpriority="high">
         </div>
     </section>
 
@@ -98,84 +101,88 @@
     <!-- Footer Component -->
     <x-guest-footer />
 
-    <!-- Chatbot Popup -->
-    <!-- Chatbot Trigger Button -->
-    <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
-        <i class="fas fa-comment" aria-hidden="true"></i>
-    </button>
+    <!-- Chatbot Popup - Only show for logged in customers -->
+    @auth
+        @if(auth()->user()->role === 'customer')
+        <!-- Chatbot Trigger Button -->
+        <button class="chatbot-trigger" id="chatbotTrigger" aria-label="Buka chat">
+            <i class="fas fa-comment" aria-hidden="true"></i>
+        </button>
 
-    
-    <div class="chatbot-popup" id="chatbotPopup">
-        <!-- Chatbot Header -->
-        <div class="chatbot-header">
-            <div class="chatbot-avatar">
-                <span class="material-icons">support_agent</span>
+        
+        <div class="chatbot-popup" id="chatbotPopup">
+            <!-- Chatbot Header -->
+            <div class="chatbot-header">
+                <div class="chatbot-avatar">
+                    <span class="material-icons">support_agent</span>
+                </div>
+                <div class="chatbot-info">
+                    <div class="chatbot-name">LGI STORE</div>
+                    <div class="chatbot-status">Online - Balas Cepat</div>
+                </div>
             </div>
-            <div class="chatbot-info">
-                <div class="chatbot-name">LGI STORE</div>
-                <div class="chatbot-status">Online - Balas Cepat</div>
-            </div>
-        </div>
 
-        <div class="chatbot-container">
-            <!-- Chatbot Messages -->
-            <div class="chatbot-messages" id="chatbotMessages">
-                <div class="message bot-message">
-                    <div class="message-avatar">
-                        <span class="material-icons">support_agent</span>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>Halo! Selamat datang di LGI Store! Ada yang bisa saya bantu hari ini?</p>
+            <div class="chatbot-container">
+                <!-- Chatbot Messages -->
+                <div class="chatbot-messages" id="chatbotMessages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">
+                            <span class="material-icons">support_agent</span>
                         </div>
-                        <span class="message-time">{{ now()->format('H:i') }}</span>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>Halo! Selamat datang di LGI Store! Ada yang bisa saya bantu hari ini?</p>
+                            </div>
+                            <span class="message-time">{{ now()->format('H:i') }}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Quick Replies -->
-            <div class="chatbot-input-wrapper" style="border-top:none;padding-bottom:8px;">
-                <div class="quick-replies" style="display:flex;flex-wrap:wrap;gap:8px;">
-                    <button type="button" class="quick-reply" data-text="Apakah stok produk ini tersedia?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Cek stok</button>
-                    <button type="button" class="quick-reply" data-text="Berapa estimasi harga untuk produk ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi harga</button>
-                    <button type="button" class="quick-reply" data-text="Berapa lama estimasi pengiriman?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi kirim</button>
-                    <button type="button" class="quick-reply" data-text="Apakah bisa custom desain?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Custom desain</button>
-                    <button type="button" class="quick-reply" data-text="Ada diskon atau promo saat ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Promo</button>
+                <!-- Quick Replies -->
+                <div class="chatbot-input-wrapper" style="border-top:none;padding-bottom:8px;">
+                    <div class="quick-replies" style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <button type="button" class="quick-reply" data-text="Apakah stok produk ini tersedia?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Cek stok</button>
+                        <button type="button" class="quick-reply" data-text="Berapa estimasi harga untuk produk ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi harga</button>
+                        <button type="button" class="quick-reply" data-text="Berapa lama estimasi pengiriman?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Estimasi kirim</button>
+                        <button type="button" class="quick-reply" data-text="Apakah bisa custom desain?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Custom desain</button>
+                        <button type="button" class="quick-reply" data-text="Ada diskon atau promo saat ini?" style="padding:6px 12px;border-radius:16px;border:1px solid #e5e7eb;background:#fff;font-size:12px;color:#374151;cursor:pointer;">Promo</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Chatbot Input -->
-            <div class="chatbot-input-wrapper">
-                <div class="chatbot-input-container">
-                    <input
-                        type="text"
-                        class="chatbot-input"
-                        id="chatbotInput"
-                        placeholder="Ketik pesan Anda..."
-                    >
-                    <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                <!-- Chatbot Input -->
+                <div class="chatbot-input-wrapper">
+                    <div class="chatbot-input-container">
+                        <input
+                            type="text"
+                            class="chatbot-input"
+                            id="chatbotInput"
+                            placeholder="Ketik pesan Anda..."
+                        >
+                        <button class="chatbot-send" id="chatbotSend">Kirim</button>
+                    </div>
                 </div>
-            </div>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', function(){
-                    const container = document.getElementById('chatbotPopup');
-                    if(!container) return;
-                    const input = container.querySelector('#chatbotInput');
-                    const sendBtn = container.querySelector('#chatbotSend');
-                    container.querySelectorAll('.quick-reply').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            if(!input) return;
-                            input.value = btn.getAttribute('data-text') || btn.textContent;
-                            input.focus();
-                            // Optional: langsung kirim
-                            // sendBtn?.click();
+                <script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        const container = document.getElementById('chatbotPopup');
+                        if(!container) return;
+                        const input = container.querySelector('#chatbotInput');
+                        const sendBtn = container.querySelector('#chatbotSend');
+                        container.querySelectorAll('.quick-reply').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                if(!input) return;
+                                input.value = btn.getAttribute('data-text') || btn.textContent;
+                                input.focus();
+                                // Optional: langsung kirim
+                                // sendBtn?.click();
+                            });
                         });
                     });
-                });
-            </script>
+                </script>
+            </div>
         </div>
-    </div>
+        @endif
+    @endauth
 
     <!-- Product Chat Modal Component -->
     <x-product-chat-modal />

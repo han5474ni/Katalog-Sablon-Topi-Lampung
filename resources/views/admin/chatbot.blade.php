@@ -1,21 +1,21 @@
 <x-admin-layout title="Chatbot">
     @push('styles')
-        {{-- Pastikan path ini sesuai dengan struktur proyek Anda --}}
         @vite(['resources/css/admin/chatbot.css'])
-        
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+            /* Override untuk halaman chatbot - no scrollbar on main page */
+            html, body { overflow: hidden !important; }
+            .page-header { display: none !important; }
+            .dashboard-container { height: calc(100vh - 70px) !important; }
+            .main-content, .page-content { 
+                overflow: hidden !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+            }
+            .page-content::-webkit-scrollbar { display: none !important; }
+        </style>
     @endpush
 
 <div class="chatbot-container">
-    {{-- Header Halaman --}}
-    <header class="page-header">
-        <h1 class="page-title">Chatbot</h1>
-        <div class="date-range-picker">
-            <i class="far fa-calendar-alt"></i>
-            <span>Oktober 16, 2025 - November 11, 2025</span>
-        </div>
-    </header>
-
     {{-- Layout Utama Chat --}}
     <div class="chat-layout">
 

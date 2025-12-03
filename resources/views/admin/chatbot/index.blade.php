@@ -2,18 +2,28 @@
     @push('styles')
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <style>
+            /* Override halaman utama - no scroll pada body */
+            html, body { overflow: hidden !important; }
+            .page-content { 
+                overflow: hidden !important; 
+                padding: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            .page-content::-webkit-scrollbar { display: none !important; }
+
             * {
                 box-sizing: border-box;
             }
 
             .chatbot-container {
                 display: flex;
-                height: calc(100vh - 80px);
+                flex: 1;
                 background: #f8f9fa;
-                gap: 20px;
-                padding: 20px;
-                max-height: calc(100vh - 80px);
+                gap: 16px;
+                padding: 16px;
                 overflow: hidden;
+                min-height: 0;
             }
 
             .conversation-sidebar {
@@ -489,7 +499,6 @@
             @media (max-width: 1024px) {
                 .chatbot-container {
                     flex-direction: column;
-                    height: calc(100vh - 60px);
                     padding: 12px;
                     gap: 12px;
                 }
@@ -521,7 +530,6 @@
                 .chatbot-container {
                     padding: 8px;
                     gap: 8px;
-                    height: calc(100vh - 56px);
                 }
 
                 .conversation-sidebar {

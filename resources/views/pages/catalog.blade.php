@@ -477,7 +477,9 @@
             });
         });
     </script>
-<!-- Floating Chat Button (catalog) -->
+<!-- Floating Chat Button (catalog) - Only show for logged in customers -->
+@auth
+    @if(auth()->user()->role === 'customer')
     <button class="chat-btn" id="chatbotTrigger" aria-label="Buka chat">
         <i class="fas fa-comment"></i>
     </button>
@@ -503,6 +505,8 @@
             </div>
         </div>
     </div>
+    @endif
+@endauth
 
     <!-- Product Chat Modal Component -->
     <x-product-chat-modal />
