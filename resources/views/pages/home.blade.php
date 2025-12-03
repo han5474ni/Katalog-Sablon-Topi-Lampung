@@ -24,7 +24,6 @@
         <div class="hero-content-elegant">
             <span class="hero-badge">✨ Custom Design Available</span>
             <h1 class="hero-title">Ekspresikan <span class="highlight">Gayamu</span></h1>
-            <p class="hero-subtitle">Kaos, Hoodie, Polo & Topi berkualitas dengan desain custom tanpa minimal order</p>
             <div class="hero-cta">
                 <a href="{{ route('login') }}" class="btn-primary-hero">
                     <span>Mulai Belanja</span>
