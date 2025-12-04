@@ -24,7 +24,6 @@ class ChatMessage extends Model
 
     protected $casts = [
         'metadata' => 'array',
-        'is_escalted' => 'boolean',
         'is_escalated' => 'boolean',
         'is_admin_reply' => 'boolean',
         'is_read_by_user' => 'boolean',

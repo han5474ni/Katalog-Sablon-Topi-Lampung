@@ -77,7 +77,8 @@ class ChatModelTest extends TestCase
         ]);
 
         $message = ChatMessage::create([
-            'chat_conversation_id' => $conversation->id,
+            'conversation_id' => $conversation->id, // Primary key for relation
+            'chat_conversation_id' => $conversation->id, // Backward compatibility
             'user_id' => $this->user->id,
             'message' => 'Test message',
             'sender_type' => 'customer',

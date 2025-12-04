@@ -1,6 +1,6 @@
 <x-customer-layout title="Chatbot" active="chatpage">
     @push('styles')
-        @vite(['resources/css/guest/chatpage.css'])
+        @vite(['resources/css/guest/chatpage.css', 'resources/css/livewire/chatbot-customer.css'])
         <style>
             /* Force hide all floating chat elements on chatpage */
             .unified-chatbot-trigger,

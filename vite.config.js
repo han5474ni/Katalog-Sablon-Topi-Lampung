@@ -22,6 +22,7 @@ export default defineConfig({
                 'resources/css/admin/all-products.css',
                 'resources/css/admin/analytics.css',
                 'resources/css/admin/chatbot.css',
+                'resources/css/admin/chatbot-management.css',
                 'resources/css/admin/customer-detail.css',
                 'resources/css/admin/dashboard.css',
                 'resources/css/admin/history.css',
@@ -60,10 +61,13 @@ export default defineConfig({
                 'resources/css/guest/login.css',
                 'resources/css/guest/other-info.css',
                 'resources/css/guest/product-detail.css',
+                // Livewire CSS
+                'resources/css/livewire/chatbot-customer.css',
                 // Admin JS
                 'resources/js/admin/activity-logs.js',
                 'resources/js/admin/all-products.js',
                 'resources/js/admin/analytics.js',
+                'resources/js/admin/chatbot-management.js',
                 'resources/js/admin/dashboard.js',
                 'resources/js/admin/dashboard-charts.js',
                 'resources/js/admin/layout.js',

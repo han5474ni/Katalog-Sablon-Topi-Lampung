@@ -105,76 +105,273 @@ class ChatBotService
                 'conversation_id' => $conversation->id
             ]);
             
-            return $this->getDefaultResponse($userMessage->message);
+            return $this->analyzeAndRespond($userMessage->message, $conversation);
+        }
+    }
+
+    /**
+     * Analyze user intent and provide smart response
+     */
+    private function analyzeAndRespond($userMessage, $conversation = null)
+    {
+        $message = strtolower(trim($userMessage));
+        $intent = $this->detectIntent($message);
+        
+        Log::info('Intent Analysis', [
+            'message' => $message,
+            'detected_intent' => $intent['type'],
+            'confidence' => $intent['confidence']
+        ]);
+
+        return $this->generateResponse($intent, $conversation);
+    }
+
+    /**
+     * Detect user intent from message
+     */
+    private function detectIntent($message)
+    {
+        // Greeting patterns
+        $greetingPatterns = [
+            'halo', 'hai', 'hi', 'hello', 'selamat pagi', 'selamat siang', 
+            'selamat sore', 'selamat malam', 'assalamualaikum', 'permisi',
+            'hey', 'yo', 'p', 'hei', 'oi'
+        ];
+        
+        // Product inquiry patterns
+        $productInquiryPatterns = [
+            'harga' => ['harga', 'berapa', 'price', 'biaya', 'tarif', 'cost'],
+            'stock' => ['stok', 'stock', 'ready', 'tersedia', 'ada', 'available', 'kosong'],
+            'color' => ['warna', 'color', 'colour', 'pilihan warna'],
+            'size' => ['ukuran', 'size', 'sizing', 'besar', 'kecil', 'xs', 's', 'm', 'l', 'xl', 'xxl'],
+            'material' => ['bahan', 'material', 'kain', 'cotton', 'polyester', 'fabric'],
+            'shipping' => ['kirim', 'pengiriman', 'ongkir', 'delivery', 'shipping', 'ekspedisi', 'jne', 'jnt', 'sicepat'],
+            'payment' => ['bayar', 'pembayaran', 'payment', 'transfer', 'cod', 'dana', 'ovo', 'gopay'],
+            'custom' => ['custom', 'desain', 'design', 'sablon', 'logo', 'gambar', 'print']
+        ];
+        
+        // Recommendation request patterns
+        $recommendationPatterns = [
+            'rekomendasi', 'recommend', 'saran', 'suggest', 'bagus', 'terbaik',
+            'best', 'favorit', 'populer', 'laris', 'murah', 'terjangkau',
+            'pilihan', 'cocok', 'pas', 'budget'
+        ];
+        
+        // Order/transaction patterns
+        $orderPatterns = [
+            'pesan', 'beli', 'order', 'checkout', 'transaksi', 'cara pesan',
+            'cara beli', 'mau beli', 'pengen beli', 'mau order'
+        ];
+        
+        // Help patterns
+        $helpPatterns = [
+            'bantuan', 'help', 'tolong', 'gmn', 'gimana', 'bagaimana', 'cara'
+        ];
+        
+        // Gratitude patterns
+        $gratitudePatterns = [
+            'terima kasih', 'makasih', 'thanks', 'thank you', 'thx', 'tq',
+            'mantap', 'ok', 'oke', 'baik', 'siap'
+        ];
+
+        // Check greeting first
+        foreach ($greetingPatterns as $pattern) {
+            if (str_contains($message, $pattern) && strlen($message) < 30) {
+                return ['type' => 'greeting', 'confidence' => 0.95, 'subtype' => null];
+            }
+        }
+        
+        // Check gratitude
+        foreach ($gratitudePatterns as $pattern) {
+            if (str_contains($message, $pattern)) {
+                return ['type' => 'gratitude', 'confidence' => 0.9, 'subtype' => null];
+            }
+        }
+
+        // Check recommendation request
+        foreach ($recommendationPatterns as $pattern) {
+            if (str_contains($message, $pattern)) {
+                return ['type' => 'recommendation', 'confidence' => 0.85, 'subtype' => null];
+            }
+        }
+
+        // Check order intent
+        foreach ($orderPatterns as $pattern) {
+            if (str_contains($message, $pattern)) {
+                return ['type' => 'order', 'confidence' => 0.85, 'subtype' => null];
+            }
+        }
+
+        // Check product inquiry
+        foreach ($productInquiryPatterns as $category => $patterns) {
+            foreach ($patterns as $pattern) {
+                if (str_contains($message, $pattern)) {
+                    return ['type' => 'product_inquiry', 'confidence' => 0.8, 'subtype' => $category];
+                }
+            }
+        }
+
+        // Check help
+        foreach ($helpPatterns as $pattern) {
+            if (str_contains($message, $pattern)) {
+                return ['type' => 'help', 'confidence' => 0.7, 'subtype' => null];
+            }
+        }
+
+        // Default - general question
+        return ['type' => 'general', 'confidence' => 0.3, 'subtype' => null];
+    }
+
+    /**
+     * Generate response based on detected intent
+     */
+    private function generateResponse($intent, $conversation = null)
+    {
+        $responses = [
+            'greeting' => [
+                'messages' => [
+                    "Halo! 👋 Selamat datang di LGI Store. Ada yang bisa saya bantu hari ini?",
+                    "Hai! 😊 Terima kasih sudah menghubungi LGI Store. Silakan tanyakan apa saja tentang produk kami!",
+                    "Selamat datang! 🎉 Saya siap membantu Anda. Mau cari produk apa hari ini?"
+                ],
+                'quick_replies' => ['Lihat Produk Populer', 'Rekomendasi Produk', 'Info Pengiriman', 'Cara Pemesanan']
+            ],
+            'gratitude' => [
+                'messages' => [
+                    "Sama-sama! 😊 Senang bisa membantu. Ada yang lain yang ingin ditanyakan?",
+                    "Terima kasih kembali! 🙏 Jangan ragu untuk bertanya lagi ya!",
+                    "Siap! Semoga informasinya bermanfaat. Ada pertanyaan lain?"
+                ],
+                'quick_replies' => ['Lihat Produk Lain', 'Cara Pemesanan', 'Hubungi Admin']
+            ],
+            'recommendation' => [
+                'messages' => $this->getProductRecommendations(),
+                'quick_replies' => ['Lihat Detail', 'Produk Lainnya', 'Filter Harga']
+            ],
+            'order' => [
+                'messages' => [
+                    "Untuk melakukan pemesanan:\n\n1️⃣ Pilih produk yang diinginkan\n2️⃣ Pilih varian (warna/ukuran)\n3️⃣ Masukkan ke keranjang\n4️⃣ Checkout dan isi alamat pengiriman\n5️⃣ Pilih metode pembayaran\n6️⃣ Konfirmasi pesanan\n\nAtau hubungi admin untuk bantuan langsung! 📞"
+                ],
+                'quick_replies' => ['Lihat Katalog', 'Hubungi Admin', 'Cek Keranjang']
+            ],
+            'help' => [
+                'messages' => [
+                    "Saya bisa membantu Anda dengan:\n\n📦 Informasi produk (harga, stok, warna, ukuran)\n🛒 Cara pemesanan\n🚚 Info pengiriman\n💳 Metode pembayaran\n🎨 Custom design\n📋 Rekomendasi produk\n\nSilakan ketik pertanyaan Anda!"
+                ],
+                'quick_replies' => ['Info Produk', 'Cara Pesan', 'Rekomendasi', 'Hubungi Admin']
+            ],
+            'product_inquiry' => $this->getProductInquiryResponse($intent['subtype'], $conversation),
+            'general' => [
+                'messages' => [
+                    "Terima kasih atas pertanyaannya! Untuk jawaban yang lebih detail, admin kami akan segera membantu. 😊"
+                ],
+                'quick_replies' => ['Hubungi Admin', 'Lihat Katalog', 'FAQ'],
+                'should_escalate' => true
+            ]
+        ];
+
+        $responseData = $responses[$intent['type']] ?? $responses['general'];
+        
+        // Select random message if multiple
+        $message = is_array($responseData['messages']) 
+            ? (is_array($responseData['messages'][0] ?? null) 
+                ? $responseData['messages'][0] 
+                : $responseData['messages'][array_rand($responseData['messages'])])
+            : $responseData['messages'];
+
+        return [
+            'message' => $message,
+            'metadata' => [
+                'type' => 'auto_response',
+                'confidence' => $intent['confidence'],
+                'detected_intent' => $intent['type'],
+                'subtype' => $intent['subtype'] ?? null,
+                'quick_replies' => $responseData['quick_replies'] ?? [],
+                'should_escalate' => $responseData['should_escalate'] ?? false
+            ]
+        ];
+    }
+
+    /**
+     * Get product inquiry response based on subtype
+     */
+    private function getProductInquiryResponse($subtype, $conversation = null)
+    {
+        $responses = [
+            'harga' => [
+                'messages' => ["Untuk informasi harga produk, silakan kunjungi halaman katalog kami atau tanyakan produk spesifik yang Anda inginkan! 💰\n\nHarga mulai dari Rp 50.000 - Rp 300.000 tergantung jenis dan ukuran."],
+                'quick_replies' => ['Lihat Katalog', 'Produk Termurah', 'Hubungi Admin']
+            ],
+            'stock' => [
+                'messages' => ["Stok produk kami diupdate secara real-time di halaman produk. 📦\n\nUntuk memastikan ketersediaan, silakan cek langsung di halaman produk atau tanyakan produk spesifiknya!"],
+                'quick_replies' => ['Cek Katalog', 'Produk Ready Stock', 'Hubungi Admin']
+            ],
+            'color' => [
+                'messages' => ["Kami menyediakan berbagai pilihan warna untuk setiap produk! 🎨\n\nPilihan warna tersedia di halaman detail produk. Warna populer: Hitam, Putih, Navy, Maroon, Abu-abu."],
+                'quick_replies' => ['Lihat Katalog', 'Custom Warna', 'Hubungi Admin']
+            ],
+            'size' => [
+                'messages' => ["Ukuran yang tersedia umumnya: S, M, L, XL, XXL 📏\n\nUntuk panduan ukuran detail, silakan cek di halaman produk atau tanyakan ke admin!"],
+                'quick_replies' => ['Panduan Ukuran', 'Lihat Katalog', 'Hubungi Admin']
+            ],
+            'material' => [
+                'messages' => ["Produk kami menggunakan bahan berkualitas tinggi! 🧵\n\n• Kaos: Cotton Combed 30s\n• Polo: Lacoste Cotton\n• Jersey: Dry-fit Premium\n• Topi: Raphel/Twill"],
+                'quick_replies' => ['Detail Bahan', 'Lihat Katalog', 'Hubungi Admin']
+            ],
+            'shipping' => [
+                'messages' => ["Kami mendukung berbagai ekspedisi pengiriman! 🚚\n\n• JNE, J&T, SiCepat, Anteraja\n• Estimasi: 2-5 hari kerja\n• COD tersedia untuk area tertentu\n\nOngkir dihitung saat checkout."],
+                'quick_replies' => ['Cek Ongkir', 'Area COD', 'Hubungi Admin']
+            ],
+            'payment' => [
+                'messages' => ["Metode pembayaran yang tersedia: 💳\n\n• Transfer Bank (BCA, BRI, Mandiri)\n• E-Wallet (Dana, OVO, GoPay)\n• QRIS\n• COD (area tertentu)"],
+                'quick_replies' => ['Cara Bayar', 'Konfirmasi Pembayaran', 'Hubungi Admin']
+            ],
+            'custom' => [
+                'messages' => ["Kami menerima pesanan custom design! 🎨\n\n✅ Sablon DTF/DTG\n✅ Bordir komputer\n✅ Logo perusahaan\n✅ Desain sesuai request\n\nMinimum order: 12 pcs\nHubungi admin untuk konsultasi desain!"],
+                'quick_replies' => ['Konsultasi Design', 'Lihat Contoh', 'Hubungi Admin']
+            ]
+        ];
+
+        return $responses[$subtype] ?? [
+            'messages' => ["Untuk informasi lebih detail tentang produk, silakan kunjungi katalog kami atau hubungi admin! 📋"],
+            'quick_replies' => ['Lihat Katalog', 'Hubungi Admin']
+        ];
+    }
+
+    /**
+     * Get product recommendations
+     */
+    private function getProductRecommendations()
+    {
+        try {
+            $products = Product::where('is_active', true)
+                ->where('stock', '>', 0)
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return ["Maaf, saat ini tidak ada produk yang tersedia. Silakan coba lagi nanti atau hubungi admin."];
+            }
+
+            $message = "🔥 Rekomendasi Produk Terbaik:\n\n";
+            foreach ($products as $index => $product) {
+                $num = $index + 1;
+                $price = number_format($product->price, 0, ',', '.');
+                $message .= "{$num}. {$product->name} 💰 Rp {$price} 📦 Stok: {$product->stock}\n";
+            }
+            $message .= "\nKlik nama produk untuk melihat detail!";
+
+            return [$message];
+        } catch (\Exception $e) {
+            Log::error('Error getting product recommendations: ' . $e->getMessage());
+            return ["Maaf, terjadi kesalahan saat mengambil rekomendasi produk. Silakan coba lagi."];
         }
     }
 
     private function getDefaultResponse($userMessage)
     {
-        $message = strtolower($userMessage);
-        
-        $responses = [
-            'harga' => [
-                'response' => 'Untuk informasi harga terbaru, silakan hubungi admin kami langsung.',
-                'confidence' => 0.8
-            ],
-            'stok' => [
-                'response' => 'Stok produk dapat berubah setiap saat. Mohon konfirmasi ke admin untuk ketersediaan.',
-                'confidence' => 0.8
-            ],
-            'warna' => [
-                'response' => 'Produk kami memiliki berbagai variasi warna. Admin akan membantu Anda memilih yang tepat.',
-                'confidence' => 0.8
-            ],
-            'size' => [
-                'response' => 'Tersedia berbagai ukuran. Silakan tanyakan ke admin untuk detail lebih lanjut.',
-                'confidence' => 0.8
-            ],
-            'bahan' => [
-                'response' => 'Kami menggunakan bahan berkualitas tinggi. Admin dapat memberikan spesifikasi detail.',
-                'confidence' => 0.8
-            ],
-            'pengiriman' => [
-                'response' => 'Kami mendukung berbagai metode pengiriman. Admin akan bantu proses pengiriman.',
-                'confidence' => 0.8
-            ],
-            'diskon' => [
-                'response' => 'Untuk informasi diskon dan promo terbaru, silakan hubungi admin kami.',
-                'confidence' => 0.8
-            ],
-            'custom' => [
-                'response' => 'Kami menerima pesanan custom. Admin akan membantu Anda dengan detailnya.',
-                'confidence' => 0.8
-            ]
-        ];
-
-        // Cari response terbaik berdasarkan keyword
-        $bestMatch = [
-            'message' => 'Terima kasih atas pertanyaannya. Saya akan menghubungkan Anda dengan admin untuk informasi lebih detail.',
-            'metadata' => [
-                'type' => 'default_response',
-                'confidence' => 0.1,
-                'detected_intent' => 'general',
-                'should_escalate' => true
-            ]
-        ];
-
-        foreach ($responses as $key => $data) {
-            if (str_contains($message, $key)) {
-                $bestMatch = [
-                    'message' => $data['response'],
-                    'metadata' => [
-                        'type' => 'auto_response',
-                        'confidence' => $data['confidence'],
-                        'detected_intent' => $key,
-                        'should_escalate' => false
-                    ]
-                ];
-                break;
-            }
-        }
-
-        return $bestMatch;
+        return $this->analyzeAndRespond($userMessage);
     }
 
     private function shouldEscalateToAdmin($userMessage)

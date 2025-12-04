@@ -215,10 +215,6 @@ Route::get('/test-chat-interface', function () {
     return view('chat.test-interface');
 });
 
-// Test routes yang menggunakan ChatController
-Route::post('/test-chat-send', [ChatController::class, 'testSendMessage']);
-Route::get('/test-chat-quick', [ChatController::class, 'quickTest']);
-
 // Customer chatbot polling routes (untuk menerima pesan admin)
 Route::middleware(['auth'])->group(function () {
     Route::get('/chat/new-messages', [ChatController::class, 'getNewMessages'])->name('chat.new-messages');
@@ -289,20 +285,15 @@ Route::get('/api/custom-design-prices', [App\Http\Controllers\Admin\CustomDesign
 Route::get('/api/product-custom-design-prices/{productId}', [App\Http\Controllers\Admin\CustomDesignPriceController::class, 'getProductPrices'])->name('api.product-custom-design-prices');
 
 
-// Tambahkan routes berikut
+// Chat Routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Chat Routes
     Route::prefix('chat')->group(function () {
         Route::get('/product/{productId}', [ChatController::class, 'startChat'])->name('chat.start');
         Route::get('/history', [ChatController::class, 'getChatHistory'])->name('chat.history');
         Route::get('/conversation/{conversationId}', [ChatController::class, 'getConversation'])->name('chat.conversation');
         Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat.send');
-        //Route::post('/conversation/{conversationId}/request-admin', [ChatController::class, 'requestAdminResponse'])->name('chat.request-admin');
     });
 });
-
-// Note: Chat Conversation API Routes removed - use ChatbotApiController routes instead
-// Route::prefix('api/chat') routes are deprecated, use /api/chatbot/* routes
 
 // Customer authenticated routes
 Route::middleware(['auth'])->group(function () {
