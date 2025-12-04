@@ -60,11 +60,11 @@ class CompletedOrdersAnalyticsSeeder extends Seeder
 
         // Get or create products
         $productData = [
-            ['name' => 'Kaos Premium Basic', 'price' => 85000, 'category' => 'Kaos'],
-            ['name' => 'Kaos Custom Design', 'price' => 120000, 'category' => 'Kaos'],
-            ['name' => 'Kaos Couple Pack', 'price' => 150000, 'category' => 'Kaos'],
-            ['name' => 'Jersey Sport', 'price' => 95000, 'category' => 'Jersey'],
-            ['name' => 'Polo Shirt Premium', 'price' => 110000, 'category' => 'Polo'],
+            ['name' => 'Kaos Premium Basic', 'price' => 85000, 'category' => 'Kaos', 'image' => 'https://i.pinimg.com/1200x/3e/6b/f5/3e6bf5378b6ae4d43263dfb626d37588.jpg'],
+            ['name' => 'Kaos Custom Design', 'price' => 120000, 'category' => 'Kaos', 'image' => 'https://i.pinimg.com/736x/45/4c/92/454c92dc87e9774bed336c9ea9d132ed.jpg'],
+            ['name' => 'Kaos Couple Pack', 'price' => 150000, 'category' => 'Kaos', 'image' => 'https://i.pinimg.com/736x/4f/7e/bf/4f7ebfdc234afefe71d5f4a8ec8ba408.jpg'],
+            ['name' => 'Jersey Sport', 'price' => 95000, 'category' => 'Jersey', 'image' => 'https://i.pinimg.com/1200x/e1/4f/84/e14f84017368f18fba24c18f4da36fef.jpg'],
+            ['name' => 'Polo Shirt Premium', 'price' => 110000, 'category' => 'Polo', 'image' => 'https://i.pinimg.com/1200x/fd/20/e2/fd20e257b019babc8014be0dea3766c6.jpg'],
         ];
 
         $products = [];
@@ -79,6 +79,7 @@ class CompletedOrdersAnalyticsSeeder extends Seeder
                     'category' => $data['category'],
                     'price' => $data['price'],
                     'original_price' => $data['price'],
+                    'image' => $data['image'],
                     'stock' => 100,
                     'is_active' => true,
                     'custom_design_allowed' => true,

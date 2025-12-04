@@ -205,8 +205,13 @@ class ChatbotCustomer extends Component
         $response = '';
         $this->productRecommendations = [];
 
+        // Check for greetings first
+        $greetingResponse = $this->handleGreeting($lowerMessage);
+        if ($greetingResponse) {
+            $response = $greetingResponse;
+        }
         // Process different intents
-        if ($this->containsAny($lowerMessage, ['harga murah', 'murah', 'termurah', 'budget', 'hemat', 'promo'])) {
+        elseif ($this->containsAny($lowerMessage, ['harga murah', 'murah', 'termurah', 'budget', 'hemat', 'promo'])) {
             $response = $this->handleCheapPriceRecommendation();
         } elseif ($this->containsAny($lowerMessage, ['kategori', 'category', 'jenis produk', 'lihat kategori'])) {
             $response = $this->handleCategoryList();
@@ -429,6 +434,87 @@ class ChatbotCustomer extends Component
             "📧 Email: noreply@lgistore.com\n\n" .
             "Kami siap membantu Anda 24/7! 😊\n\n" .
             "Atau Anda bisa langsung klik tombol WhatsApp di halaman produk untuk konsultasi.";
+    }
+
+    protected function handleGreeting($message)
+    {
+        $userName = Auth::user()->name ?? 'Kak';
+        $currentHour = (int) date('H');
+        
+        // Detect time-based greetings and respond appropriately
+        $greetings = [
+            // Morning greetings (00:00 - 11:59)
+            'selamat pagi' => "Selamat pagi juga, {$userName}! 🌅\n\nSemoga harimu menyenangkan. Ada yang bisa saya bantu hari ini?",
+            'pagi' => "Pagi juga, {$userName}! ☀️\n\nApa yang bisa saya bantu pagi ini?",
+            'met pagi' => "Met pagi juga, {$userName}! 🌄\n\nAda yang bisa saya bantu?",
+            'morning' => "Good morning, {$userName}! 🌅\n\nHow can I help you today?",
+            
+            // Afternoon greetings (12:00 - 14:59)
+            'selamat siang' => "Selamat siang juga, {$userName}! ☀️\n\nSudah makan siang belum? Ada yang bisa saya bantu?",
+            'siang' => "Siang juga, {$userName}! 🌞\n\nAda yang bisa saya bantu siang ini?",
+            'met siang' => "Met siang juga, {$userName}! ☀️\n\nApa yang bisa saya bantu?",
+            
+            // Late afternoon greetings (15:00 - 17:59)
+            'selamat sore' => "Selamat sore juga, {$userName}! 🌤️\n\nSemoga sorenya menyenangkan. Ada yang bisa saya bantu?",
+            'sore' => "Sore juga, {$userName}! 🌅\n\nAda yang bisa saya bantu sore ini?",
+            'met sore' => "Met sore juga, {$userName}! 🌤️\n\nApa yang bisa dibantu?",
+            
+            // Evening/Night greetings (18:00 - 23:59)
+            'selamat malam' => "Selamat malam juga, {$userName}! 🌙\n\nTerima kasih sudah mampir. Ada yang bisa saya bantu malam ini?",
+            'malam' => "Malam juga, {$userName}! 🌃\n\nAda yang bisa saya bantu?",
+            'met malam' => "Met malam juga, {$userName}! 🌙\n\nApa yang bisa dibantu?",
+            'evening' => "Good evening, {$userName}! 🌆\n\nWhat can I help you with?",
+            'night' => "Good night, {$userName}! 🌙\n\nHow can I assist you?",
+            
+            // General greetings (any time)
+            'hallo' => "Hallo juga, {$userName}! 👋\n\nSenang bisa membantu! Ada yang bisa saya bantu?",
+            'halo' => "Halo juga, {$userName}! 👋\n\nAda yang bisa saya bantu hari ini?",
+            'hai' => "Hai juga, {$userName}! 😊\n\nApa kabar? Ada yang bisa dibantu?",
+            'hi' => "Hi juga, {$userName}! 👋\n\nAda yang bisa saya bantu?",
+            'hello' => "Hello, {$userName}! 👋\n\nHow can I help you today?",
+            'hey' => "Hey, {$userName}! 👋\n\nAda yang bisa saya bantu?",
+            'assalamualaikum' => "Wa'alaikumsalam, {$userName}! 🙏\n\nAda yang bisa saya bantu hari ini?",
+            'assalamu\'alaikum' => "Wa'alaikumsalam, {$userName}! 🙏\n\nAda yang bisa saya bantu?",
+            'aslkm' => "Waalaikumsalam, {$userName}! 🙏\n\nApa yang bisa dibantu?",
+            'waalaikumsalam' => "Terima kasih! Ada yang bisa saya bantu, {$userName}? 😊",
+            'permisi' => "Silakan, {$userName}! 😊\n\nAda yang bisa saya bantu?",
+            'punten' => "Mangga, {$userName}! 😊\n\nAda yang bisa dibantu?",
+            'apa kabar' => "Alhamdulillah baik, {$userName}! Terima kasih sudah bertanya 😊\n\nAda yang bisa saya bantu?",
+            'kabar baik' => "Syukurlah! 😊 Ada yang bisa saya bantu, {$userName}?",
+            
+            // Thanks & pleasantries
+            'terima kasih' => "Sama-sama, {$userName}! 😊\n\nSenang bisa membantu. Ada lagi yang bisa dibantu?",
+            'makasih' => "Sama-sama, {$userName}! 🙏\n\nAda lagi yang bisa saya bantu?",
+            'thanks' => "You're welcome, {$userName}! 😊\n\nAnything else I can help with?",
+            'thank you' => "You're welcome! 😊\n\nIs there anything else I can help you with?",
+        ];
+
+        // Check each greeting pattern
+        foreach ($greetings as $pattern => $response) {
+            if (str_contains($message, $pattern)) {
+                return $response;
+            }
+        }
+
+        // Check for generic "selamat" and respond based on current time
+        if (str_contains($message, 'selamat') || preg_match('/^(met|good)\s/i', $message)) {
+            return $this->getTimeBasedGreeting($userName, $currentHour);
+        }
+
+        return null; // No greeting detected
+    }
+
+    protected function getTimeBasedGreeting($userName, $hour)
+    {
+        if ($hour >= 0 && $hour < 12) {
+            return "Selamat pagi juga, {$userName}! 🌅\n\nAda yang bisa saya bantu pagi ini?";
+        } elseif ($hour >= 12 && $hour < 15) {
+            return "Selamat siang juga, {$userName}! ☀️\n\nAda yang bisa saya bantu?";
+        } elseif ($hour >= 15 && $hour < 18) {
+            return "Selamat sore juga, {$userName}! 🌤️\n\nAda yang bisa saya bantu?";
+        } else {
+            return "Selamat malam juga, {$userName}! 🌙\n\nAda yang bisa saya bantu malam ini?";
+        }
     }
 
     protected function handleDefaultResponse()
