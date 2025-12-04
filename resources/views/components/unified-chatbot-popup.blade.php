@@ -174,9 +174,9 @@
     position: fixed;
     bottom: 90px;
     right: 20px;
-    width: 340px;
+    width: 360px;
     max-width: calc(100vw - 40px);
-    height: 500px;
+    height: 520px;
     max-height: calc(100vh - 120px);
     background-color: #ffffff;
     border-radius: 16px;
@@ -339,13 +339,13 @@
 
 .unified-chatbot-messages {
     flex: 1;
-    padding: 16px 12px;
+    padding: 14px;
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .unified-chatbot-messages::-webkit-scrollbar {
@@ -365,7 +365,7 @@
 .unified-chatbot-popup .unified-message {
     display: flex;
     flex-direction: column;
-    max-width: 80%;
+    max-width: 85%;
     animation: unifiedFadeIn 0.2s ease;
     padding: 0;
     margin: 0;
@@ -417,12 +417,13 @@
 }
 
 .unified-chatbot-popup .unified-message-bubble {
-    padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.4;
+    padding: 12px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.5;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 /* Bot message - Light gray bubble */
@@ -430,6 +431,7 @@
     background: #f0f0f0;
     color: #1a1a1a;
     border-top-left-radius: 4px;
+    max-width: 100%;
 }
 
 /* User message - Green bubble ONLY */
@@ -441,18 +443,19 @@
 
 .unified-chatbot-popup .unified-message-bubble p {
     margin: 0;
-    font-size: 14px;
-    line-height: 1.4;
-    display: inline;
+    font-size: 13px;
+    line-height: 1.5;
+    display: block;
+    white-space: pre-wrap;
 }
 
 /* Time inside bubble */
 .unified-chatbot-popup .unified-message-bubble .unified-message-time {
-    font-size: 11px;
+    font-size: 10px;
     color: #667781;
-    float: right;
-    margin-left: 8px;
-    margin-top: 4px;
+    display: block;
+    text-align: right;
+    margin-top: 6px;
 }
 
 /* Product Card inside Chat Message */
@@ -536,22 +539,23 @@
 .unified-quick-replies {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px 12px;
+    gap: 8px;
+    padding: 12px 14px;
     background: #fff;
     border-top: 1px solid #e5e7eb;
     flex-shrink: 0;
 }
 
 .unified-quick-reply {
-    padding: 6px 14px;
-    border-radius: 16px;
+    padding: 8px 14px;
+    border-radius: 18px;
     border: 1px solid #d1d5db;
     background: #fff;
-    font-size: 13px;
+    font-size: 12px;
     color: #374151;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .unified-quick-reply:hover {
@@ -561,7 +565,8 @@
 }
 
 .unified-chatbot-input-wrapper {
-    padding: 10px 12px;
+    padding: 12px 14px;
+    padding-bottom: 16px;
     background: #fff;
     border-top: 1px solid #e5e7eb;
     flex-shrink: 0;
@@ -570,17 +575,18 @@
 .unified-chatbot-input-container {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .unified-chatbot-input {
     flex: 1;
-    padding: 10px 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 24px;
     font-size: 14px;
     outline: none;
     background: #f9fafb;
+    transition: all 0.2s;
 }
 
 .unified-chatbot-input:focus {
@@ -592,8 +598,8 @@
     background: #0f172a;
     color: white;
     border: none;
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.2s;
