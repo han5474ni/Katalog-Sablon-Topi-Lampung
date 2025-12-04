@@ -146,8 +146,8 @@ function createMessageElement(msg) {
     } else if (msg.sender_type === 'bot') {
         messageClass = 'bot';
         label = '<div class="message-label">🤖 Bot</div>';
-        // Format bot message for better display
-        messageContent = formatBotMessage(msg.message);
+        // Format bot message for better display - pass metadata for product links
+        messageContent = formatBotMessage(msg.message, msg.metadata);
     } else if (msg.sender_type === 'system') {
         messageClass = 'system';
     }
@@ -171,9 +171,17 @@ function createMessageElement(msg) {
 
 /**
  * Format bot message to be more readable
+ * @param {string} message - The bot message text
+ * @param {object} metadata - Optional metadata containing product info
  */
-function formatBotMessage(message) {
+function formatBotMessage(message, metadata = null) {
     if (!message) return '';
+    
+    // Check if we have product metadata from the message
+    let productsFromMetadata = [];
+    if (metadata && metadata.products && Array.isArray(metadata.products)) {
+        productsFromMetadata = metadata.products;
+    }
     
     // Check if message contains product recommendations pattern
     // Pattern: numbered list with price and stock
@@ -183,19 +191,36 @@ function formatBotMessage(message) {
     let match;
     
     while ((match = productPattern.exec(message)) !== null) {
+        const cleanName = match[2].replace(/[🔥💰📦📋🏷️✅⚠️]/g, '').trim();
+        
+        // Try to find product ID from metadata
+        let productId = null;
+        if (productsFromMetadata.length > 0) {
+            const foundProduct = productsFromMetadata.find(p => 
+                p.name && p.name.toLowerCase().trim() === cleanName.toLowerCase().trim()
+            );
+            if (foundProduct) {
+                productId = foundProduct.id;
+            }
+        }
+        
         matches.push({
             number: match[1],
-            name: match[2].trim(),
+            name: cleanName,
             price: match[3],
-            stock: match[4]
+            stock: match[4],
+            id: productId
         });
     }
     
     // If we found product recommendations, format them nicely
     if (matches.length > 0) {
         // Extract the header/intro text (before the first product)
-        let headerMatch = message.match(/^[🔥📋]*\s*([^:]+):/);
+        let headerMatch = message.match(/^[🔥📋🏷️]*\s*([^:]+):/);
         let header = headerMatch ? headerMatch[1].trim() : 'Rekomendasi Produk';
+        
+        // Clean header from emojis
+        header = header.replace(/[🔥📋🏷️]/g, '').trim();
         
         // Extract footer text (after last stock info, before any remaining text)
         let lastStockIndex = message.lastIndexOf('Stok:');
@@ -203,20 +228,26 @@ function formatBotMessage(message) {
         let footerMatch = afterStock.match(/Stok:\s*\d+\s*(.+?)$/s);
         let footer = '';
         if (footerMatch && footerMatch[1]) {
-            footer = footerMatch[1].replace(/[🔥💰📦📋]/g, '').trim();
+            footer = footerMatch[1].replace(/[🔥💰📦📋🏷️✅⚠️]/g, '').trim();
         }
         
         let formattedHtml = `<div class="bot-msg-header">📋 ${header}</div>`;
         formattedHtml += '<div class="bot-product-list">';
         
         matches.forEach(product => {
-            // Clean product name
-            const cleanName = product.name.replace(/[🔥💰📦📋]/g, '').trim();
+            // Build product URL - use ID if available, otherwise search
+            let productUrl;
+            if (product.id) {
+                productUrl = `/public/detail?id=${product.id}`;
+            } else {
+                productUrl = `/catalog?search=${encodeURIComponent(product.name)}`;
+            }
+            
             formattedHtml += `
-                <a href="/catalog?search=${encodeURIComponent(cleanName)}" target="_blank" class="bot-product-item" title="Klik untuk lihat ${cleanName}">
+                <a href="${productUrl}" target="_blank" class="bot-product-item" title="Klik untuk lihat detail ${product.name}">
                     <span class="bot-product-number">${product.number}</span>
                     <div class="bot-product-info">
-                        <span class="bot-product-name">${cleanName}</span>
+                        <span class="bot-product-name">${product.name}</span>
                         <span class="bot-product-price">Rp ${product.price}</span>
                     </div>
                     <span class="bot-product-stock">${product.stock}</span>
@@ -328,8 +359,8 @@ function displayConversation(conversation, isInitialLoad = false) {
                 } else if (msg.sender_type === 'bot') {
                     messageClass = 'bot';
                     label = '<div class="message-label">🤖 Bot</div>';
-                    // Format bot message for better display
-                    messageContent = formatBotMessage(msg.message);
+                    // Format bot message for better display - pass metadata for product links
+                    messageContent = formatBotMessage(msg.message, msg.metadata);
                 } else if (msg.sender_type === 'system') {
                     messageClass = 'system';
                 }
