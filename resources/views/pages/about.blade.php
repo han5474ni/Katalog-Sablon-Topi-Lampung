@@ -227,7 +227,11 @@
     <!-- Footer -->
     <x-guest-footer />
 
-    <!-- Unified Chatbot Popup -->
-    <x-unified-chatbot-popup />
+    <!-- Unified Chatbot Popup - Only show for logged in customers -->
+    @auth('web')
+        @if(!auth()->guard('admin')->check())
+            <x-unified-chatbot-popup />
+        @endif
+    @endauth
 </body>
 </html>

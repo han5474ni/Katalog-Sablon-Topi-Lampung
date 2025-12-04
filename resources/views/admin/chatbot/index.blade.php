@@ -153,6 +153,7 @@
             .conversation-info {
                 flex: 1;
                 min-width: 0;
+                padding-right: 35px; /* Space for unread badge */
             }
 
             .conversation-header {
@@ -182,28 +183,25 @@
             }
 
             .conversation-badges {
+                position: absolute;
+                top: 50%;
+                right: 12px;
+                transform: translateY(-50%);
+            }
+
+            .unread-badge {
+                min-width: 20px;
+                height: 20px;
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: #fff;
+                border-radius: 10px;
+                font-size: 11px;
+                font-weight: 700;
                 display: flex;
-                gap: 4px;
-                margin-top: 4px;
-                flex-wrap: wrap;
-            }
-
-            .badge-needs-response {
-                background: #f8d7da;
-                color: #721c24;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 500;
-            }
-
-            .badge-admin-handled {
-                background: #d4edda;
-                color: #155724;
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-size: 10px;
-                font-weight: 500;
+                align-items: center;
+                justify-content: center;
+                padding: 0 6px;
+                box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
             }
 
             .chat-main {
@@ -339,13 +337,12 @@
                 justify-content: flex-start;
             }
 
-            .message.admin {
+            .message.admin, .message.bot {
                 flex-direction: row-reverse;
                 justify-content: flex-start;
             }
 
             .message-bubble {
-                max-width: 65%;
                 padding: 10px 14px;
                 border-radius: 12px;
                 font-size: 13px;
@@ -364,6 +361,33 @@
                 background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
                 color: white;
                 border-bottom-right-radius: 4px;
+            }
+            
+            .message.bot .message-bubble {
+                background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+                color: white;
+                border-bottom-right-radius: 4px;
+            }
+            
+            .message-label {
+                font-size: 10px;
+                font-weight: 600;
+                margin-bottom: 4px;
+                text-align: right;
+            }
+            
+            .message.admin .message-label {
+                color: #28a745;
+            }
+            
+            .message.bot .message-label {
+                color: #007bff;
+            }
+            
+            .message-content {
+                display: flex;
+                flex-direction: column;
+                max-width: 65%;
             }
 
             .message.system .message-bubble {
@@ -387,6 +411,88 @@
 
             .message.admin .message-time {
                 text-align: right;
+            }
+            
+            /* Product Context Preview Styles */
+            .product-context-preview {
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+                padding: 10px 12px;
+                margin-bottom: 8px;
+                max-width: 280px;
+            }
+            
+            .product-context-header {
+                font-size: 10px;
+                color: #6c757d;
+                font-weight: 600;
+                margin-bottom: 6px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .product-context-header i {
+                color: #007bff;
+            }
+            
+            .product-context-body {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .product-context-name {
+                font-size: 13px;
+                font-weight: 600;
+                color: #212529;
+                line-height: 1.3;
+            }
+            
+            .product-context-price {
+                font-size: 12px;
+                color: #28a745;
+                font-weight: 600;
+            }
+            
+            .product-context-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+                color: white;
+                font-size: 9px;
+                padding: 2px 8px;
+                border-radius: 10px;
+                font-weight: 500;
+                margin-top: 4px;
+                width: fit-content;
+            }
+            
+            .product-context-link {
+                font-size: 10px;
+                color: #007bff;
+                margin-top: 6px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-weight: 500;
+            }
+            
+            a.product-context-preview {
+                text-decoration: none;
+                display: block;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            a.product-context-preview:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+                border-color: #007bff;
+            }
+            
+            a.product-context-preview:hover .product-context-link {
+                color: #0056b3;
             }
 
             .chat-input-area {
@@ -637,7 +743,7 @@
 
             <div class="conversation-list" id="conversationList">
                 @forelse($conversations as $conversation)
-                    <div class="conversation-item" onclick="selectConversation({{ $conversation->id }})">
+                    <div class="conversation-item" onclick="selectConversation({{ $conversation->id }})" style="position: relative;">
                         <div class="conversation-avatar">
                             {{ strtoupper(substr($conversation->user->name, 0, 1)) }}
                         </div>
@@ -647,17 +753,14 @@
                                 <span class="conversation-time">{{ $conversation->updated_at->format('H:i') }}</span>
                             </div>
                             <div class="conversation-preview">
-                                {{ $conversation->latestMessage->message ?? 'Tidak ada pesan' }}
-                            </div>
-                            <div class="conversation-badges">
-                                @if($conversation->needs_admin_response)
-                                    <span class="badge-needs-response">⚠️ Butuh Respons</span>
-                                @endif
-                                @if($conversation->taken_over_by_admin)
-                                    <span class="badge-admin-handled">✓ Ditangani Admin</span>
-                                @endif
+                                {{ Str::limit($conversation->latestMessage->message ?? 'Tidak ada pesan', 35) }}
                             </div>
                         </div>
+                        @if($conversation->unread_count > 0)
+                            <div class="conversation-badges">
+                                <span class="unread-badge">{{ $conversation->unread_count > 99 ? '99+' : $conversation->unread_count }}</span>
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <div style="padding: 20px; text-align: center; color: #6c757d;">
@@ -763,11 +866,49 @@
             function createMessageElement(msg) {
                 const messageDiv = document.createElement('div');
                 let messageClass = msg.sender_type;
+                let label = '';
+                let productPreview = '';
+                
                 // Map sender types correctly
                 if (msg.sender_type === 'customer' || msg.sender_type === 'user') {
                     messageClass = 'customer';
-                } else if (msg.sender_type === 'admin' || msg.sender_type === 'bot') {
+                    
+                    // Check for product context in metadata
+                    if (msg.metadata && msg.metadata.product_context) {
+                        let product = msg.metadata.product_context;
+                        // Handle if product_context is a JSON string
+                        if (typeof product === 'string') {
+                            try {
+                                product = JSON.parse(product);
+                            } catch (e) {
+                                console.log('Failed to parse product context:', e);
+                            }
+                        }
+                        
+                        if (product && product.name) {
+                            const price = product.price ? new Intl.NumberFormat('id-ID').format(product.price) : '-';
+                            const productUrl = product.id ? `/public/detail?id=${product.id}` : '#';
+                            productPreview = `
+                                <a href="${productUrl}" target="_blank" class="product-context-preview" title="Klik untuk lihat detail produk">
+                                    <div class="product-context-header">
+                                        <i class="fas fa-box"></i> Produk yang ditanyakan:
+                                    </div>
+                                    <div class="product-context-body">
+                                        <div class="product-context-name">${product.name}</div>
+                                        <div class="product-context-price">Rp ${price}</div>
+                                        ${product.custom_allowed ? '<span class="product-context-badge">Custom Design</span>' : ''}
+                                    </div>
+                                    <div class="product-context-link"><i class="fas fa-external-link-alt"></i> Lihat Detail</div>
+                                </a>
+                            `;
+                        }
+                    }
+                } else if (msg.sender_type === 'admin') {
                     messageClass = 'admin';
+                    label = '<div class="message-label">👤 Admin</div>';
+                } else if (msg.sender_type === 'bot') {
+                    messageClass = 'bot';
+                    label = '<div class="message-label">🤖 Bot</div>';
                 } else if (msg.sender_type === 'system') {
                     messageClass = 'system';
                 }
@@ -778,8 +919,12 @@
                 const timeStr = time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
                 messageDiv.innerHTML = `
-                    <div class="message-bubble">${msg.message}</div>
-                    <div class="message-time">${timeStr}</div>
+                    <div class="message-content">
+                        ${label}
+                        ${productPreview}
+                        <div class="message-bubble">${msg.message}</div>
+                        <div class="message-time">${timeStr}</div>
+                    </div>
                 `;
                 
                 return messageDiv;
@@ -820,11 +965,49 @@
                     if (conversation.messages && conversation.messages.length > 0) {
                         conversation.messages.forEach(msg => {
                             let messageClass = msg.sender_type;
+                            let label = '';
+                            let productPreview = '';
+                            
                             // Map sender types correctly
                             if (msg.sender_type === 'customer' || msg.sender_type === 'user') {
                                 messageClass = 'customer';
-                            } else if (msg.sender_type === 'admin' || msg.sender_type === 'bot') {
+                                
+                                // Check for product context in metadata
+                                if (msg.metadata && msg.metadata.product_context) {
+                                    let product = msg.metadata.product_context;
+                                    // Handle if product_context is a JSON string
+                                    if (typeof product === 'string') {
+                                        try {
+                                            product = JSON.parse(product);
+                                        } catch (e) {
+                                            console.log('Failed to parse product context:', e);
+                                        }
+                                    }
+                                    
+                                    if (product && product.name) {
+                                        const price = product.price ? new Intl.NumberFormat('id-ID').format(product.price) : '-';
+                                        const productUrl = product.id ? `/public/detail?id=${product.id}` : '#';
+                                        productPreview = `
+                                            <a href="${productUrl}" target="_blank" class="product-context-preview" title="Klik untuk lihat detail produk">
+                                                <div class="product-context-header">
+                                                    <i class="fas fa-box"></i> Produk yang ditanyakan:
+                                                </div>
+                                                <div class="product-context-body">
+                                                    <div class="product-context-name">${product.name}</div>
+                                                    <div class="product-context-price">Rp ${price}</div>
+                                                    ${product.custom_allowed ? '<span class="product-context-badge">Custom Design</span>' : ''}
+                                                </div>
+                                                <div class="product-context-link"><i class="fas fa-external-link-alt"></i> Lihat Detail</div>
+                                            </a>
+                                        `;
+                                    }
+                                }
+                            } else if (msg.sender_type === 'admin') {
                                 messageClass = 'admin';
+                                label = '<div class="message-label">👤 Admin</div>';
+                            } else if (msg.sender_type === 'bot') {
+                                messageClass = 'bot';
+                                label = '<div class="message-label">🤖 Bot</div>';
                             } else if (msg.sender_type === 'system') {
                                 messageClass = 'system';
                             }
@@ -834,8 +1017,12 @@
                             
                             headerHTML += `
                                 <div class="message ${messageClass}">
-                                    <div class="message-bubble">${msg.message}</div>
-                                    <div class="message-time">${timeStr}</div>
+                                    <div class="message-content">
+                                        ${label}
+                                        ${productPreview}
+                                        <div class="message-bubble">${msg.message}</div>
+                                        <div class="message-time">${timeStr}</div>
+                                    </div>
                                 </div>
                             `;
                         });

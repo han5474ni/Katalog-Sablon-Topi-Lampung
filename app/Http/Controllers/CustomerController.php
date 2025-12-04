@@ -139,14 +139,6 @@ class CustomerController extends Controller
     }
 
     /**
-     * Display chatbot page
-     */
-    public function chatbot()
-    {
-        return view('customer.chatbot');
-    }
-
-    /**
      * Display chatpage
      */
     public function chatpage()

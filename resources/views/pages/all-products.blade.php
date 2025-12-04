@@ -173,10 +173,11 @@
 
     <x-guest-footer />
 
-    <!-- Unified Chatbot Popup Component -->
-    <x-unified-chatbot-popup />
-
-    <!-- Product Chat Modal Component -->
-    <x-product-chat-modal />
+    <!-- Unified Chatbot Popup Component - Only show for logged in customers -->
+    @auth('web')
+        @if(!auth()->guard('admin')->check())
+            <x-unified-chatbot-popup />
+        @endif
+    @endauth
 </body>
 </html>

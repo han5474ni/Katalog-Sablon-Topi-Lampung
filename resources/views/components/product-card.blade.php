@@ -67,17 +67,26 @@
         <div class="product-actions" role="group" aria-label="Aksi produk">
             @if($isCustomer)
                 {{-- Customer: buttons are clickable --}}
+                @php
+                    $productImage = null;
+                    if (!empty($product->variant_images) && is_array($product->variant_images) && count($product->variant_images) > 0) {
+                        $productImage = $product->variant_images[0];
+                    } elseif ($product->image) {
+                        $productImage = str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image);
+                    }
+                @endphp
                 <button class="action-btn action-chat" 
                         type="button" 
                         aria-label="Chat tentang produk" 
-                        onclick="event.stopPropagation(); openProductChatModal({
+                        onclick="event.stopPropagation(); openUnifiedChatbotWithProduct({
                             id: {{ $product->id }},
                             name: '{{ addslashes($product->name) }}',
+                            slug: '{{ $product->slug }}',
                             price: {{ $product->price ?? 0 }},
                             formatted_price: '{{ $product->formatted_price }}',
+                            image: '{{ $productImage }}',
                             custom_allowed: {{ $product->custom_design_allowed ? 'true' : 'false' }},
-                            category: '{{ addslashes($product->category->name ?? '') }}',
-                            description: '{{ addslashes(Str::limit($product->description ?? '', 100)) }}'
+                            category: '{{ addslashes($product->category->name ?? '') }}'
                         })">
                     <i class="fas fa-comments" aria-hidden="true"></i>
                 </button>

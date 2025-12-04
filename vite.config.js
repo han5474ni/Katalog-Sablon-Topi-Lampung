@@ -54,7 +54,6 @@ export default defineConfig({
                 'resources/css/guest/auth-layout.css',
                 'resources/css/guest/catalog-inline.css',
                 'resources/css/guest/catalog.css',
-                'resources/css/guest/chatbot.css',
                 'resources/css/guest/chatpage.css',
                 'resources/css/guest/custom-design.css',
                 'resources/css/guest/home.css',
@@ -73,15 +72,10 @@ export default defineConfig({
                 'resources/js/admin/notifications.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/user-management.js',
-                // Chat JS
-                'resources/js/chat/customer-chat.js',
-                // Chatbot JS
-                'resources/js/chatbot/product-chatbot.js',
                 // Components JS
                 'resources/js/components/navbar.js',
                 // Customer JS
                 'resources/js/customer/cart.js',
-                'resources/js/customer/chatbot.js',
                 'resources/js/customer/notifications.js',
                 'resources/js/customer/profile-dropdown.js',
                 // Guest JS
@@ -93,7 +87,6 @@ export default defineConfig({
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/product-detail.js',
                 'resources/js/guest/product-slider.js',
-                'resources/js/guest/chatbot-popup.js',
             ],
             refresh: true,
         }),

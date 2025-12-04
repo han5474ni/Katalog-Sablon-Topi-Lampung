@@ -434,14 +434,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Chat button handler 
-    const chatBtn = document.querySelector('.chat-btn');
-    //console.log('Chat button found:', chatBtn);
+    // Chat button handler - Skip if inline handler already set (productChatBtn has inline handler in blade)
+    // This is a fallback for pages without inline handler
+    const chatBtn = document.querySelector('.chat-btn:not(#productChatBtn)');
     if (chatBtn) {
-        chatBtn.addEventListener('click', () => {
-            // Redirect to chatbot or open chat interface
-            window.location.href = '/chatbot';
+        chatBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             
+            // Check if unified chatbot popup function exists
+            if (typeof window.openUnifiedChatbotWithProduct === 'function') {
+                // Get product data from page
+                const productData = {
+                    id: document.querySelector('[data-product-id]')?.dataset.productId || null,
+                    name: document.querySelector('h1')?.textContent?.trim() || 'Produk',
+                    price: document.querySelector('.product-price')?.textContent?.trim() || '-',
+                    image: document.querySelector('.main-product-image img')?.src || null,
+                    // Get selected variant info
+                    selectedColor: document.querySelector('.color-option.selected')?.dataset.color || null,
+                    selectedSize: document.querySelector('.size-option.selected')?.dataset.size || null,
+                    // Get available variants
+                    availableColors: Array.from(document.querySelectorAll('.color-option')).map(el => el.dataset.color).filter(Boolean),
+                    availableSizes: Array.from(document.querySelectorAll('.size-option')).map(el => el.dataset.size).filter(Boolean)
+                };
+                
+                window.openUnifiedChatbotWithProduct(productData);
+            } else {
+                // Fallback: just open chatbot popup without product context
+                if (typeof window.openUnifiedChatbot === 'function') {
+                    window.openUnifiedChatbot();
+                } else {
+                    // Last resort: redirect
+                    window.location.href = '/chatbot';
+                }
+            }
         });
     }
 

@@ -259,6 +259,8 @@ Route::prefix('api')->group(function () {
     // Chatbot API routes
     Route::get('/chatbot/history', [App\Http\Controllers\Api\ChatbotApiController::class, 'getHistory'])->name('api.chatbot.history');
     Route::post('/chatbot/send', [App\Http\Controllers\Api\ChatbotApiController::class, 'sendMessage'])->name('api.chatbot.send');
+    Route::get('/chatbot/unread-count', [App\Http\Controllers\Api\ChatbotApiController::class, 'getUnreadCount'])->name('api.chatbot.unread-count');
+    Route::post('/chatbot/mark-read', [App\Http\Controllers\Api\ChatbotApiController::class, 'markAsRead'])->name('api.chatbot.mark-read');
 });
 
 
@@ -299,13 +301,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-// Chat Conversation API Routes - untuk customer dan admin
-Route::prefix('api/chat')->middleware('auth')->group(function () {
-    Route::post('/conversation/create', [\App\Http\Controllers\ChatConversationController::class, 'getOrCreateConversation'])->name('api.chat.create');
-    Route::post('/message/send', [\App\Http\Controllers\ChatConversationController::class, 'sendMessage'])->name('api.chat.send');
-    Route::get('/history/{conversationId}', [\App\Http\Controllers\ChatConversationController::class, 'getChatHistory'])->name('api.chat.history');
-    Route::post('/message/{messageId}/read', [\App\Http\Controllers\ChatConversationController::class, 'markMessageAsRead'])->name('api.chat.mark-read');
-});
+// Note: Chat Conversation API Routes removed - use ChatbotApiController routes instead
+// Route::prefix('api/chat') routes are deprecated, use /api/chatbot/* routes
 
 // Customer authenticated routes
 Route::middleware(['auth'])->group(function () {
@@ -409,7 +406,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/custom-design/download/{uploadId}', [CustomerController::class, 'downloadCustomDesignFile'])
         ->name('custom-design.download');
 
-    Route::get('/chatbot', [CustomerController::class, 'chatbot'])
+    // Chatbot route - redirect to chatpage
+    Route::get('/chatbot', [CustomerController::class, 'chatpage'])
         ->name('chatbot');
 
     Route::post('/logout', function () {

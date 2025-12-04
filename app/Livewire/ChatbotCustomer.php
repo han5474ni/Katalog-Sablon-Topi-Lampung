@@ -53,24 +53,48 @@ class ChatbotCustomer extends Component
         $this->conversation = ChatConversation::where('user_id', $userId)
             ->where('chat_source', 'chatbot')
             ->where('status', 'open')
+            ->orderBy('updated_at', 'desc')
             ->first();
             
         if (!$this->conversation) {
-            $this->conversation = ChatConversation::create([
-                'user_id' => $userId,
-                'status' => 'open',
-                'chat_source' => 'chatbot',
-                'subject' => 'Customer Chatbot',
-                'expires_at' => now()->addDays(30)
-            ]);
+            // Check for closed conversation to reopen (keep history unified)
+            $closedConv = ChatConversation::where('user_id', $userId)
+                ->where('chat_source', 'chatbot')
+                ->where('status', 'closed')
+                ->orderBy('updated_at', 'desc')
+                ->first();
+                
+            if ($closedConv) {
+                $closedConv->update([
+                    'status' => 'open',
+                    'expires_at' => now()->addDays(30)
+                ]);
+                $this->conversation = $closedConv;
+            } else {
+                // Only create new if absolutely none exists
+                $this->conversation = ChatConversation::create([
+                    'user_id' => $userId,
+                    'status' => 'open',
+                    'chat_source' => 'chatbot',
+                    'subject' => 'Customer Chatbot',
+                    'expires_at' => now()->addDays(30)
+                ]);
+            }
         }
     }
 
     protected function loadChatHistory()
     {
+        // Load ALL messages from this conversation (unified)
         $this->messages = ChatMessage::where('conversation_id', $this->conversation->id)
             ->orderBy('created_at', 'asc')
             ->get();
+            
+        // Mark all admin/bot messages as read by user when loading chat
+        ChatMessage::where('conversation_id', $this->conversation->id)
+            ->whereIn('sender_type', ['admin', 'bot'])
+            ->where('is_read_by_user', false)
+            ->update(['is_read_by_user' => true]);
     }
 
     protected function loadCategories()
@@ -151,8 +175,17 @@ class ChatbotCustomer extends Component
         // Clear quick replies after first message
         $this->quickReplies = [];
 
-        // Process message and get bot response
-        $this->processUserMessage($userMessage);
+        // Refresh conversation to get latest taken_over status
+        $this->conversation->refresh();
+        
+        // Only process bot response if admin hasn't taken over
+        if (!$this->conversation->taken_over_by_admin) {
+            // Process message and get bot response
+            $this->processUserMessage($userMessage);
+        } else {
+            // Admin has taken over - mark conversation needs response
+            $this->conversation->update(['needs_admin_response' => true]);
+        }
         
         // Dispatch event to scroll to bottom
         $this->dispatch('messageAdded');

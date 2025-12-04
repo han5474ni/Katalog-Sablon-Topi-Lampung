@@ -24,6 +24,8 @@ class AdminChatController extends Controller
     /**
      * Display chatbot management page
      * Shows all conversations that need admin attention
+     * Groups by user - shows one representative conversation per user
+     * But displays aggregate data from ALL user's conversations
      */
     public function index(Request $request)
     {
@@ -32,7 +34,26 @@ class AdminChatController extends Controller
         $page = $request->get('page', 1);
         $perPage = 20;
 
-        $query = ChatConversation::with(['user', 'product', 'messages', 'admin'])
+        // Get ALL conversation IDs per user, then we'll aggregate messages
+        $usersWithConversations = ChatConversation::whereNotNull('user_id')
+            ->select('user_id')
+            ->distinct()
+            ->pluck('user_id');
+
+        // Get one conversation per user (prefer open ones, or latest by updated_at)
+        $representativeConvIds = [];
+        foreach ($usersWithConversations as $userId) {
+            $conv = ChatConversation::where('user_id', $userId)
+                ->orderByRaw("CASE WHEN status = 'open' THEN 0 ELSE 1 END")
+                ->orderBy('updated_at', 'desc')
+                ->first();
+            if ($conv) {
+                $representativeConvIds[] = $conv->id;
+            }
+        }
+
+        $query = ChatConversation::with(['user', 'product', 'admin'])
+            ->whereIn('id', $representativeConvIds)
             ->orderBy('updated_at', 'desc');
 
         // Apply filters
@@ -53,24 +74,55 @@ class AdminChatController extends Controller
         }
 
         $conversations = $query->paginate($perPage);
+        
+        // Add aggregate data for each conversation (from ALL user's conversations)
+        foreach ($conversations as $conv) {
+            // Get all conversation IDs for this user
+            $userConvIds = ChatConversation::where('user_id', $conv->user_id)->pluck('id');
+            
+            // Count unread messages from ALL user's conversations
+            $conv->unread_count = ChatMessage::whereIn('conversation_id', $userConvIds)
+                ->where('sender_type', 'user')
+                ->where('is_read_by_admin', false)
+                ->count();
+            
+            // Get latest message from ALL user's conversations
+            $conv->latestMessage = ChatMessage::whereIn('conversation_id', $userConvIds)
+                ->orderBy('created_at', 'desc')
+                ->first();
+                
+            // Count total messages from ALL user's conversations
+            $conv->total_messages = ChatMessage::whereIn('conversation_id', $userConvIds)->count();
+        }
 
         return view('admin.chatbot.index', compact('conversations', 'filter', 'search'));
     }
 
     /**
      * Get conversation detail - API endpoint
+     * Gets ALL messages from ALL conversations of this user (unified view)
      */
     public function getConversation($conversationId)
     {
-        $conversation = ChatConversation::with(['user', 'product', 'messages' => function($q) {
-            $q->orderBy('created_at', 'asc');
-        }, 'admin'])->findOrFail($conversationId);
+        $conversation = ChatConversation::with(['user', 'product', 'admin'])->findOrFail($conversationId);
 
-        // Mark messages as read by admin
-        $conversation->messages()
+        // Get ALL conversations from this user
+        $userConversationIds = ChatConversation::where('user_id', $conversation->user_id)
+            ->pluck('id');
+
+        // Get ALL messages from ALL user's conversations, ordered by time
+        $allMessages = ChatMessage::whereIn('conversation_id', $userConversationIds)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Mark all unread messages from this user as read by admin
+        ChatMessage::whereIn('conversation_id', $userConversationIds)
             ->where('sender_type', 'user')
             ->where('is_read_by_admin', false)
             ->update(['is_read_by_admin' => true]);
+
+        // Attach messages to conversation for response
+        $conversation->setRelation('messages', $allMessages);
 
         return response()->json([
             'success' => true,
@@ -122,6 +174,7 @@ class AdminChatController extends Controller
 
     /**
      * Kirim pesan dari admin ke customer
+     * Pesan akan disimpan ke conversation aktif user untuk menjaga unified history
      */
     public function sendAdminMessage(Request $request, $conversationId)
     {
@@ -141,41 +194,66 @@ class AdminChatController extends Controller
         }
 
         try {
-            // Create admin message
+            // Find or get the most active conversation for this user (prefer open chatbot)
+            $targetConversation = ChatConversation::where('user_id', $conversation->user_id)
+                ->where('chat_source', 'chatbot')
+                ->where('status', 'open')
+                ->first();
+            
+            // If no open chatbot conversation, use the one with most recent messages
+            if (!$targetConversation) {
+                $targetConversation = ChatConversation::where('user_id', $conversation->user_id)
+                    ->orderBy('updated_at', 'desc')
+                    ->first();
+            }
+            
+            // If still no conversation found, reopen the current one
+            if (!$targetConversation) {
+                $targetConversation = $conversation;
+                $targetConversation->update(['status' => 'open']);
+            }
+            
+            $targetConversationId = $targetConversation->id;
+
+            // Create admin message in the target conversation
             $message = ChatMessage::create([
-                'conversation_id' => $conversationId,
-                'chat_conversation_id' => $conversationId,
+                'conversation_id' => $targetConversationId,
+                'chat_conversation_id' => $targetConversationId,
                 'sender_type' => 'admin',
                 'message' => $request->message,
                 'is_admin_reply' => true,
                 'is_read_by_user' => false
             ]);
 
-            // Update conversation status
-            $conversation->update([
+            // Update target conversation status
+            $targetConversation->update([
                 'taken_over_by_admin' => true,
                 'admin_id' => $adminId,
                 'is_admin_active' => true,
                 'needs_admin_response' => false,
                 'needs_response_since' => null,
+                'status' => 'open',
                 'updated_at' => now()
             ]);
 
             // Log activity
             Log::info('Admin sent message', [
-                'conversation_id' => $conversationId,
+                'original_conversation_id' => $conversationId,
+                'target_conversation_id' => $targetConversationId,
                 'message_id' => $message->id,
                 'admin_id' => $adminId,
                 'customer_id' => $conversation->user_id
             ]);
 
-            // Send notification to customer (popup badge only, not in notification page)
-            $adminName = Auth::guard('admin')->user()->name ?? 'Admin';
-            app(NotificationService::class)->notifyCustomerChatReply(
-                $conversationId,
-                $conversation->user_id,
-                $adminName
-            );
+            // Note: Chat notifications are shown as badge on chat icon only, not in notification page
+            // The is_read_by_user field is used to track unread messages
+            // Commented out: notifyCustomerChatReply was sending to main notification system
+            // $adminName = Auth::guard('admin')->user()->name ?? 'Admin';
+            // app(NotificationService::class)->notifyCustomerChatReply(
+            //     $conversationId,
+            //     $conversation->user_id,
+            //     $adminName
+            // );
 
             return response()->json([
                 'success' => true,

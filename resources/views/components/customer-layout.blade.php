@@ -159,7 +159,7 @@
             </header>
 
             <!-- Page Content -->
-            <div class="flex-1 overflow-auto p-2">
+            <div class="flex-1 {{ $active === 'chatpage' ? 'overflow-hidden p-0' : 'overflow-auto p-2' }}">
                 {{ $slot }}
             </div>
         </div>

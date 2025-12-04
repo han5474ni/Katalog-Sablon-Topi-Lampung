@@ -337,13 +337,18 @@ class NotificationService
 
     /**
      * Get unread count for user
+     * Note: Chat notifications (type='chat_reply') are excluded as they use badge system instead
      */
     public function getUnreadCount($userId, $type = 'user')
     {
         if ($type === 'admin') {
             return Notification::forAdmin($userId)->unread()->count();
         }
-        return Notification::forUser($userId)->unread()->count();
+        // Exclude chat notifications from unread count
+        return Notification::forUser($userId)
+            ->unread()
+            ->where('type', '!=', 'chat_reply')
+            ->count();
     }
 
     /**
@@ -367,12 +372,16 @@ class NotificationService
 
     /**
      * Get notifications for user or admin (returns collection)
+     * Note: Chat notifications (type='chat_reply') are excluded as they use badge system instead
      */
     public function getUserNotifications($userId, $limit = 20, $type = 'user')
     {
         $query = $type === 'admin' 
             ? Notification::forAdmin($userId) 
             : Notification::forUser($userId);
+        
+        // Exclude chat notifications - they should only appear as badge on chat icon
+        $query->where('type', '!=', 'chat_reply');
             
         return $query->orderBy('created_at', 'desc')
             ->limit($limit)
