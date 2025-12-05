@@ -366,6 +366,7 @@
     display: flex;
     flex-direction: column;
     max-width: 85%;
+    width: fit-content;
     animation: unifiedFadeIn 0.2s ease;
     padding: 0;
     margin: 0;
@@ -417,13 +418,15 @@
 }
 
 .unified-chatbot-popup .unified-message-bubble {
-    padding: 12px 14px;
-    border-radius: 16px;
+    padding: 8px 12px;
+    border-radius: 12px;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.4;
     word-wrap: break-word;
     overflow-wrap: break-word;
     white-space: pre-wrap;
+    width: fit-content;
+    max-width: 100%;
 }
 
 /* Bot message - Light gray bubble */
@@ -431,7 +434,6 @@
     background: #f0f0f0;
     color: #1a1a1a;
     border-top-left-radius: 4px;
-    max-width: 100%;
 }
 
 /* User message - Green bubble ONLY */
@@ -444,7 +446,7 @@
 .unified-chatbot-popup .unified-message-bubble p {
     margin: 0;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.4;
     display: block;
     white-space: pre-wrap;
 }
@@ -455,7 +457,7 @@
     color: #667781;
     display: block;
     text-align: right;
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 /* Product Card inside Chat Message */

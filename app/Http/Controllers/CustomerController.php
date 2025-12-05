@@ -52,8 +52,10 @@ class CustomerController extends Controller
             });
             
             // Calculate total spent - handle different column names for regular vs custom orders
+            // ONLY count orders that are NOT cancelled or rejected
             $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
-                return $order->created_at >= $thirtyDaysAgo;
+                return $order->created_at >= $thirtyDaysAgo
+                    && !in_array($order->status, ['cancelled', 'rejected']);
             })->sum(function($order) {
                 // Regular orders use 'total', custom design orders use 'total_price'
                 if ($order->order_type === 'custom') {
@@ -62,9 +64,11 @@ class CustomerController extends Controller
                 return (float) ($order->total ?? 0);
             });
             
+            // Total items also excludes cancelled/rejected orders
             $totalItems = 0;
             foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {
-                return $order->created_at >= $thirtyDaysAgo;
+                return $order->created_at >= $thirtyDaysAgo
+                    && !in_array($order->status, ['cancelled', 'rejected']);
             }) as $order) {
                 if ($order->order_type === 'regular' && isset($order->items)) {
                     $items = is_array($order->items) ? $order->items : [];
@@ -1656,8 +1660,10 @@ class CustomerController extends Controller
             });
             
             // Calculate total spent - handle different column names for regular vs custom orders
+            // ONLY count orders that are NOT cancelled or rejected
             $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
-                return $order->created_at >= $thirtyDaysAgo;
+                return $order->created_at >= $thirtyDaysAgo
+                    && !in_array($order->status, ['cancelled', 'rejected']);
             })->sum(function($order) {
                 // Regular orders use 'total', custom design orders use 'total_price'
                 if ($order->order_type === 'custom') {
@@ -1666,9 +1672,11 @@ class CustomerController extends Controller
                 return (float) ($order->total ?? 0);
             });
             
+            // Total items also excludes cancelled/rejected orders
             $totalItems = 0;
             foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {
-                return $order->created_at >= $thirtyDaysAgo;
+                return $order->created_at >= $thirtyDaysAgo
+                    && !in_array($order->status, ['cancelled', 'rejected']);
             }) as $order) {
                 if ($order->order_type === 'regular' && isset($order->items)) {
                     $items = is_array($order->items) ? $order->items : [];

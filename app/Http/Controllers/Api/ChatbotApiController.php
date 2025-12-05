@@ -260,8 +260,8 @@ class ChatbotApiController extends Controller
         
         // Check for price-related questions
         if (str_contains($msg, 'harga') || str_contains($msg, 'berapa') || str_contains($msg, 'price')) {
-            $response = "💰 <strong>Harga {$productName}</strong>\n\n";
-            $response .= "Harga: <strong>Rp {$formattedPrice}</strong>\n\n";
+            $response = "💰 *Harga {$productName}*\n\n";
+            $response .= "Harga: *Rp {$formattedPrice}*\n\n";
             
             // Add minimum order info if exists
             if ($product->min_order && $product->min_order > 1) {
@@ -274,11 +274,11 @@ class ChatbotApiController extends Controller
         
         // Check for stock-related questions
         if (str_contains($msg, 'stok') || str_contains($msg, 'tersedia') || str_contains($msg, 'ada') || str_contains($msg, 'stock')) {
-            $response = "📦 <strong>Ketersediaan {$productName}</strong>\n\n";
+            $response = "📦 *Ketersediaan {$productName}*\n\n";
             
             if ($product->stock !== null) {
                 if ($product->stock > 0) {
-                    $response .= "✅ Stok tersedia: <strong>{$product->stock} pcs</strong>\n";
+                    $response .= "✅ Stok tersedia: *{$product->stock} pcs*\n";
                 } else {
                     $response .= "❌ Maaf, stok sedang habis.\n";
                 }
@@ -288,7 +288,7 @@ class ChatbotApiController extends Controller
             
             // Check variant stock if exists
             if ($product->variants && $product->variants->count() > 0) {
-                $response .= "\n<strong>Stok per varian:</strong>\n";
+                $response .= "\n*Stok per varian:*\n";
                 foreach ($product->variants->take(5) as $variant) {
                     $variantStock = $variant->stock ?? 'Tersedia';
                     $variantInfo = [];
@@ -308,15 +308,15 @@ class ChatbotApiController extends Controller
         // Check for custom design questions
         if (str_contains($msg, 'custom') || str_contains($msg, 'desain') || str_contains($msg, 'design')) {
             if ($product->custom_design_allowed) {
-                return "🎨 <strong>Custom Design untuk {$productName}</strong>\n\n✅ Ya! Produk ini mendukung custom design.\n\nCara order custom:\n1. Tambahkan produk ke keranjang\n2. Upload desain Anda saat checkout\n3. Tim kami akan review dalam 1x24 jam\n\nFormat desain yang diterima: PNG, JPG, AI, PSD";
+                return "🎨 *Custom Design untuk {$productName}*\n\n✅ Ya! Produk ini mendukung custom design.\n\nCara order custom:\n1. Tambahkan produk ke keranjang\n2. Upload desain Anda saat checkout\n3. Tim kami akan review dalam 1x24 jam\n\nFormat desain yang diterima: PNG, JPG, AI, PSD";
             } else {
-                return "❌ Maaf, <strong>{$productName}</strong> tidak mendukung custom design.\n\nNamun produk ini tersedia dalam berbagai pilihan warna standar yang menarik! Cek halaman detail produk untuk melihat pilihan warna.";
+                return "❌ Maaf, *{$productName}* tidak mendukung custom design.\n\nNamun produk ini tersedia dalam berbagai pilihan warna standar yang menarik! Cek halaman detail produk untuk melihat pilihan warna.";
             }
         }
         
         // Check for color/variant questions
         if (str_contains($msg, 'warna') || str_contains($msg, 'color') || str_contains($msg, 'pilihan')) {
-            $response = "🎨 <strong>Pilihan Warna {$productName}</strong>\n\n";
+            $response = "🎨 *Pilihan Warna {$productName}*\n\n";
             
             if ($product->variants && $product->variants->count() > 0) {
                 $colors = $product->variants->pluck('color')->filter()->unique()->values();
@@ -337,7 +337,7 @@ class ChatbotApiController extends Controller
         
         // Check for size questions
         if (str_contains($msg, 'ukuran') || str_contains($msg, 'size')) {
-            $response = "📏 <strong>Ukuran {$productName}</strong>\n\n";
+            $response = "📏 *Ukuran {$productName}*\n\n";
             
             if ($product->variants && $product->variants->count() > 0) {
                 $sizes = $product->variants->pluck('size')->filter()->unique()->values();
@@ -358,7 +358,7 @@ class ChatbotApiController extends Controller
         
         // Check for material/bahan questions
         if (str_contains($msg, 'bahan') || str_contains($msg, 'material') || str_contains($msg, 'kualitas')) {
-            $response = "🧵 <strong>Detail {$productName}</strong>\n\n";
+            $response = "🧵 *Detail {$productName}*\n\n";
             
             if ($product->description) {
                 // Extract first 200 chars of description
@@ -373,7 +373,7 @@ class ChatbotApiController extends Controller
         
         // Check for shipping questions
         if (str_contains($msg, 'kirim') || str_contains($msg, 'pengiriman') || str_contains($msg, 'ongkir')) {
-            $response = "📦 <strong>Info Pengiriman {$productName}</strong>\n\n";
+            $response = "📦 *Info Pengiriman {$productName}*\n\n";
             $response .= "• Estimasi Jawa: 2-4 hari kerja\n";
             $response .= "• Estimasi Luar Jawa: 3-7 hari kerja\n";
             $response .= "• Pengiriman via JNE, J&T, SiCepat\n\n";
@@ -387,7 +387,7 @@ class ChatbotApiController extends Controller
         }
         
         // Default product info response
-        $response = "📦 <strong>Info Produk: {$productName}</strong>\n\n";
+        $response = "📦 *Info Produk: {$productName}*\n\n";
         $response .= "💰 Harga: Rp {$formattedPrice}\n";
         
         if ($product->stock !== null && $product->stock > 0) {
@@ -423,16 +423,16 @@ class ChatbotApiController extends Controller
         
         if (str_contains($msg, 'harga') || str_contains($msg, 'berapa')) {
             $formattedPrice = number_format($productPrice, 0, ',', '.');
-            return "💰 <strong>Harga {$productName}</strong>\n\nHarga: <strong>Rp {$formattedPrice}</strong>\n\nUntuk info lebih lanjut atau pemesanan, silakan hubungi admin kami.";
+            return "💰 *Harga {$productName}*\n\nHarga: *Rp {$formattedPrice}*\n\nUntuk info lebih lanjut atau pemesanan, silakan hubungi admin kami.";
         }
         
         if (str_contains($msg, 'stok') || str_contains($msg, 'tersedia')) {
-            return "📦 <strong>Ketersediaan {$productName}</strong>\n\nProduk ini tersedia dan siap dipesan. Untuk memastikan stok terkini, silakan cek halaman detail produk.";
+            return "📦 *Ketersediaan {$productName}*\n\nProduk ini tersedia dan siap dipesan. Untuk memastikan stok terkini, silakan cek halaman detail produk.";
         }
         
         if (str_contains($msg, 'custom') || str_contains($msg, 'desain')) {
             if ($customAllowed) {
-                return "🎨 <strong>Custom Design untuk {$productName}</strong>\n\nYa! Produk ini mendukung custom design. Anda bisa mengunggah desain Anda sendiri saat checkout.";
+                return "🎨 *Custom Design untuk {$productName}*\n\nYa! Produk ini mendukung custom design. Anda bisa mengunggah desain Anda sendiri saat checkout.";
             } else {
                 return "❌ Maaf, {$productName} tidak mendukung custom design. Namun tersedia dalam berbagai pilihan warna standar yang menarik!";
             }
@@ -440,7 +440,7 @@ class ChatbotApiController extends Controller
         
         // Default
         $formattedPrice = number_format($productPrice, 0, ',', '.');
-        return "📦 <strong>{$productName}</strong>\n\n💰 Harga: Rp {$formattedPrice}\n\nApa yang ingin Anda ketahui tentang produk ini? Tanyakan tentang stok, warna, ukuran, atau custom design.";
+        return "📦 *{$productName}*\n\n💰 Harga: Rp {$formattedPrice}\n\nApa yang ingin Anda ketahui tentang produk ini? Tanyakan tentang stok, warna, ukuran, atau custom design.";
     }
     
     /**

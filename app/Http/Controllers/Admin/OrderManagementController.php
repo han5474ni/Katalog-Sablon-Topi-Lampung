@@ -382,12 +382,14 @@ class OrderManagementController extends Controller
         // Check if user has active VA when trying to reject/cancel
         if (in_array($request->status, ['rejected', 'cancelled'])) {
             $activeVA = \App\Models\VirtualAccount::where('user_id', $order->user_id)
+                ->where('order_id', $id)
+                ->where('order_type', $orderType)
                 ->where('status', 'pending')
                 ->where('expired_at', '>', now())
                 ->first();
             
             if ($activeVA) {
-                $errorMessage = 'Tidak dapat mengubah status ke ' . $request->status . ' karena customer memiliki Virtual Account aktif. Harap tunggu hingga VA expired atau customer membatalkan VA terlebih dahulu.';
+                $errorMessage = 'Tidak dapat mengubah status ke ' . $request->status . ' karena pesanan ini memiliki Virtual Account aktif. Harap tunggu hingga VA expired atau customer membatalkan VA terlebih dahulu.';
                 
                 // If AJAX request, return JSON
                 if ($request->expectsJson() || $request->ajax()) {
@@ -400,6 +402,18 @@ class OrderManagementController extends Controller
                 return redirect()
                     ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
                     ->with('error', $errorMessage);
+            }
+            
+            // Restore stock if order was previously approved
+            if ($order->status === 'approved') {
+                $stockRestored = $this->restoreStockForOrder($order, $orderType);
+                Log::info('Stock restored due to status change to ' . $request->status, [
+                    'order_id' => $order->id,
+                    'order_type' => $orderType,
+                    'previous_status' => $order->status,
+                    'new_status' => $request->status,
+                    'stock_restored' => $stockRestored
+                ]);
             }
         }
 
