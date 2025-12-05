@@ -51,9 +51,16 @@ class CustomerController extends Controller
                 return $order->status === 'cancelled' && $order->created_at >= $thirtyDaysAgo;
             });
             
+            // Calculate total spent - handle different column names for regular vs custom orders
             $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
                 return $order->created_at >= $thirtyDaysAgo;
-            })->sum('total');
+            })->sum(function($order) {
+                // Regular orders use 'total', custom design orders use 'total_price'
+                if ($order->order_type === 'custom') {
+                    return (float) ($order->total_price ?? 0);
+                }
+                return (float) ($order->total ?? 0);
+            });
             
             $totalItems = 0;
             foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {
@@ -466,6 +473,33 @@ class CustomerController extends Controller
             $amount = $order->total;
         }
         
+        // Clean up any expired VAs for this order that haven't been processed yet
+        // This handles the case where scheduler hasn't run yet
+        $expiredVAs = \App\Models\VirtualAccount::where('user_id', $user->id)
+            ->where('order_type', $orderType)
+            ->where('order_id', $orderId)
+            ->where('status', 'pending')
+            ->where('expired_at', '<=', now())
+            ->get();
+        
+        foreach ($expiredVAs as $expiredVA) {
+            $expiredVA->update(['status' => 'expired']);
+            
+            // Reset order payment_status if it was va_active
+            if ($order->payment_status === 'va_active') {
+                $order->update(['payment_status' => 'unpaid']);
+            }
+            
+            // Mark associated transaction as failed
+            \App\Models\PaymentTransaction::where('user_id', $user->id)
+                ->where('order_type', $orderType)
+                ->where('order_id', $orderId)
+                ->where('status', 'pending')
+                ->update(['status' => 'failed', 'notes' => 'VA expired']);
+            
+            \Log::info("Cleaned up expired VA #{$expiredVA->id} during new VA generation for order #{$orderId}");
+        }
+        
         // Check if this order already has an active VA
         $existingVA = \App\Models\VirtualAccount::where('user_id', $user->id)
             ->where('order_type', $orderType)
@@ -503,7 +537,7 @@ class CustomerController extends Controller
             'va_number' => $vaNumber,
             'amount' => $amount,
             'status' => 'pending',
-            'expired_at' => now()->addHour(), // 1 hour expiry
+            'expired_at' => now()->addMinutes(10), // 10 minutes expiry
         ]);
         
         // Update this specific order payment_status to 'va_active'
@@ -698,6 +732,41 @@ class CustomerController extends Controller
         $orderId = $request->session()->get('payment_order_id');
         
         if ($orderType && $orderId) {
+            // Cleanup any expired VAs for this order (edge case: scheduler hasn't run yet)
+            $expiredVAs = \App\Models\VirtualAccount::where('user_id', $user->id)
+                ->where('order_type', $orderType)
+                ->where('order_id', $orderId)
+                ->where('status', 'pending')
+                ->where('expired_at', '<=', now())
+                ->get();
+            
+            foreach ($expiredVAs as $expiredVA) {
+                $expiredVA->update(['status' => 'expired']);
+                
+                // Reset order payment_status if it was va_active
+                if ($orderType === 'custom') {
+                    $expiredOrder = \App\Models\CustomDesignOrder::find($orderId);
+                } else {
+                    $expiredOrder = \App\Models\Order::find($orderId);
+                }
+                
+                if ($expiredOrder && $expiredOrder->payment_status === 'va_active') {
+                    $expiredOrder->update(['payment_status' => 'unpaid']);
+                }
+                
+                // Update transaction status
+                \App\Models\PaymentTransaction::where('order_type', $orderType === 'custom' ? 'custom_design_order' : 'order')
+                    ->where('order_id', $orderId)
+                    ->where('status', 'pending')
+                    ->update(['status' => 'failed']);
+                
+                \Log::info("Cleaned up expired VA on pembayaran page", [
+                    'va_id' => $expiredVA->id,
+                    'order_type' => $orderType,
+                    'order_id' => $orderId
+                ]);
+            }
+            
             // Payment for existing order
             if ($orderType === 'custom') {
                 $order = \App\Models\CustomDesignOrder::where('user_id', $user->id)
@@ -1586,9 +1655,16 @@ class CustomerController extends Controller
                 return $order->status === 'cancelled' && $order->created_at >= $thirtyDaysAgo;
             });
             
+            // Calculate total spent - handle different column names for regular vs custom orders
             $totalSpent = $allOrders->filter(function($order) use ($thirtyDaysAgo) {
                 return $order->created_at >= $thirtyDaysAgo;
-            })->sum('total');
+            })->sum(function($order) {
+                // Regular orders use 'total', custom design orders use 'total_price'
+                if ($order->order_type === 'custom') {
+                    return (float) ($order->total_price ?? 0);
+                }
+                return (float) ($order->total ?? 0);
+            });
             
             $totalItems = 0;
             foreach ($allOrders->filter(function($order) use ($thirtyDaysAgo) {

@@ -8,8 +8,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Auto-expire VA setiap 5 menit
-Schedule::command('va:expire')->everyFiveMinutes();
-
-// Check expired VAs and restore stock every minute
+// Check expired VAs every minute (handles: stock restore, order cancel, payment status reset)
 Schedule::command('va:check-expired')->everyMinute();
+
+// Note: va:expire is deprecated and now just calls va:check-expired
