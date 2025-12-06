@@ -885,7 +885,18 @@
         </div>
 
         {{-- Action Buttons (match screenshot style) --}}
-        @if($orderType === 'custom' && $order->status === 'pending')
+        @if(in_array($order->status, ['approved', 'processing']) && (isset($order->payment_status) && $order->payment_status !== 'paid'))
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 12px;">
+            <form method="POST" action="{{ route('admin.order.mark-paid', ['id' => $order->id]) }}?type={{ $orderType }}" style="display: inline; margin: 0;">
+                @csrf
+                @method('PATCH')
+                <button type="submit" onclick="return confirm('Tandai pesanan sebagai Dibayar?')" style="padding: 12px 36px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                    <i class="fas fa-money-check-alt"></i> Tandai Dibayar
+                </button>
+            </form>
+        </div>
+        @elseif($orderType === 'custom' && $order->status === 'pending')
+        {{-- Custom Pending Actions --}}
         <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 12px;">
             <button type="button" onclick="showRejectModal()" style="padding: 12px 36px; background: #f59e0b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">
                 Ditolak

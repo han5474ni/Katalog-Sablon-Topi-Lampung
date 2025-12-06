@@ -20,6 +20,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ResendWebhookController;
+use App\Http\Controllers\WhatsAppController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -361,16 +362,20 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pembayaran/process-order', [CustomerController::class, 'processOrder'])
             ->name('pembayaran.process');
 
-        Route::get('/order-list', [CustomerController::class, 'orderList'])
-            ->name('order-list');
+Route::get('/order-list', [CustomerController::class, 'orderList'])
+    ->name('order-list');
         Route::get('/payment-status', [CustomerController::class, 'paymentStatus'])
             ->name('payment-status');
         
         Route::get('/order-detail/{type}/{id}', [CustomerController::class, 'orderDetail'])
             ->name('order-detail');
         
-        Route::post('/order/{type}/{id}/cancel', [CustomerController::class, 'cancelOrder'])
-            ->name('order.cancel');
+Route::post('/order/{type}/{id}/cancel', [CustomerController::class, 'cancelOrder'])
+    ->name('order.cancel');
+
+// Redirect WhatsApp with server-built message and logging
+Route::get('/whatsapp/send/{type}/{id}', [WhatsAppController::class, 'send'])
+    ->name('whatsapp.send');
 
         // Deprecated Midtrans payment routes removed - System now uses Virtual Account
         // See CLEANUP_REPORT.md for details
@@ -419,6 +424,8 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleC
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
+    Route::patch('/order/{id}/mark-paid', [\App\Http\Controllers\Admin\OrderManagementController::class, 'markPaid'])
+        ->name('admin.order.mark-paid');
     // Routes untuk admin yang belum login
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');

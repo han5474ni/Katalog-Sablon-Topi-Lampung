@@ -17,6 +17,7 @@ use App\Events\OrderCompletedEvent;
 use App\Events\PaymentReceivedEvent;
 use App\Events\CustomDesignApprovedEvent;
 use App\Events\CustomDesignRejectedEvent;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Log, Mail};
 use Maatwebsite\Excel\Facades\Excel;
@@ -510,6 +511,46 @@ class OrderManagementController extends Controller
         return redirect()
             ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
             ->with('success', 'Status pesanan berhasil diubah ke ' . ucfirst($request->status));
+    }
+
+    /**
+     * Mark order as paid manually by admin
+     */
+    public function markPaid(Request $request, $id)
+    {
+        $orderType = $request->get('type', 'regular');
+
+        if ($orderType === 'custom') {
+            $order = CustomDesignOrder::findOrFail($id);
+        } else {
+            $order = Order::findOrFail($id);
+        }
+
+        // Only allow marking paid if order is approved
+        if ($order->status !== 'approved' && $order->status !== 'processing') {
+            return redirect()
+                ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                ->with('error', 'Pesanan harus Disetujui sebelum ditandai sebagai Dibayar');
+        }
+
+        $order->update([
+            'payment_status' => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        // If AJAX request, return JSON
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pembayaran pesanan ditandai sebagai Dibayar',
+                'payment_status' => 'paid',
+                'paid_at' => now()->format('Y-m-d H:i:s')
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+            ->with('success', 'Status pembayaran ditandai sebagai Dibayar');
     }
 
     /**

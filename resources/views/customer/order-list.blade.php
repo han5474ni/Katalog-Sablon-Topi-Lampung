@@ -235,10 +235,82 @@
                                                class="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
                                                 <i class="fas fa-eye mr-1"></i> Detail
                                             </a>
-                                            <a href="{{ route('alamat') }}?order_type=custom&order_id={{ $order->id }}" 
+                                            @php
+                                                $adminWa = '6289508585888'; // Nomor WhatsApp admin (format internasional tanpa +)
+                                                $productDesc = $order->product_name;
+                                                if ($order->variant) {
+                                                    $variantParts = [];
+                                                    if ($order->variant->color) $variantParts[] = $order->variant->color;
+                                                    if ($order->variant->size) $variantParts[] = $order->variant->size;
+                                                    if (!empty($variantParts)) {
+                                                        $productDesc .= ' • ' . implode(' • ', $variantParts);
+                                                    }
+                                                }
+                                                $waText = "Halo, saya ingin membayar pesanan #{$order->id} {$productDesc}";
+                                                $waUrl = route('whatsapp.send', ['type' => 'custom', 'id' => $order->id]);
+                                            @endphp
+                                            @php
+                                                // ===== WhatsApp Message (Custom Design) =====
+                                                $orderNumber = $order->order_number ?? $order->id;
+                                                $unitPrice = (float)($order->product_price ?? 0);
+                                                $qty = (int)($order->quantity ?? 1);
+                                                $variantText = '';
+                                                if ($order->variant) {
+                                                    $vt = [];
+                                                    if ($order->variant->color) $vt[] = $order->variant->color;
+                                                    if ($order->variant->size) $vt[] = $order->variant->size;
+                                                    if (!empty($vt)) $variantText = ' • ' . implode(' • ', $vt);
+                                                }
+
+                                                // Shipping info (may be empty for custom if not saved)
+                                                $shippingLabelFn = function($service) {
+                                                    $s = strtolower((string)$service);
+                                                    return match ($s) {
+                                                        'jne' => 'JNE',
+                                                        'jnt', 'j&t' => 'J&T',
+                                                        'sicepat' => 'SiCepat',
+                                                        'pos' => 'POS Indonesia',
+                                                        'pickup' => 'Ambil di Toko',
+                                                        default => ($service ?: '-')
+                                                    };
+                                                };
+                                                $shippingService = $shippingLabelFn($order->shipping_service ?? null);
+                                                $address = null;
+                                                if (!empty($order->customer_address_id)) {
+                                                    $address = \App\Models\CustomerAddress::find($order->customer_address_id);
+                                                }
+                                                $recipient = $address?->recipient_name;
+                                                $recipientPhone = $address?->phone;
+                                                $addressLine = $address ? $address->formatted_address : null;
+
+                                                $waLines = [];
+                                                $waLines[] = "Halo Admin,";
+                                                $waLines[] = "Saya ingin membayar pesanan berikut:";
+                                                $waLines[] = "";
+                                                $waLines[] = "🧾 Pesanan #{$orderNumber}";
+                                                $waLines[] = "Jenis: Custom Design";
+                                                $waLines[] = "";
+                                                $waLines[] = "Daftar Produk:";
+                                                $lineProduct = sprintf("- %s%s x%d — Rp %s", $order->product_name, $variantText, $qty, number_format($unitPrice ?: ((float)$order->total_price / max($qty,1)), 0, ',', '.'));
+                                                $waLines[] = $lineProduct;
+                                                $waLines[] = "";
+                                                $waLines[] = "Total Pembayaran: Rp " . number_format((float)$order->total_price, 0, ',', '.');
+                                                if ($shippingService || $addressLine) {
+                                                    $waLines[] = "";
+                                                    $waLines[] = "Pengiriman: " . ($shippingService ?: '-');
+                                                    if ($recipient) $waLines[] = "Penerima: {$recipient}" . ($recipientPhone ? " ({$recipientPhone})" : '');
+                                                    if ($addressLine) $waLines[] = "Alamat: {$addressLine}";
+                                                }
+                                                $waLines[] = "";
+                                                $waLines[] = "Mohon info langkah pembayaran. Terima kasih.";
+                                                $waText = implode("\n", $waLines);
+                                                $waUrl = route('whatsapp.send', ['type' => 'custom', 'id' => $order->id]);
+                                            @endphp
+                                            <a href="{{ $waUrl }}" target="_blank" onclick="setWaStatus({{ $order->id }})"
                                                class="px-3 py-1 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition whitespace-nowrap">
-                                                <i class="fas fa-credit-card mr-1"></i> Bayar
+                                                <i class="fab fa-whatsapp mr-1"></i> Bayar via WhatsApp
                                             </a>
+                                            <span class="text-xs text-gray-500 ml-2" id="wa-status-{{ $order->id }}"></span>
                                         @endif
                                     @elseif(in_array($order->status, ['processing', 'completed']))
                                         <a href="{{ route('payment-status', ['type' => 'custom', 'order_id' => $order->id]) }}" 
@@ -339,10 +411,70 @@
                                            class="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                                             <i class="fas fa-eye mr-1"></i> Detail
                                         </a>
-                                        <a href="{{ route('alamat') }}?order_type=regular&order_id={{ $order->id }}" 
+                                        @php
+                                            $adminWa = '6289508585888'; // Nomor WhatsApp admin (format internasional tanpa +)
+
+                                            // ===== WhatsApp Message (Regular Order) =====
+                                            $orderNumber = $order->order_number ?? $order->id;
+
+                                            $shippingLabelFn = function($service) {
+                                                $s = strtolower((string)$service);
+                                                return match ($s) {
+                                                    'jne' => 'JNE',
+                                                    'jnt', 'j&t' => 'J&T',
+                                                    'sicepat' => 'SiCepat',
+                                                    'pos' => 'POS Indonesia',
+                                                    'pickup' => 'Ambil di Toko',
+                                                    default => ($service ?: '-')
+                                                };
+                                            };
+
+                                            $address = $order->address; // lazy-loaded relation
+                                            $recipient = $address?->recipient_name;
+                                            $recipientPhone = $address?->phone;
+                                            $addressLine = $address ? $address->formatted_address : null;
+                                            $shippingService = $shippingLabelFn($order->shipping_service ?? null);
+
+                                            $waLines = [];
+                                            $waLines[] = "Halo Admin,";
+                                            $waLines[] = "Saya ingin membayar pesanan berikut:";
+                                            $waLines[] = "";
+                                            $waLines[] = "🧾 Pesanan #{$orderNumber}";
+                                            $waLines[] = "Jenis: Reguler";
+                                            $waLines[] = "";
+                                            $waLines[] = "Daftar Produk:";
+                                            $subtotalCalc = 0;
+                                            foreach ($items as $idx => $it) {
+                                                $name = $it['name'] ?? 'Produk';
+                                                $color = !empty($it['color']) ? (' • ' . $it['color']) : '';
+                                                $size = !empty($it['size']) ? (' • ' . $it['size']) : '';
+                                                $qty = isset($it['quantity']) ? (int)$it['quantity'] : 0;
+                                                $price = isset($it['price']) ? (float)$it['price'] : 0;
+                                                $lineTotal = $price * $qty;
+                                                $subtotalCalc += $lineTotal;
+                                                $waLines[] = sprintf("%d) %s%s%s x%d — Rp %s", $idx + 1, $name, $color, $size, $qty, number_format($lineTotal, 0, ',', '.'));
+                                                $waLines[] = sprintf("   Harga satuan: Rp %s", number_format($price, 0, ',', '.'));
+                                            }
+                                            $waLines[] = "";
+                                            $waLines[] = "Subtotal: Rp " . number_format($subtotalCalc, 0, ',', '.');
+                                            $waLines[] = "Total Pembayaran: Rp " . number_format((float)$order->total, 0, ',', '.');
+                                            if ($shippingService || $addressLine) {
+                                                $waLines[] = "";
+                                                $waLines[] = "Pengiriman: " . ($shippingService ?: '-');
+                                                if ($recipient) $waLines[] = "Penerima: {$recipient}" . ($recipientPhone ? " ({$recipientPhone})" : '');
+                                                if ($addressLine) $waLines[] = "Alamat: {$addressLine}";
+                                            }
+                                            $waLines[] = "";
+                                            $waLines[] = "Mohon info langkah pembayaran. Terima kasih.";
+
+                                            $waText = implode("\n", $waLines);
+                                            $waUrl = route('whatsapp.send', ['type' => 'regular', 'id' => $order->id]);
+                                        @endphp
+                                        <a href="{{ $waUrl }}" target="_blank" onclick="setWaStatus({{ $order->id }})"
                                            class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">
-                                            <i class="fas fa-credit-card mr-1"></i> Bayar
+                                            <i class="fab fa-whatsapp mr-1"></i> Bayar via WhatsApp
                                         </a>
+                                        <span class="text-xs text-gray-500 ml-2" id="wa-status-{{ $order->id }}"></span>
                                     @endif
                                 @elseif(in_array($order->status, ['processing', 'completed']))
                                     <a href="{{ route('payment-status', ['type' => 'regular', 'order_id' => $order->id]) }}" 
@@ -408,6 +540,16 @@
             } catch (error) {
                 console.error('Error:', error);
                 alert('Terjadi kesalahan saat membatalkan pesanan');
+            }
+        }
+
+        function setWaStatus(orderId) {
+            const el = document.getElementById(`wa-status-${orderId}`);
+            if (el) {
+                el.textContent = 'Membuka WhatsApp…';
+                setTimeout(() => {
+                    el.textContent = 'Tautan dibuka. Lanjutkan kirim di WhatsApp.';
+                }, 800);
             }
         }
     </script>
