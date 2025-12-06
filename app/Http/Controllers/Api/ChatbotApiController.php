@@ -465,7 +465,12 @@ class ChatbotApiController extends Controller
             return 'Untuk informasi harga lengkap, silakan kunjungi halaman katalog atau detail produk.';
         }
         
-        if (str_contains($msg, 'stok') || str_contains($msg, 'tersedia') || str_contains($msg, 'ada')) {
+        // Check promo/diskon BEFORE stock check (karena kata "ada" bisa memicu stock check)
+        if (str_contains($msg, 'promo') || str_contains($msg, 'diskon') || str_contains($msg, 'sale')) {
+            return "🎉 Promo Saat Ini:\n\n• Diskon untuk pembelian pertama\n• Free ongkir min. belanja Rp 200.000\n• Potongan harga untuk order custom dalam jumlah besar\n\nKunjungi halaman utama untuk promo terbaru!";
+        }
+        
+        if (str_contains($msg, 'stok') || str_contains($msg, 'tersedia') || str_contains($msg, 'stock')) {
             $inStockCount = Product::where('is_active', true)->where('stock', '>', 0)->count();
             return "Kami memiliki {$inStockCount} produk yang tersedia saat ini! Untuk cek ketersediaan produk spesifik, silakan lihat halaman detail produk.";
         }
@@ -477,10 +482,6 @@ class ChatbotApiController extends Controller
         if (str_contains($msg, 'custom') || str_contains($msg, 'desain') || str_contains($msg, 'design')) {
             $customCount = Product::where('is_active', true)->where('custom_design_allowed', true)->count();
             return "🎨 Custom Design:\n\nYa! Kami menerima custom design. Saat ini ada {$customCount} produk yang mendukung custom design.\n\nCara order custom:\n1. Pilih produk dengan label CUSTOM\n2. Upload desain Anda saat checkout\n3. Tim kami akan review dalam 1x24 jam";
-        }
-        
-        if (str_contains($msg, 'promo') || str_contains($msg, 'diskon') || str_contains($msg, 'sale')) {
-            return "🎉 Promo Saat Ini:\n\n• Diskon untuk pembelian pertama\n• Free ongkir min. belanja Rp 200.000\n• Potongan harga untuk order custom dalam jumlah besar\n\nKunjungi halaman utama untuk promo terbaru!";
         }
         
         if (str_contains($msg, 'kategori') || str_contains($msg, 'produk') || str_contains($msg, 'jual')) {
