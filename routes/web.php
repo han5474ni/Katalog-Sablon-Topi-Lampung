@@ -5,53 +5,83 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 // =============================
+// IMPORT CONTROLLERS
+// =============================
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomDesignPriceController;
+use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerProfileController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ResendWebhookController;
+
+use App\Http\Controllers\Admin\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ProductManagementController;
+use App\Http\Controllers\Admin\OrderManagementController;
+use App\Http\Controllers\Admin\AdminNotificationController;
+
+use App\Services\ChatBotService;
+
+
+// =============================
 // PUBLIC ROUTES
 // =============================
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/tentang-kami', fn() => view('pages.about'))->name('about');
 
 Route::get('/all-products', [ProductController::class, 'allProducts'])->name('all-products');
 Route::get('/produk/{id}', [ProductController::class, 'detail'])->name('product.detail');
+
 Route::get('/catalog/{category}', [CatalogController::class, 'index'])->name('catalog');
 
-// API public (custom design prices)
+
+// =============================
+// PUBLIC API
+// =============================
 Route::get('/api/custom-design-prices', [CustomDesignPriceController::class, 'getPrices']);
 Route::get('/api/product-custom-design-prices/{productId}', [CustomDesignPriceController::class, 'getProductPrices']);
 
 
 // =============================
-// AUTH ROUTES (DEFAULT + GOOGLE)
+// AUTH (DEFAULT + GOOGLE)
 // =============================
 require __DIR__.'/auth.php';
 
-// Google OAuth
 Route::middleware('guest')->group(function () {
-    Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])
+        ->name('google.login');
+
+    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])
+        ->name('google.callback');
 });
 
+
 // =============================
-// CUSTOMER ROUTES
+// CUSTOMER (AUTH REQUIRED)
 // =============================
 Route::middleware(['auth'])->group(function () {
 
-    // —— PROFILE ——
+    // ===== PROFILE =====
     Route::prefix('profile')->group(function () {
         Route::get('/', [CustomerProfileController::class, 'index'])->name('profile');
         Route::post('/', [CustomerProfileController::class, 'update'])->name('profile.update');
+
         Route::post('/password', [CustomerProfileController::class, 'updatePassword'])->name('profile.update-password');
         Route::post('/avatar', [CustomerProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
         Route::delete('/avatar', [CustomerProfileController::class, 'deleteAvatar'])->name('profile.delete-avatar');
 
-        // Address
         Route::post('/address', [CustomerProfileController::class, 'storeAddress'])->name('profile.address.store');
         Route::put('/address/{id}', [CustomerProfileController::class, 'updateAddress'])->name('profile.address.update');
         Route::delete('/address/{id}', [CustomerProfileController::class, 'deleteAddress'])->name('profile.address.delete');
         Route::post('/address/{id}/set-primary', [CustomerProfileController::class, 'setPrimaryAddress'])->name('profile.address.set-primary');
     });
 
-    // —— NOTIFICATIONS ——
+    // ===== NOTIFICATIONS =====
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -59,18 +89,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/archive', [NotificationController::class, 'archive'])->name('notifications.archive');
     });
 
-    // —— CUSTOMER DASHBOARD ——
+    // ===== CUSTOMER DASHBOARD =====
     Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
 
-    // Dashboard API
     Route::prefix('api/dashboard')->group(function () {
         Route::get('/stats', [CustomerController::class, 'getDashboardStats']);
         Route::get('/recent-orders', [CustomerController::class, 'getRecentOrdersData']);
     });
 
-    // =============================
-    // CUSTOMER ONLY (cart, checkout, orders)
-    // =============================
+    // ===== CUSTOMER ONLY (CART, PAYMENT, ORDER) =====
     Route::middleware('customer.only')->group(function () {
 
         // CART
@@ -104,12 +131,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/custom-design', [CustomerController::class, 'storeCustomDesign'])->name('custom-design.store');
         Route::get('/custom-design/download/{uploadId}', [CustomerController::class, 'downloadCustomDesignFile'])->name('custom-design.download');
 
-        // CHATBOT
+        // CHATBOT PAGES
         Route::get('/chatpage', [CustomerController::class, 'chatpage'])->name('chatpage');
         Route::get('/notifikasi', [CustomerController::class, 'notifikasi'])->name('notifikasi');
     });
 
-    // Logout
+    // ------- LOGOUT -------
     Route::post('/logout', function () {
         Auth::logout();
         request()->session()->invalidate();
@@ -120,7 +147,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 // =============================
-// CHAT ROUTES (AUTH REQUIRED + VERIFIED EMAIL)
+// CHAT (AUTH + VERIFIED)
 // =============================
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('chat')->group(function () {
@@ -130,6 +157,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('chat.send');
     });
 });
+
 
 // =============================
 // API STOCK
@@ -149,53 +177,46 @@ Route::post('/webhooks/resend', [ResendWebhookController::class, 'handle'])
 // =============================
 Route::prefix('admin')->group(function () {
 
-    // --- Admin Guest (login) ---
+    // GUEST ADMIN
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
         Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
     });
 
-    // --- Admin Authenticated ---
+    // AUTH ADMIN
     Route::middleware('admin')->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-        // PRODUCT
+        // PRODUCTS
         Route::get('/products', [ProductManagementController::class, 'index'])->name('admin.products');
         Route::get('/products/{id}', [ProductManagementController::class, 'productDetail'])->name('admin.products.detail');
 
         // ORDERS
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
-        
+
         // USERS
         Route::get('/management-users', [UserManagementController::class, 'index'])->name('admin.management-users');
 
-        // NOTIFICATIONS
+        // ADMIN NOTIFICATIONS
         Route::prefix('notifications')->group(function () {
             Route::get('/', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
             Route::post('/read-all', [AdminNotificationController::class, 'markAllAsRead']);
         });
 
-        // LOGOUT
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
     });
 });
 
 
 // =============================
-// TEST & DEBUG ROUTES (DISARANKAN PINDAH KE ROUTE TERPISAH)
+// DEBUG ROUTES
 // =============================
-// Kamu bisa memindahkan ini ke routes/debug.php agar tidak masuk production.
-// Untuk sekarang tetap kubiarkan.
+Route::get('/debug-n8n-config', fn() => [
+    'n8n_url' => config('services.n8n.webhook_url'),
+    'env' => env('N8N_WEBHOOK_URL'),
+]);
 
-Route::get('/debug-n8n-config', function () {
-    return [
-        'n8n_url' => config('services.n8n.webhook_url'),
-        'env' => env('N8N_WEBHOOK_URL'),
-    ];
-});
-
-Route::get('/test-n8n-simple', function () {
-    return Http::post(config('services.n8n.webhook_url'), ['message' => 'test']);
-});
-
+Route::get('/test-n8n-simple', fn() =>
+    Http::post(config('services.n8n.webhook_url'), ['message' => 'test'])
+);
