@@ -63,6 +63,11 @@ export default defineConfig({
                 'resources/js/guest/catalog.js',
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
+                'resources/js/guest/about.js',
+                'resources/js/guest/alamat.js',
+                'resources/js/guest/pemesanan.js',
+                'resources/js/guest/other-info.js',
+                'resources/js/guest/guest.css', 
                 // 'resources/js/guest/chatbot-popup.js', // removed: file not found
                 
                 // Customer
