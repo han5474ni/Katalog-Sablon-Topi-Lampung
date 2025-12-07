@@ -21,6 +21,7 @@ export default defineConfig({
                 // Admin
                 'resources/css/admin/login.css',
                 'resources/css/admin/dashboard.css',
+                'resources/css/admin/analytics.css',
                 'resources/css/admin/history.css',
                 'resources/css/admin/profile.css',
                 'resources/css/admin/customer-detail.css',
@@ -36,6 +37,7 @@ export default defineConfig({
                 'resources/js/admin/layout.js',
                 'resources/js/admin/all-products.js',
                 'resources/js/admin/dashboard-charts.js',
+                'resources/js/admin/analytics.js',
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/modern-add-product.js',
