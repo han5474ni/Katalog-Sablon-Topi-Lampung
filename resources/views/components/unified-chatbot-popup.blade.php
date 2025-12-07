@@ -339,13 +339,13 @@
 
 .unified-chatbot-messages {
     flex: 1;
-    padding: 14px;
+    padding: 10px 12px;
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #ffffff;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
 .unified-chatbot-messages::-webkit-scrollbar {
@@ -365,12 +365,13 @@
 .unified-chatbot-popup .unified-message {
     display: flex;
     flex-direction: column;
-    max-width: 85%;
+    max-width: 80%;
     animation: unifiedFadeIn 0.2s ease;
     padding: 0;
     margin: 0;
     border: none;
     background: none;
+    width: fit-content;
 }
 
 @keyframes unifiedFadeIn {
@@ -417,13 +418,13 @@
 }
 
 .unified-chatbot-popup .unified-message-bubble {
-    padding: 12px 14px;
-    border-radius: 16px;
+    padding: 8px 12px;
+    border-radius: 14px;
     font-size: 13px;
     line-height: 1.5;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    white-space: pre-wrap;
+    max-width: 100%;
 }
 
 /* Bot message - Light gray bubble */
@@ -432,6 +433,7 @@
     color: #1a1a1a;
     border-top-left-radius: 4px;
     max-width: 100%;
+    white-space: pre-wrap;
 }
 
 /* User message - Green bubble ONLY */
@@ -439,23 +441,49 @@
     background: #dcf8c6;
     color: #1a1a1a;
     border-top-right-radius: 4px;
+    white-space: normal;
+    display: inline-block;
+    width: fit-content;
 }
 
 .unified-chatbot-popup .unified-message-bubble p {
     margin: 0;
     font-size: 13px;
     line-height: 1.5;
+}
+
+/* Bot message text - block display for proper formatting */
+.unified-chatbot-popup .unified-message.bot-message .unified-message-bubble p {
     display: block;
     white-space: pre-wrap;
+}
+
+/* User message text - inline for compact display */
+.unified-chatbot-popup .unified-message.user-message .unified-message-bubble p {
+    display: inline;
+    white-space: normal;
 }
 
 /* Time inside bubble */
 .unified-chatbot-popup .unified-message-bubble .unified-message-time {
     font-size: 10px;
     color: #667781;
+}
+
+/* Bot message time - block at bottom right */
+.unified-chatbot-popup .unified-message.bot-message .unified-message-bubble .unified-message-time {
     display: block;
     text-align: right;
-    margin-top: 6px;
+    margin-top: 4px;
+}
+
+/* User message time - inline float right */
+.unified-chatbot-popup .unified-message.user-message .unified-message-bubble .unified-message-time {
+    display: inline-block;
+    float: right;
+    margin-left: 8px;
+    margin-top: 2px;
+    vertical-align: bottom;
 }
 
 /* Product Card inside Chat Message */
@@ -525,6 +553,68 @@
     text-decoration: underline;
 }
 
+/* Product Cards Grid in Bot Response */
+.unified-chatbot-popup .chat-product-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+
+.unified-chatbot-popup .chat-product-mini-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.unified-chatbot-popup .chat-product-mini-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.unified-chatbot-popup .chat-product-mini-image {
+    width: 100%;
+    height: 70px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+
+.unified-chatbot-popup .chat-product-mini-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.unified-chatbot-popup .chat-product-mini-info {
+    padding: 6px 8px;
+    background: #fff;
+}
+
+.unified-chatbot-popup .chat-product-mini-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a2332;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 2px;
+}
+
+.unified-chatbot-popup .chat-product-mini-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e53935;
+}
+
 /* Adjust user message with product card */
 .unified-chatbot-popup .unified-message.user-message.product-inquiry-message .unified-message-bubble {
     background: #dcf8c6;
@@ -539,16 +629,16 @@
 .unified-quick-replies {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 12px 14px;
+    gap: 6px;
+    padding: 8px 12px;
     background: #fff;
     border-top: 1px solid #e5e7eb;
     flex-shrink: 0;
 }
 
 .unified-quick-reply {
-    padding: 8px 14px;
-    border-radius: 18px;
+    padding: 6px 12px;
+    border-radius: 16px;
     border: 1px solid #d1d5db;
     background: #fff;
     font-size: 12px;
@@ -565,8 +655,8 @@
 }
 
 .unified-chatbot-input-wrapper {
-    padding: 12px 14px;
-    padding-bottom: 16px;
+    padding: 10px 12px;
+    padding-bottom: 12px;
     background: #fff;
     border-top: 1px solid #e5e7eb;
     flex-shrink: 0;
@@ -575,15 +665,15 @@
 .unified-chatbot-input-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .unified-chatbot-input {
     flex: 1;
-    padding: 12px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 24px;
-    font-size: 14px;
+    padding: 10px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 22px;
+    font-size: 13px;
     outline: none;
     background: #f9fafb;
     transition: all 0.2s;
@@ -598,8 +688,8 @@
     background: #0f172a;
     color: white;
     border: none;
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.2s;
@@ -755,8 +845,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         messages.appendChild(welcomeMsg);
                     } else {
                         data.messages.forEach(msg => {
-                            // Check if message has product context in metadata
+                            // Check if message has product context in metadata (user message)
                             const hasProductContext = msg.metadata && msg.metadata.product_context;
+                            // Check if message has products in metadata (bot message)
+                            const hasProducts = msg.metadata && msg.metadata.products && msg.metadata.products.length > 0;
                             
                             if (hasProductContext && msg.sender_type === 'user') {
                                 // Parse product context and display with product card
@@ -774,6 +866,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 } else {
                                     addMessageToUI(msg.message, 'user', msg.created_at);
                                 }
+                            } else if (hasProducts && msg.sender_type === 'bot') {
+                                // Bot message with product cards
+                                addMessageWithProductCardsFromHistory(msg.message, msg.metadata.products, msg.created_at);
                             } else {
                                 addMessageToUI(msg.message, msg.sender_type === 'user' ? 'user' : 'bot', msg.created_at);
                             }
@@ -856,6 +951,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('Chatbot API response:', data);
                 if (data.success) {
                     conversationId = data.conversation_id;
                     
@@ -865,8 +961,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Customer message is saved, wait for admin to reply manually
                         // Don't show any message - just let it be empty
                     } else if (data.bot_response) {
-                        // Show bot response only if admin hasn't taken over
-                        addMessageToUI(data.bot_response, 'bot');
+                        // Show bot response with product cards if available
+                        console.log('Products in response:', data.products);
+                        if (data.products && data.products.length > 0) {
+                            addMessageWithProductCards(data.bot_response, data.products);
+                        } else {
+                            addMessageToUI(data.bot_response, 'bot');
+                        }
                     }
                 }
             } else {
@@ -888,7 +989,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleQuickReply(type) {
         const questions = {
             'stok': 'Apakah stok produk ini tersedia?',
-            'harga': 'Berapa estimasi harga untuk produk ini?',
+            'harga': 'Rekomendasi produk harga murah',
             'kirim': 'Berapa lama estimasi pengiriman?',
             'custom': 'Apakah bisa custom desain?',
             'promo': 'Ada diskon atau promo saat ini?'
@@ -916,6 +1017,88 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         return `<span class="avatar-fallback">👤</span>`;
+    }
+    
+    // Add bot message with product cards from history
+    function addMessageWithProductCardsFromHistory(text, products, timestamp) {
+        const time = timestamp ? new Date(timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) 
+                              : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        
+        // Build product cards HTML
+        let productCardsHTML = '<div class="chat-product-cards-grid">';
+        products.forEach(product => {
+            const productUrl = `/produk/${product.slug || product.id}`;
+            const imageUrl = product.image || '/images/no-image.png';
+            const fallbackImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Crect fill="%23e0e0e0" width="120" height="120"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+            
+            productCardsHTML += `
+                <a href="${productUrl}" class="chat-product-mini-card" target="_blank">
+                    <div class="chat-product-mini-image">
+                        <img src="${imageUrl}" alt="${product.name}" onerror="this.onerror=null; this.src='${fallbackImage}'">
+                    </div>
+                    <div class="chat-product-mini-info">
+                        <div class="chat-product-mini-name">${product.name}</div>
+                        <div class="chat-product-mini-price">Rp ${product.formatted_price}</div>
+                    </div>
+                </a>
+            `;
+        });
+        productCardsHTML += '</div>';
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'unified-message bot-message';
+        messageDiv.innerHTML = `
+            <div class="unified-message-content">
+                <div class="unified-message-bubble">
+                    <p>${text}</p>
+                    ${productCardsHTML}
+                    <span class="unified-message-time">${time}</span>
+                </div>
+            </div>
+        `;
+        
+        messages.appendChild(messageDiv);
+    }
+    
+    // Add bot message with product cards
+    function addMessageWithProductCards(text, products) {
+        const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        
+        // Build product cards HTML
+        let productCardsHTML = '<div class="chat-product-cards-grid">';
+        products.forEach(product => {
+            const productUrl = `/produk/${product.slug || product.id}`;
+            const imageUrl = product.image || '/images/no-image.png';
+            const fallbackImage = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"%3E%3Crect fill="%23e0e0e0" width="120" height="120"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="12" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+            
+            productCardsHTML += `
+                <a href="${productUrl}" class="chat-product-mini-card" target="_blank">
+                    <div class="chat-product-mini-image">
+                        <img src="${imageUrl}" alt="${product.name}" onerror="this.onerror=null; this.src='${fallbackImage}'">
+                    </div>
+                    <div class="chat-product-mini-info">
+                        <div class="chat-product-mini-name">${product.name}</div>
+                        <div class="chat-product-mini-price">Rp ${product.formatted_price}</div>
+                    </div>
+                </a>
+            `;
+        });
+        productCardsHTML += '</div>';
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'unified-message bot-message';
+        messageDiv.innerHTML = `
+            <div class="unified-message-content">
+                <div class="unified-message-bubble">
+                    <p>${text}</p>
+                    ${productCardsHTML}
+                    <span class="unified-message-time">${time}</span>
+                </div>
+            </div>
+        `;
+        
+        messages.appendChild(messageDiv);
+        scrollToBottom();
     }
     
     // Add message to UI - WhatsApp style (no avatars)

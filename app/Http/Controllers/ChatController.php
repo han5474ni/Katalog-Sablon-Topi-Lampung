@@ -405,6 +405,9 @@ class ChatController extends Controller
     /**
      * Save conversation and messages to database
      * Returns array with conversation_id and admin_active status
+     * 
+     * UNIFIED: All chat sources (popup, chatpage, product_detail) use the same conversation
+     * to keep history synchronized
      */
     private function saveConversationToDatabase($userMessage, $botResponse, $productData = null)
     {
@@ -417,28 +420,53 @@ class ChatController extends Controller
             $productId = $productData['id'] ?? null;
             $productName = $productData['name'] ?? 'Unknown Product';
             
-            // Cari conversation yang sudah ada atau buat baru
+            // UNIFIED: Use 'chatbot' as source for all customer chatbot conversations
+            // This ensures popup, chatpage, and product_detail all share the same history
             $conversation = ChatConversation::where('user_id', Auth::id())
-                ->where('product_id', $productId)
-                ->whereIn('status', ['open', 'active'])
+                ->where('chat_source', 'chatbot')
+                ->where('status', 'open')
+                ->orderBy('updated_at', 'desc')
                 ->first();
             
             if (!$conversation) {
-                $conversation = ChatConversation::create([
-                    'user_id' => Auth::id(),
-                    'product_id' => $productId,
-                    'status' => 'open',
-                    'subject' => "Chat: {$productName}",
-                    'chat_source' => 'product_detail'
-                ]);
+                // Check for closed conversation to reopen
+                $closedConversation = ChatConversation::where('user_id', Auth::id())
+                    ->where('chat_source', 'chatbot')
+                    ->where('status', 'closed')
+                    ->orderBy('updated_at', 'desc')
+                    ->first();
+                    
+                if ($closedConversation) {
+                    $closedConversation->update([
+                        'status' => 'open',
+                        'expires_at' => now()->addDays(30)
+                    ]);
+                    $conversation = $closedConversation;
+                } else {
+                    // Create new unified conversation
+                    $conversation = ChatConversation::create([
+                        'user_id' => Auth::id(),
+                        'status' => 'open',
+                        'subject' => 'Customer Chatbot',
+                        'chat_source' => 'chatbot',
+                        'expires_at' => now()->addDays(30)
+                    ]);
+                }
             }
 
-            // Simpan user message
+            // Simpan user message with product context in metadata
+            $userMetadata = null;
+            if ($productData) {
+                $userMetadata = ['product_context' => $productData];
+            }
+            
             ChatMessage::create([
                 'conversation_id' => $conversation->id,
                 'chat_conversation_id' => $conversation->id,
-                'sender_type' => 'customer',
+                'user_id' => Auth::id(),
+                'sender_type' => 'user', // Unified: use 'user' instead of 'customer'
                 'message' => $userMessage,
+                'metadata' => $userMetadata,
                 'is_read_by_admin' => false
             ]);
 
@@ -451,9 +479,8 @@ class ChatController extends Controller
                 ChatMessage::create([
                     'conversation_id' => $conversation->id,
                     'chat_conversation_id' => $conversation->id,
-                    'sender_type' => 'admin',
+                    'sender_type' => 'bot', // Unified: use 'bot' instead of 'admin'
                     'message' => $botResponse,
-                    'is_admin_reply' => false, // false karena ini dari bot, bukan admin manusia
                     'is_read_by_user' => true
                 ]);
             }

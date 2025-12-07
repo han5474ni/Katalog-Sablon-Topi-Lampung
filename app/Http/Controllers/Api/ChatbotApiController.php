@@ -182,14 +182,20 @@ class ChatbotApiController extends Controller
             }
             
             // Bot responds only if admin hasn't taken over
-            $botResponse = $this->generateBotResponse($userMessage, $productContext);
+            $botResponseData = $this->generateBotResponse($userMessage, $productContext);
             
-            // Save bot response
+            // Handle both old string format and new array format
+            $botResponse = is_array($botResponseData) ? $botResponseData['message'] : $botResponseData;
+            $products = is_array($botResponseData) ? ($botResponseData['products'] ?? []) : [];
+            
+            // Save bot response with products metadata
+            $botMetadata = !empty($products) ? ['products' => $products] : null;
             ChatMessage::create([
                 'conversation_id' => $conversation->id,
                 'chat_conversation_id' => $conversation->id,
                 'sender_type' => 'bot',
                 'message' => $botResponse,
+                'metadata' => $botMetadata,
                 'is_read_by_user' => true
             ]);
             
@@ -199,6 +205,7 @@ class ChatbotApiController extends Controller
             return response()->json([
                 'success' => true,
                 'bot_response' => $botResponse,
+                'products' => $products,
                 'conversation_id' => $conversation->id,
                 'admin_handling' => false
             ]);
@@ -445,22 +452,39 @@ class ChatbotApiController extends Controller
     
     /**
      * Generate general response when no product context
+     * Returns array with 'message' and optional 'products' for product cards
      */
-    protected function generateGeneralResponse(string $msg): string
+    protected function generateGeneralResponse(string $msg): array|string
     {
         // Check for price-related questions
-        if (str_contains($msg, 'harga') || str_contains($msg, 'berapa') || str_contains($msg, 'price')) {
+        if (str_contains($msg, 'harga') || str_contains($msg, 'berapa') || str_contains($msg, 'price') || str_contains($msg, 'murah') || str_contains($msg, 'rekomendasi')) {
             $products = Product::where('is_active', true)
+                ->where('stock', '>', 0)
                 ->orderBy('price', 'asc')
-                ->take(3)
-                ->get(['name', 'price']);
+                ->take(5)
+                ->get(['id', 'name', 'slug', 'price', 'image', 'stock']);
             
             if ($products->count() > 0) {
-                $productList = $products->map(function($p) {
-                    return "• {$p->name}: Rp " . number_format($p->price, 0, ',', '.');
-                })->join("\n");
+                $productData = $products->map(function($p) {
+                    $imageUrl = $p->image;
+                    if ($imageUrl && !str_starts_with($imageUrl, 'http')) {
+                        $imageUrl = asset('storage/' . $imageUrl);
+                    }
+                    return [
+                        'id' => $p->id,
+                        'name' => $p->name,
+                        'slug' => $p->slug,
+                        'price' => $p->price,
+                        'formatted_price' => number_format($p->price, 0, ',', '.'),
+                        'image' => $imageUrl ?: '/images/no-image.png',
+                        'stock' => $p->stock
+                    ];
+                })->toArray();
                 
-                return "Berikut beberapa produk dengan harga terjangkau:\n\n{$productList}\n\nUntuk katalog lengkap, silakan kunjungi halaman Katalog kami.";
+                return [
+                    'message' => "Berikut beberapa produk dengan harga terjangkau:\n\nKlik produk untuk melihat detail lengkap.",
+                    'products' => $productData
+                ];
             }
             return 'Untuk informasi harga lengkap, silakan kunjungi halaman katalog atau detail produk.';
         }

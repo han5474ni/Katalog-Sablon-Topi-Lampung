@@ -7,7 +7,7 @@
     <title>Tentang Kami - Sablon Topi Lampung | LGI Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @vite(['resources/css/guest/about.css', 'resources/css/components/navbar.css', 'resources/css/components/footer.css', 'resources/css/guest/chatbot.css'])
+    @vite(['resources/css/guest/about.css', 'resources/css/components/navbar.css', 'resources/css/components/footer.css'])
 </head>
 <body>
     <x-navbar />
