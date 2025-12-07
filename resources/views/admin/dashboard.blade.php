@@ -97,7 +97,7 @@
                             <p class="product-name">{{ $product['name'] }}</p>
                             <p class="product-sales">{{ $product['variant_count'] }} variant</p>
                         </div>
-                        <a href="{{ route('admin.products.detail', $product['id']) }}" class="product-price" style="text-decoration: none; color: inherit; cursor: pointer;">Lihat detail</a>
+                        <a href="{{ route('admin.all-products.detail', $product['id']) }}" class="product-price" style="text-decoration: none; color: inherit; cursor: pointer;">Lihat detail</a>
                     </div>
                     @empty
                     <div class="product-item">

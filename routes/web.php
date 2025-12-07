@@ -1,6 +1,3 @@
-// Product detail for admin dashboard
-Route::get('/admin/products/detail/{id}', [App\Http\Controllers\Admin\ProductManagementController::class, 'productDetail'])->name('admin.products.detail');
-// ...existing code...
 <?php
 
 use Illuminate\Support\Facades\Route;
