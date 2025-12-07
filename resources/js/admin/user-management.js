@@ -31,8 +31,6 @@ function switchTab(tab) {
         adminSection.classList.add('hidden');
     }
 }
-
-// Initialize default tab based on current admin role
 document.addEventListener('DOMContentLoaded', () => {
     try {
         const role = document.getElementById('currentAdminRole')?.value || 'admin';
