@@ -14,7 +14,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Cek apakah admin sudah ada
-        if (Admin::where('email', 'admin@example.com')->exists()) {
+        if (Admin::where('email', 'sablontopilampung@gmail.com')->exists()) {
             $this->command->info('Admin sudah ada!');
             return;
         }
@@ -22,13 +22,13 @@ class AdminSeeder extends Seeder
         // Buat admin default
         Admin::create([
             'name' => 'Administrator',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('admin123'), // Password: admin123
+            'email' => 'sablontopilampung@gmail.com',
+            'password' => Hash::make('sablontopi@2025#'), // Password: admin123
             'role' => 'super_admin',
         ]);
 
         $this->command->info('Admin berhasil dibuat!');
-        $this->command->info('Email: admin@example.com');
-        $this->command->info('Password: admin123');
+        $this->command->info('Email: sablontopilampung@gmail.com');
+        $this->command->info('Password: sablontopi@2025#');
     }
 }
