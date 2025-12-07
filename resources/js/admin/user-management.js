@@ -32,6 +32,20 @@ function switchTab(tab) {
     }
 }
 
+// Initialize default tab based on current admin role
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const role = document.getElementById('currentAdminRole')?.value || 'admin';
+        if (role === 'super_admin') {
+            switchTab('admin');
+        } else {
+            switchTab('customer');
+        }
+    } catch (e) {
+        console.error('Failed to initialize user management tabs:', e);
+    }
+});
+
 /**
  * Open modal for adding new user
  * @param {string} type - 'admin' or 'customer'
