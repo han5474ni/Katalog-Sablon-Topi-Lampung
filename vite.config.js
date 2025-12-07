@@ -21,7 +21,6 @@ export default defineConfig({
                 // Admin
                 'resources/css/admin/login.css',
                 'resources/css/admin/dashboard.css',
-                'resources/css/admin/analytics.css',
                 'resources/css/admin/history.css',
                 'resources/css/admin/profile.css',
                 'resources/css/admin/customer-detail.css',
@@ -31,17 +30,14 @@ export default defineConfig({
                 'resources/css/admin/modern-add-product.css',
                 'resources/css/admin/all-products.css',
                 'resources/css/admin/chatbot.css',
-                'resources/css/admin/chatbot-management.css',
                 'resources/css/admin/order-list.css',
                 'resources/js/admin/login.js',
                 'resources/js/admin/layout.js',
                 'resources/js/admin/all-products.js',
                 'resources/js/admin/dashboard-charts.js',
-                'resources/js/admin/analytics.js',
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/modern-add-product.js',
-                'resources/js/admin/chatbot-management.js',
                 
                 
                 // Auth

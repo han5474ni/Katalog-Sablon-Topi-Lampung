@@ -69,8 +69,7 @@ class ProductController extends Controller
                 $variantImages = $product->variants
                     ->filter(function($v) { return !empty($v->image); })
                     ->map(function($v) {
-                        $img = $v->image;
-                        return str_starts_with($img, 'http') ? $img : asset('storage/' . $img);
+                        return asset('storage/' . $v->image);
                     })
                     ->values()
                     ->toArray();
@@ -90,12 +89,7 @@ class ProductController extends Controller
                 $product->price_max = $product->price;
                 $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
                 $product->total_stock = $product->stock;
-                if ($product->image) {
-                    $img = $product->image;
-                    $product->variant_images = [str_starts_with($img, 'http') ? $img : asset('storage/' . $img)];
-                } else {
-                    $product->variant_images = [];
-                }
+                $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
                 $product->variant_count = 0;
             }
             

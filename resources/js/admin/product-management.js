@@ -153,8 +153,7 @@ function renderProducts(products) {
                 html += `<div class="image-count-badge">+${product.variant_images.length - 1}</div>`;
             }
         } else if (product.image) {
-            const imgUrl = (typeof product.image === 'string' && product.image.startsWith('http')) ? product.image : `/storage/${product.image}`;
-            html += `<img src="${imgUrl}" alt="${product.name}">`;
+            html += `<img src="/storage/${product.image}" alt="${product.name}">`;
         } else {
             html += '<div class="no-image"><i class="fas fa-image"></i></div>';
         }
@@ -224,8 +223,7 @@ function renderProducts(products) {
                             <div class="product-image-cell">`;
                     
                     if (v.image) {
-                        const vImgUrl = (typeof v.image === 'string' && v.image.startsWith('http')) ? v.image : `/storage/${v.image}`;
-                        html += `<img src="${vImgUrl}" alt="Variant">`;
+                        html += `<img src="/storage/${v.image}" alt="Variant">`;
                     } else {
                         html += '<div class="no-image"><i class="fas fa-image"></i></div>';
                     }

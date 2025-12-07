@@ -246,24 +246,6 @@
                 </div>
             </section>
 
-            <!-- Product Images Upload -->
-            <section class="form-section">
-                <div class="custom-card">
-                    <label class="field-group">
-                        <span style="font-size: 0.875rem; font-weight: 600; color: #18181b; margin-bottom: 0.5rem;">Gambar Produk</span>
-                        <input type="file" id="modern-product-images" name="images[]" accept="image/*" multiple class="sr-only">
-                        <button type="button" class="upload-trigger-btn" onclick="document.getElementById('modern-product-images').click()">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14M5 12h14"/>
-                            </svg>
-                            <span>Upload Gambar</span>
-                            <small>PNG, JPG, atau WebP. Maks 10MB per file</small>
-                        </button>
-                    </label>
-                    <div class="images-preview-grid" id="product-images-preview"></div>
-                </div>
-            </section>
-
             <!-- Footer controls -->
             <section class="form-section">
                 <div class="footer-controls-grid">

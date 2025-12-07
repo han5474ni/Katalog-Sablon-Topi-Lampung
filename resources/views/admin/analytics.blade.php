@@ -1,10 +1,5 @@
 <x-admin-layout title="Analytics Reports">
-    @push('styles')
-        @vite(['resources/css/admin/dashboard.css'])
-    @endpush
-    @push('scripts')
-        @vite(['resources/js/admin/analytics.js'])
-    @endpush
+    @vite(['resources/css/admin/analytics.css', 'resources/js/admin/analytics.js'])
 
     <div class="analytics-content" data-base-url="{{ url('/') }}">
         <!-- Date Range Filter -->
