@@ -63,11 +63,7 @@ export default defineConfig({
                 'resources/js/guest/catalog.js',
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
-                'resources/js/guest/about.js',
-                'resources/js/guest/alamat.js',
-                // 'resources/js/guest/pemesanan.js', // removed: file not found
-                'resources/js/guest/other-info.js',
-                'resources/js/guest/guest.css', 
+                'resources/css/guest/about.css',
                 // 'resources/js/guest/chatbot-popup.js', // removed: file not found
                 
                 // Customer
@@ -78,10 +74,7 @@ export default defineConfig({
                 // 'resources/js/customer/chatbot.js', // removed: file not found
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
-                'resources/js/customer/notifications.js',
-
-                'resources/css/components/chatbot.css',
-                // 'resources/js/chatbot/product-chatbot.js' // removed: file not found
+                // 'resources/js/guest/guest.css', // removed: file not found
             ],
             refresh: true,
         }),
