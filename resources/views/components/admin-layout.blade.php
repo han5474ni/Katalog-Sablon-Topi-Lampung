@@ -112,7 +112,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.products') }}" class="sidebar__link {{ request()->routeIs('admin.products') ? 'active' : '' }}">
+                    <a href="{{ route('admin.all-products') }}" class="sidebar__link {{ request()->routeIs('admin.all-products') ? 'active' : '' }}">
                         <i class="fas fa-box-open"></i>
                         <span>All Products</span>
                     </a>
