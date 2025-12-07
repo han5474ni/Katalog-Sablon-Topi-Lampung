@@ -494,7 +494,14 @@ class OrderManagementController extends Controller
 
         // Send status update notification to customer
         if ($oldStatus !== $request->status && $order->user_id) {
-            app(NotificationService::class)->notifyOrderStatusUpdate($order, $order->user_id, $oldStatus, $request->status);
+            try {
+                app(\App\Services\NotificationService::class)->notifyOrderStatusUpdate($order, $order->user_id, $oldStatus, $request->status);
+            } catch (\Exception $e) {
+                Log::warning('Failed to send status update notification', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         // If AJAX request, return JSON
