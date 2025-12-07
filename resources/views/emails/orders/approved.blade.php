@@ -10,7 +10,7 @@ Pesanan Anda dengan nomor **{{ $order->order_number }}** telah disetujui oleh ad
 
 **Penting:**
 - Batas waktu generate VA: {{ $vaGenerateDeadline }} WIB
-- Setelah generate VA, lakukan pembayaran maksimal 1 jam
+- Setelah generate VA, lakukan pembayaran maksimal 10 menit
 - Jika melewati batas waktu, pesanan akan otomatis dibatalkan
 
 @component('mail::button', ['url' => url("/orders/{$order->id}")])

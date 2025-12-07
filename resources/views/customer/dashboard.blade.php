@@ -251,7 +251,7 @@
                                     @endif
                                 </td>
                                 <td class="py-3 text-gray-600">{{ $order->created_at->format('d M Y') }}</td>
-                                <td class="py-3 font-semibold">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
+                                <td class="py-3 font-semibold">Rp {{ number_format($order->order_type === 'custom' ? ($order->total_price ?? 0) : ($order->total ?? 0), 0, ',', '.') }}</td>
                             </tr>
                             @empty
                             <tr>
