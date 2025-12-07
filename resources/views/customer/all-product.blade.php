@@ -389,12 +389,11 @@
 
                 let html = '';
                 products.forEach(product => {
-                    // Priority: variant_images[0] > product.image > placeholder
                     let imageUrl = '';
                     if (product.variant_images && product.variant_images.length > 0) {
                         imageUrl = product.variant_images[0];
                     } else if (product.image) {
-                        imageUrl = `/storage/${product.image}`;
+                        imageUrl = (typeof product.image === 'string' && product.image.startsWith('http')) ? product.image : `/storage/${product.image}`;
                     }
                     
                     const variantImagesJson = JSON.stringify(product.variant_images || []).replace(/'/g, '&#39;');
