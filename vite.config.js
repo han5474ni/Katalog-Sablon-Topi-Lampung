@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/css/components/footer.css',
                 'resources/css/components/product-card.css',
                 'resources/js/components/navbar.js',
+                'resources/css/components/notification-dropdown.css',
                 
                 // Admin
                 'resources/css/admin/login.css',
@@ -36,6 +37,7 @@ export default defineConfig({
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/modern-add-product.js',
+                
                 
                 // Auth
                 'resources/css/auth/forgot-password.css',
