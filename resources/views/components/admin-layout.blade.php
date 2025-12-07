@@ -16,8 +16,137 @@
     @vite([
         'resources/css/admin/dashboard.css',
         'resources/css/components/notification-dropdown.css',
-        'resources/js/components/notification-dropdown.js'
+        'resources/js/components/notification-dropdown.js',
+        'resources/js/admin.js'
     ])
+    <style>
+        /* Admin Dropdown Styles */
+        .admin-dropdown {
+            position: relative;
+            display: inline-block;
+            margin-left: 15px;
+        }
+
+        .admin-dropdown__btn {
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .admin-dropdown__btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .admin-avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .admin-avatar-placeholder i {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            margin-right: 8px;
+        }
+
+        .admin-role {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.2;
+        }
+
+        .admin-name {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .admin-dropdown__icon {
+            font-size: 12px;
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-dropdown__menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .admin-dropdown__menu.show {
+            display: block;
+        }
+
+        .admin-dropdown__form {
+            width: 100%;
+        }
+
+        .admin-dropdown__item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .admin-dropdown__item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .admin-dropdown__item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .admin-dropdown__item--danger {
+            color: #ef4444;
+        }
+
+        .admin-dropdown__item--danger:hover {
+            background-color: #fee2e2;
+        }
+    </style>
     @stack('styles')
 </head>
 <body>
@@ -42,7 +171,7 @@
         <div class="top-navbar__right">
             <!-- Notification Bell for Admin -->
             <div class="notification-wrapper" style="margin-right: 20px; display: inline-flex; align-items: center;">
-                <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 12px; border-radius: 8px; position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.3s ease;">
+                <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell" onclick="toggleNotificationDropdown(); return false;" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 12px; border-radius: 8px; position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.3s ease;">
                     <i class="fas fa-bell" style="font-size: 18px; color: #fff;"></i>
                     <span class="notification-badge" id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; min-width: 18px; text-align: center;">0</span>
                 </a>
@@ -70,7 +199,7 @@
             </div>
             
             <div class="admin-dropdown">
-                <button class="admin-dropdown__btn" onclick="toggleAdminDropdown()">
+                <button class="admin-dropdown__btn" onclick="event.stopPropagation(); toggleAdminDropdown();">
                     @if(auth('admin')->user()->avatar)
                         <img src="{{ asset('storage/' . auth('admin')->user()->avatar) }}" alt="Avatar" class="admin-avatar">
                     @else

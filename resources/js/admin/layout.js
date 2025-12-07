@@ -1,37 +1,48 @@
-window.toggleAdminDropdown = function toggleAdminDropdown() {
-	const menu = document.getElementById('adminDropdownMenu');
-	if (menu) menu.classList.toggle('show');
+// Toggle admin dropdown menu
+window.toggleAdminDropdown = function() {
+    const menu = document.getElementById('adminDropdownMenu');
+    if (menu) {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
 
-	const notifDropdown = document.getElementById('notificationDropdown');
-	if (notifDropdown && notifDropdown.classList.contains('show')) {
-		notifDropdown.classList.remove('show');
-	}
+    // Close notification dropdown if open
+    const notifDropdown = document.getElementById('notification-dropdown');
+    if (notifDropdown && notifDropdown.style.display === 'block') {
+        notifDropdown.style.display = 'none';
+    }
 };
 
-window.toggleNotificationDropdown = function toggleNotificationDropdown() {
-	const dropdown = document.getElementById('notificationDropdown');
-	if (dropdown) dropdown.classList.toggle('show');
+// Toggle notification dropdown
+window.toggleNotificationDropdown = function() {
+    const dropdown = document.getElementById('notification-dropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
 
-	const adminMenu = document.getElementById('adminDropdownMenu');
-	if (adminMenu && adminMenu.classList.contains('show')) {
-		adminMenu.classList.remove('show');
-	}
+    // Close admin dropdown if open
+    const adminMenu = document.getElementById('adminDropdownMenu');
+    if (adminMenu && adminMenu.style.display === 'block') {
+        adminMenu.style.display = 'none';
+    }
 };
 
-window.addEventListener('click', function (e) {
-	if (!e.target.matches('.admin-dropdown__btn') && !e.target.closest('.admin-dropdown__btn')) {
-		const menu = document.getElementById('adminDropdownMenu');
-		if (menu && menu.classList.contains('show')) {
-			menu.classList.remove('show');
-		}
-	}
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    // Close admin dropdown when clicking outside
+    if (!e.target.closest('.admin-dropdown')) {
+        const menu = document.getElementById('adminDropdownMenu');
+        if (menu && menu.style.display === 'block') {
+            menu.style.display = 'none';
+        }
+    }
 
-	if (!e.target.matches('.notification-bell__btn') && !e.target.closest('.notification-bell')) {
-		const notifDropdown = document.getElementById('notificationDropdown');
-		if (notifDropdown && notifDropdown.classList.contains('show')) {
-			notifDropdown.classList.remove('show');
-		}
-	}
+    // Close notification dropdown when clicking outside
+    if (!e.target.closest('.notification-wrapper')) {
+        const notifDropdown = document.getElementById('notification-dropdown');
+        if (notifDropdown && notifDropdown.style.display === 'block') {
+            notifDropdown.style.display = 'none';
+        }
+    }
 });
 
 window.addEventListener('admin-profile-updated', function (event) {
