@@ -85,10 +85,6 @@
                     <i class="fas fa-chevron-down admin-dropdown__icon"></i>
                 </button>
                 <div class="admin-dropdown__menu" id="adminDropdownMenu">
-                    <a href="{{ route('admin.profile') }}" class="admin-dropdown__item">
-                        <i class="fas fa-user-circle"></i>
-                        <span>My Profile</span>
-                    </a>
                     <form method="POST" action="{{ route('admin.logout') }}" class="admin-dropdown__form">
                         @csrf
                         <button type="submit" class="admin-dropdown__item admin-dropdown__item--danger">
