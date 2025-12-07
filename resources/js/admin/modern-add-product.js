@@ -5,6 +5,7 @@ class ModernAddProductManager {
         this.selectedColors = []; // Selected colors for variants
         this.selectedSizes = [];
         this.variants = [];
+        this.productImages = [];
         this.isEditMode = false;
         this.productId = null;
         this.isResizing = false;
@@ -256,6 +257,26 @@ class ModernAddProductManager {
         const form = document.getElementById('modern-product-form');
         if (form) {
             form.addEventListener('submit', (e) => this.handleSubmit(e));
+        }
+
+        // Product images upload & preview
+        const productImagesInput = document.getElementById('modern-product-images');
+        if (productImagesInput) {
+            productImagesInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                // Filter invalid files and size > 10MB
+                const validFiles = files.filter(file => file.type.match('image.*') && file.size <= 10 * 1024 * 1024);
+                const tooLarge = files.filter(file => file.size > 10 * 1024 * 1024);
+                const invalidType = files.filter(file => !file.type.match('image.*'));
+                if (tooLarge.length > 0) {
+                    this.showNotification('Sebagian gambar > 10MB diabaikan', 'warning');
+                }
+                if (invalidType.length > 0) {
+                    this.showNotification('Sebagian file bukan gambar dan diabaikan', 'warning');
+                }
+                this.productImages = validFiles;
+                this.renderProductImagesPreview();
+            });
         }
     }
 
@@ -951,6 +972,7 @@ class ModernAddProductManager {
         this.selectedColors = [];
         this.selectedSizes = [];
         this.variants = [];
+        this.productImages = [];
         this.isEditMode = false;
         this.productId = null;
         
@@ -988,6 +1010,11 @@ class ModernAddProductManager {
         if (customDesignControl) {
             customDesignControl.style.opacity = '1';
             customDesignControl.style.pointerEvents = '';
+        }
+        // Clear product images preview
+        const previewGrid = document.getElementById('product-images-preview');
+        if (previewGrid) {
+            previewGrid.innerHTML = '';
         }
     }
 
@@ -1240,6 +1267,27 @@ class ModernAddProductManager {
             console.error('Error saving product:', error);
             this.showNotification('Gagal menyimpan produk', 'error');
         }
+    }
+
+    renderProductImagesPreview() {
+        const previewGrid = document.getElementById('product-images-preview');
+        if (!previewGrid) return;
+        previewGrid.innerHTML = '';
+
+        if (this.productImages.length === 0) return;
+
+        this.productImages.forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const item = document.createElement('div');
+                item.className = 'image-preview-item';
+                item.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${idx+1}">
+                `;
+                previewGrid.appendChild(item);
+            };
+            reader.readAsDataURL(file);
+        });
     }
 
     showNotification(message, type = 'info') {
@@ -1609,3 +1657,8 @@ class ModernAddProductManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.modernAddProductManager = new ModernAddProductManager();
 });
+        // Product images: rely on file input "images[]"; ensure preview selection present
+        // If needed, append from internal store when input unsupported
+        if (this.productImages.length === 0) {
+            // No images selected; nothing to do
+        }
