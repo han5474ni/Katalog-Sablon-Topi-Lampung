@@ -136,10 +136,6 @@
                 <li>
                 </li>
                 <li>
-                    <a href="{{ route('admin.history') }}" class="sidebar__link {{ request()->routeIs('admin.history') ? 'active' : '' }}">
-                        <i class="fas fa-history"></i>
-                        <span>History</span>
-                    </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.management-product') }}" class="sidebar__link {{ request()->routeIs('admin.management-product') ? 'active' : '' }}">
