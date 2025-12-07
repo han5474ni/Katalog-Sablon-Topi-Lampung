@@ -442,12 +442,12 @@ Route::prefix('admin')->group(function () {
         Route::get('/api/dashboard/top-products', [App\Http\Controllers\Admin\DashboardController::class, 'getTopProducts'])->name('api.dashboard.products');
         
         // Analytics & Reports
-        Route::get('/analytics', [AnalyticsController::class, 'index'])->name('admin.analytics');
-        Route::get('/api/analytics/sales-overview', [AnalyticsController::class, 'getSalesOverview'])->name('admin.api.analytics.sales-overview');
-        Route::get('/api/analytics/sales-trend', [AnalyticsController::class, 'getSalesTrendData'])->name('admin.api.analytics.sales-trend');
-        Route::get('/api/analytics/order-status', [AnalyticsController::class, 'getOrderStatusDistribution'])->name('admin.api.analytics.order-status');
-        Route::get('/api/analytics/customer', [AnalyticsController::class, 'getCustomerAnalytics'])->name('admin.api.analytics.customer');
-        Route::get('/api/analytics/conversion-funnel', [AnalyticsController::class, 'getConversionFunnel'])->name('admin.api.analytics.conversion-funnel');
+        Route::get('/analytics', [App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('admin.analytics');
+        Route::get('/api/analytics/sales-overview', [App\Http\Controllers\Admin\AnalyticsController::class, 'getSalesOverview'])->name('admin.api.analytics.sales-overview');
+        Route::get('/api/analytics/sales-trend', [App\Http\Controllers\Admin\AnalyticsController::class, 'getSalesTrendData'])->name('admin.api.analytics.sales-trend');
+        Route::get('/api/analytics/order-status', [App\Http\Controllers\Admin\AnalyticsController::class, 'getOrderStatusDistribution'])->name('admin.api.analytics.order-status');
+        Route::get('/api/analytics/customer', [App\Http\Controllers\Admin\AnalyticsController::class, 'getCustomerAnalytics'])->name('admin.api.analytics.customer');
+        Route::get('/api/analytics/conversion-funnel', [App\Http\Controllers\Admin\AnalyticsController::class, 'getConversionFunnel'])->name('admin.api.analytics.conversion-funnel');
         
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
         Route::get('/order-history', [OrderManagementController::class, 'history'])->name('admin.order-history');
