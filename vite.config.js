@@ -16,6 +16,7 @@ export default defineConfig({
                 'resources/css/components/product-card.css',
                 'resources/js/components/navbar.js',
                 'resources/css/components/notification-dropdown.css',
+                'resources/js/components/notification-dropdown.js',
                 
                 // Admin
                 'resources/css/admin/login.css',
