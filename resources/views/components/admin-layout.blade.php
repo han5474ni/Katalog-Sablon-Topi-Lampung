@@ -138,10 +138,6 @@
                 <li>
                 </li>
                 <li>
-                    <a href="{{ route('admin.management-product') }}" class="sidebar__link {{ request()->routeIs('admin.management-product') ? 'active' : '' }}">
-                        <i class="fas fa-cube"></i>
-                        <span>Product Management</span>
-                    </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.custom-design-prices') }}" class="sidebar__link {{ request()->routeIs('admin.custom-design-prices') ? 'active' : '' }}">
