@@ -339,21 +339,13 @@
 
 .unified-chatbot-messages {
     flex: 1;
-<<<<<<< HEAD
-    padding: 10px 12px;
-=======
     padding: 12px;
->>>>>>> master6
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #ffffff;
     display: flex;
     flex-direction: column;
-<<<<<<< HEAD
-    gap: 6px;
-=======
     gap: 8px;
->>>>>>> master6
 }
 
 .unified-chatbot-messages::-webkit-scrollbar {
@@ -373,15 +365,6 @@
 .unified-chatbot-popup .unified-message {
     display: inline-flex;
     flex-direction: column;
-<<<<<<< HEAD
-    max-width: 80%;
-    animation: unifiedFadeIn 0.2s ease;
-    padding: 0;
-    margin: 0;
-    border: none;
-    background: none;
-    width: fit-content;
-=======
     max-width: 75%;
     width: auto;
     animation: unifiedFadeIn 0.2s ease;
@@ -389,7 +372,6 @@
     margin: 0 0 6px 0 !important;
     border: none !important;
     background: none !important;
->>>>>>> master6
 }
 
 @keyframes unifiedFadeIn {
@@ -435,77 +417,41 @@
     margin: 0 !important;
 }
 
-.unified-chatbot-popup .unified-message-bubble {
-<<<<<<< HEAD
-    padding: 8px 12px;
-    border-radius: 14px;
-=======
     display: inline-block;
     padding: 6px 10px !important;
     border-radius: 10px;
->>>>>>> master6
     font-size: 13px;
     line-height: 1.35;
     word-wrap: break-word;
     overflow-wrap: break-word;
-<<<<<<< HEAD
-    max-width: 100%;
-=======
     white-space: pre-line;
->>>>>>> master6
 }
 
 /* Bot message - Light gray bubble */
 .unified-chatbot-popup .unified-message.bot-message .unified-message-bubble {
     background: #f0f0f0 !important;
     color: #1a1a1a;
-<<<<<<< HEAD
-    border-top-left-radius: 4px;
-    max-width: 100%;
-    white-space: pre-wrap;
-=======
     border-top-left-radius: 3px;
->>>>>>> master6
 }
 
 /* User message - Green bubble ONLY */
 .unified-chatbot-popup .unified-message.user-message .unified-message-bubble {
     background: #dcf8c6 !important;
     color: #1a1a1a;
-<<<<<<< HEAD
-    border-top-right-radius: 4px;
-    white-space: normal;
-    display: inline-block;
-    width: fit-content;
-=======
     border-top-right-radius: 3px;
->>>>>>> master6
 }
 
 .unified-chatbot-popup .unified-message-bubble p {
     margin: 0 !important;
     padding: 0 !important;
     font-size: 13px;
-<<<<<<< HEAD
-    line-height: 1.5;
-}
-
-/* Bot message text - block display for proper formatting */
-.unified-chatbot-popup .unified-message.bot-message .unified-message-bubble p {
-    display: block;
-    white-space: pre-wrap;
-=======
     line-height: 1.35;
     display: inline;
     white-space: pre-line;
     text-indent: 0 !important;
->>>>>>> master6
 }
 
 /* User message text - inline for compact display */
-.unified-chatbot-popup .unified-message.user-message .unified-message-bubble p {
-    display: inline;
-    white-space: normal;
 }
 
 /* Time inside bubble */
@@ -518,21 +464,8 @@
 .unified-chatbot-popup .unified-message.bot-message .unified-message-bubble .unified-message-time {
     display: block;
     text-align: right;
-<<<<<<< HEAD
-    margin-top: 4px;
-}
-
-/* User message time - inline float right */
-.unified-chatbot-popup .unified-message.user-message .unified-message-bubble .unified-message-time {
-    display: inline-block;
-    float: right;
-    margin-left: 8px;
-    margin-top: 2px;
-    vertical-align: bottom;
-=======
     margin-top: 2px !important;
     padding: 0 !important;
->>>>>>> master6
 }
 
 /* Product Card inside Chat Message */
