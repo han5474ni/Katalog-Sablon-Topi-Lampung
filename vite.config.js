@@ -30,6 +30,7 @@ export default defineConfig({
                 'resources/css/admin/modern-add-product.css',
                 'resources/css/admin/all-products.css',
                 'resources/css/admin/chatbot.css',
+                'resources/css/admin/chatbot-management.css',
                 'resources/css/admin/order-list.css',
                 'resources/js/admin/login.js',
                 'resources/js/admin/layout.js',
@@ -38,6 +39,7 @@ export default defineConfig({
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/modern-add-product.js',
+                'resources/js/admin/chatbot-management.js',
                 
                 
                 // Auth
