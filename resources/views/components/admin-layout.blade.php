@@ -132,10 +132,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.finance.index') }}" class="sidebar__link {{ request()->routeIs('admin.finance.*') ? 'active' : '' }}">
-                        <i class="fas fa-wallet"></i>
-                        <span>Finance & Wallet</span>
-                    </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.analytic') }}" class="sidebar__link {{ request()->routeIs('admin.analytic') ? 'active' : '' }}">
