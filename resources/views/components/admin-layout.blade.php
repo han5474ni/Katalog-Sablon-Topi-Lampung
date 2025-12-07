@@ -140,11 +140,8 @@
                 <li>
                 </li>
                 <li>
-                   <!-- Removed broken link to admin.custom-design-prices route -->
-                   <!-- <a href="{{ route('admin.custom-design-prices') }}" class="sidebar__link {{ request()->routeIs('admin.custom-design-prices') ? 'active' : '' }}">
-                       <i class="fas fa-palette"></i>
-                       <span>Custom Design Prices</span>
-                   </a> -->
+                    </li>
+                    </li>
                 </li>
             </ul>
 
