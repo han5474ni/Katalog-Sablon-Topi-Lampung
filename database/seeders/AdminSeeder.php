@@ -10,11 +10,17 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::create([
-            'name' => 'Super Admin',
-            'email' => 'sablontopilampung@gmail.com',
-            'password' => Hash::make('sablontopi@2025#'),
-        ]);
+        // Update or create admin with super admin role
+        Admin::updateOrCreate(
+            ['email' => 'sablontopilampung@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('sablontopi@2025#'),
+                'role' => 'super_admin',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->command->info('Admin berhasil dibuat!');
         $this->command->info('Email: sablontopilampung@gmail.com');

@@ -214,6 +214,10 @@
                     <i class="fas fa-chevron-down admin-dropdown__icon"></i>
                 </button>
                 <div class="admin-dropdown__menu" id="adminDropdownMenu">
+                    <a href="{{ route('admin.profile') }}" class="admin-dropdown__item">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </a>
                     <form method="POST" action="{{ route('admin.logout') }}" class="admin-dropdown__form">
                         @csrf
                         <button type="submit" class="admin-dropdown__item admin-dropdown__item--danger">
@@ -259,9 +263,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.analytic') }}" class="sidebar__link {{ request()->routeIs('admin.analytic*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.analytics') }}" class="sidebar__link {{ request()->routeIs('admin.analytics*') ? 'active' : '' }}">
                         <i class="fas fa-chart-line"></i>
-                        <span>Analytic Reports</span>
+                        <span>Analytics Reports</span>
                     </a>
                 </li>
                 <li>
