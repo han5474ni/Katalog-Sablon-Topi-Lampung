@@ -112,36 +112,52 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.all-products') }}" class="sidebar__link {{ request()->routeIs('admin.all-products') ? 'active' : '' }}">
-                        <i class="fas fa-box-open"></i>
-                        <span>All Products</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.order-list') }}" class="sidebar__link {{ request()->routeIs('admin.order-list') ? 'active' : '' }}">
+                    <a href="{{ route('admin.order-list') }}" class="sidebar__link {{ request()->routeIs('admin.order-list*') ? 'active' : '' }}">
                         <i class="fas fa-list"></i>
                         <span>Order List</span>
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('chatbot.index') }}" class="sidebar__link {{ request()->routeIs('chatbot.*') ? 'active' : '' }}">
+                        <i class="fas fa-comments"></i>
+                        <span>Chatbot</span>
+                    </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.management-users') }}" class="sidebar__link {{ request()->routeIs('admin.management-users') ? 'active' : '' }}">
+                    <a href="{{ route('admin.management-users') }}" class="sidebar__link {{ request()->routeIs('admin.management-users*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         <span>User Management</span>
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.analytic') }}" class="sidebar__link {{ request()->routeIs('admin.analytic*') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytic Reports</span>
+                    </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.history') }}" class="sidebar__link {{ request()->routeIs('admin.history*') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.finance.index') }}" class="sidebar__link {{ request()->routeIs('admin.finance.*') ? 'active' : '' }}">
+                        <i class="fas fa-wallet"></i>
+                        <span>Finance & Wallet</span>
+                    </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.management-product') }}" class="sidebar__link {{ request()->routeIs('admin.management-product*') ? 'active' : '' }}">
+                        <i class="fas fa-box-open"></i>
+                        <span>Product Management</span>
+                    </a>
                 </li>
                 <li>
-                    </li>
-                    </li>
+                    <a href="{{ route('admin.custom-design-prices') }}" class="sidebar__link {{ request()->routeIs('admin.custom-design-prices*') ? 'active' : '' }}">
+                        <i class="fas fa-paint-brush"></i>
+                        <span>Custom Design</span>
+                    </a>
                 </li>
             </ul>
 
