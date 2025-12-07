@@ -45,6 +45,7 @@ export default defineConfig({
                 'resources/css/auth/auth-layout.css',
                 
                 // Guest/Homepage
+                'resources/js/guest/home.js',
                 'resources/css/guest/home.css',
                 'resources/css/guest/auth-layout.css',
                 'resources/css/guest/login.css',
