@@ -53,10 +53,10 @@ export default defineConfig({
                 'resources/css/guest/catalog-inline.css',
                 'resources/css/guest/custom-design.css',
                 'resources/css/guest/alamat.css',
-                'resources/css/guest/Pemesanan.css',
-                'resources/css/guest/other-info.css',
-                'resources/js/guest/home.js',
-                'resources/js/guest/auth-layout.js',
+                    // 'resources/js/guest/about.js', // removed: file not found
+                    // 'resources/js/guest/alamat.js', // removed: file not found
+                    // 'resources/js/guest/other-info.js', // removed: file not found
+                    // 'resources/js/guest/guest.css', // removed: file not found
                 'resources/js/guest/login.js',
                 'resources/js/guest/product-slider.js',
                 'resources/js/guest/product-detail.js',
@@ -65,7 +65,7 @@ export default defineConfig({
                 'resources/js/guest/custom-design.js',
                 'resources/js/guest/about.js',
                 'resources/js/guest/alamat.js',
-                'resources/js/guest/pemesanan.js',
+                // 'resources/js/guest/pemesanan.js', // removed: file not found
                 'resources/js/guest/other-info.js',
                 'resources/js/guest/guest.css', 
                 // 'resources/js/guest/chatbot-popup.js', // removed: file not found
