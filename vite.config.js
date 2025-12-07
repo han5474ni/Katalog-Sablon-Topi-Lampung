@@ -52,7 +52,6 @@ export default defineConfig({
                 'resources/css/guest/alamat.css',
                 'resources/css/guest/Pemesanan.css',
                 'resources/css/guest/other-info.css',
-                'resources/css/guest/chatbot.css',
                 'resources/js/guest/home.js',
                 'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
@@ -61,20 +60,20 @@ export default defineConfig({
                 'resources/js/guest/catalog.js',
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
-                'resources/js/guest/chatbot-popup.js',
+                // 'resources/js/guest/chatbot-popup.js', // removed: file not found
                 
                 // Customer
                 'resources/css/customer/shared.css',
                 'resources/css/customer/profile-form.css',
                 'resources/css/customer/all-product.css',
                 'resources/css/customer/Pembayaran.css',
-                'resources/js/customer/chatbot.js',
+                // 'resources/js/customer/chatbot.js', // removed: file not found
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
                 'resources/js/customer/notifications.js',
 
                 'resources/css/components/chatbot.css',
-                'resources/js/chatbot/product-chatbot.js'
+                // 'resources/js/chatbot/product-chatbot.js' // removed: file not found
             ],
             refresh: true,
         }),
