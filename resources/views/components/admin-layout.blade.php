@@ -277,6 +277,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.all-products') }}" class="sidebar__link {{ request()->routeIs('admin.all-products*') ? 'active' : '' }}">
+                        <i class="fas fa-boxes"></i>
+                        <span>All Products</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.management-product') }}" class="sidebar__link {{ request()->routeIs('admin.management-product*') ? 'active' : '' }}">
                         <i class="fas fa-box-open"></i>
                         <span>Product Management</span>
