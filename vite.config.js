@@ -38,6 +38,8 @@ export default defineConfig({
                 'resources/js/admin/user-management.js',
                 'resources/js/admin/product-management.js',
                 'resources/js/admin/modern-add-product.js',
+                'resources/css/admin/analytics.css',
+                'resources/js/admin/analytics.js',
                 
                 
                 // Auth
