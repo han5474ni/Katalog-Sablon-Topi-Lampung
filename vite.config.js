@@ -40,7 +40,7 @@ export default defineConfig({
                 'resources/js/admin/modern-add-product.js',
                 'resources/css/admin/analytics.css',
                 'resources/js/admin/analytics.js',
-                'resources/css/admin/chatbot-management.css.',
+                'resources/css/admin/chatbot-management.css',
                 'resources/js/admin/chatbot-management.js',
                 
                 
@@ -69,7 +69,6 @@ export default defineConfig({
                 'resources/js/guest/product-card-carousel.js',
                 'resources/js/guest/custom-design.js',
                 'resources/css/guest/about.css',
-                'resources/js/guest/chatbot.js',
                 
                 
                 // Customer
