@@ -164,11 +164,12 @@ class ProductManagementController extends Controller
                     // Get total stock
                     $totalStock = $product->variants->sum('stock');
                     
-                    // Get variant images for carousel
+                    // Get variant images for carousel (use accessor for proper URL handling)
                     $variantImages = $product->variants
                         ->filter(function($v) { return !empty($v->image); })
                         ->map(function($v) {
-                            return asset('storage/' . $v->image);
+                            // Accessor automatically handles URL formatting
+                            return $v->image;
                         })
                         ->values()
                         ->toArray();
@@ -188,7 +189,8 @@ class ProductManagementController extends Controller
                     $product->price_max = $product->price;
                     $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
                     $product->total_stock = $product->stock;
-                    $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
+                    // Accessor automatically handles URL formatting
+                    $product->variant_images = $product->image ? [$product->image] : [];
                     $product->variant_count = 0;
                 }
                 

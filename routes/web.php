@@ -554,10 +554,21 @@ Route::prefix('admin')->group(function () {
             // Custom Design Prices API
             Route::put('/custom-design-prices/{id}/price', [CustomDesignPriceController::class, 'updatePrice'])->name('custom-design-prices.update-price');
             Route::post('/custom-design-prices/{id}/toggle', [CustomDesignPriceController::class, 'toggleStatus'])->name('custom-design-prices.toggle');
+            
+            // Testing & Debugging API
+            Route::get('/test/db-integration', [\App\Http\Controllers\Admin\TestController::class, 'testDbIntegration'])->name('test.db-integration');
+            Route::get('/test/db-status', [\App\Http\Controllers\Admin\TestController::class, 'dbStatus'])->name('test.db-status');
         });
         
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
     });
+});
+
+// Image serving endpoints (public)
+Route::prefix('api/images')->group(function () {
+    Route::get('/serve', [\App\Http\Controllers\ImageController::class, 'serve'])->name('images.serve');
+    Route::get('/url', [\App\Http\Controllers\ImageController::class, 'getUrl'])->name('images.url');
+    Route::post('/validate', [\App\Http\Controllers\ImageController::class, 'validate'])->name('images.validate');
 });
 
 require __DIR__.'/auth.php';

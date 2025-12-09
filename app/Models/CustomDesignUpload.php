@@ -33,6 +33,20 @@ class CustomDesignUpload extends Model
     }
 
     /**
+     * Get the file URL as accessor (alternative name)
+     */
+    public function getFilePathUrlAttribute()
+    {
+        $url = $this->file_url;
+        // Jika sudah full URL, return langsung
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
+            return $url;
+        }
+        // Otherwise, ensure it has asset() wrapper
+        return asset($url);
+    }
+
+    /**
      * Get formatted file size
      */
     public function getFormattedSizeAttribute()

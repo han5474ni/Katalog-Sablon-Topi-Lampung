@@ -41,6 +41,50 @@ class Product extends Model
         'custom_design_allowed' => 'boolean',
     ];
 
+    /**
+     * Accessor untuk memastikan image URL selalu valid
+     * Menangani baik local path maupun external URLs
+     */
+    public function getImageAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        
+        // Jika sudah full URL (http/https), return langsung
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        
+        // Jika path lokal, tambahkan /storage/ prefix
+        return asset('storage/' . $value);
+    }
+
+    /**
+     * Accessor untuk images array
+     * Memastikan setiap image di array memiliki URL yang valid
+     */
+    public function getImagesAttribute($value)
+    {
+        if (!$value || !is_array($value)) {
+            return [];
+        }
+        
+        return array_map(function($image) {
+            if (!$image) {
+                return null;
+            }
+            
+            // Jika sudah full URL, return langsung
+            if (filter_var($image, FILTER_VALIDATE_URL)) {
+                return $image;
+            }
+            
+            // Jika path lokal, tambahkan /storage/ prefix
+            return asset('storage/' . $image);
+        }, $value);
+    }
+
     // Auto-generate slug from name
     protected static function boot()
     {
