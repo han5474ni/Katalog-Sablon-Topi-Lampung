@@ -129,7 +129,7 @@
                 waText += `Mohon info langkah pembayaran. Terima kasih.`;
                 
                 // Ganti nomor WA admin di bawah ini
-                const waNumber = '6289508585888'; 
+                const waNumber = '{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}';
                 const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
                 window.open(waUrl, '_blank');
             }
