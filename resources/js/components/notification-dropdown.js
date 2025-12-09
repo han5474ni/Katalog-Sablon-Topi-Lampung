@@ -19,10 +19,8 @@ class NotificationDropdown {
         
         console.log('NotificationDropdown initialized:', {
             isAdmin: this.isAdmin,
-            userType: userType,
             baseUrl: this.baseUrl,
-            bellIcon: !!this.bellIcon,
-            csrfToken: !!this.csrfToken
+            bellIcon: !!this.bellIcon
         });
         
         if (!this.bellIcon) return;
