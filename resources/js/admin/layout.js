@@ -21,10 +21,22 @@ window.toggleAdminDropdown = function() {
 window.toggleNotificationDropdown = function() {
     const dropdown = document.getElementById('notification-dropdown');
     if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        // Ensure pointer-events is enabled
-        if (dropdown.style.display === 'block') {
-            dropdown.style.pointerEvents = 'auto';
+        // If NotificationDropdown class exists, use its method
+        if (window.notificationDropdown && typeof window.notificationDropdown.toggleDropdown === 'function') {
+            window.notificationDropdown.toggleDropdown();
+        } else {
+            // Fallback to direct DOM manipulation
+            const isVisible = dropdown.style.display === 'block';
+            dropdown.style.display = isVisible ? 'none' : 'block';
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.style.display === 'block') {
+                dropdown.style.pointerEvents = 'auto';
+                // Load notifications if class exists
+                if (window.notificationDropdown && typeof window.notificationDropdown.loadNotifications === 'function') {
+                    window.notificationDropdown.loadNotifications();
+                }
+            }
         }
     }
 

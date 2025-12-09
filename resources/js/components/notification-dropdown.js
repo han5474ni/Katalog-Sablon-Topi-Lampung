@@ -78,12 +78,14 @@ class NotificationDropdown {
     openDropdown() {
         this.dropdown.style.display = 'block';
         this.dropdown.classList.add('show');
+        this.dropdown.style.pointerEvents = 'auto';
         this.loadNotifications();
     }
     
     closeDropdown() {
         this.dropdown.style.display = 'none';
         this.dropdown.classList.remove('show');
+        this.dropdown.style.pointerEvents = 'none';
     }
     
     async loadNotifications() {
