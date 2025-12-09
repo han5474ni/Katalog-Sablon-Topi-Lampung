@@ -140,7 +140,7 @@ class ProductController extends Controller
         // Try to get product from database first
         if ($request->has('id')) {
             try {
-                $product = Product::with('variants')->findOrFail($request->id);
+                $product = Product::with('variants')->active()->findOrFail($request->id);
                 
                 // Increment views
                 $product->incrementViews();
