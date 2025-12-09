@@ -98,10 +98,14 @@
         </div>
 
         <script>
+            // Cache buster with timestamp
+            const cacheBuster = '{{ time() }}';
+            
             // Get WA config from environment
             const waConfig = {
-                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '62895085858888') }}',
-                appName: '{{ config('app.name', 'Topi Store') }}'
+                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '+62895085858888') }}',
+                appName: '{{ config('app.name', 'Topi Store') }}',
+                cacheBuster: cacheBuster
             };
 
             function payViaWhatsApp() {
@@ -116,7 +120,7 @@
                 const orderType = '{{ request()->get('order_type') }}';
                 const addressId = selectedAddress.value;
                 
-                // Build the formatted WhatsApp message
+                // Build the formatted WhatsApp message - NEW FORMAT
                 let waText = `Halo Admin ${waConfig.appName},%0A%0A`;
                 waText += `Saya ingin membayar pesanan berikut:%0A`;
                 waText += `%0A*Detail Pesanan:*%0A`;
@@ -128,16 +132,24 @@
                 waText += `%0A*Catatan:* Mohon konfirmasi pembayaran dan lanjutkan proses pesanan.%0A`;
                 waText += `Terima kasih.`;
                 
-                // Clean WA number: remove all non-digits and + symbol
-                const waNumber = waConfig.adminNumber.replace(/\D/g, '');
+                // Clean WA number: remove all non-digits and + symbol STRICTLY
+                let cleanNumber = waConfig.adminNumber.replace(/\D/g, '');
+                
+                // Verify format - must be valid phone number
+                if (!cleanNumber || cleanNumber.length < 10) {
+                    console.error('❌ INVALID number:', cleanNumber);
+                    cleanNumber = '62895085858888'; // Hardcoded fallback
+                }
                 
                 // Debug: Log nomor yang digunakan
-                console.log('WhatsApp Admin Number (cleaned):', waNumber);
-                console.log('Expected Number: 62895085858888');
-                console.log('Original from env:', waConfig.adminNumber);
+                console.log('%c✅ ALAMAT PAGE - WhatsApp Payment', 'color: green; font-weight: bold; font-size: 14px');
+                console.log('Admin Number (raw):', waConfig.adminNumber);
+                console.log('Admin Number (cleaned):', cleanNumber);
+                console.log('Cache Buster:', waConfig.cacheBuster);
+                console.log('Final URL will use:', cleanNumber);
                 
-                const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
-                console.log('WhatsApp URL:', waUrl);
+                const waUrl = `https://wa.me/${cleanNumber}?text=${waText}`;
+                console.log('Opening WhatsApp URL:', waUrl);
                 window.open(waUrl, '_blank');
             }
 
