@@ -297,10 +297,8 @@ Route::get('/debug/all-products', function () {
 // Product detail route - changed from /public/detail to /product-detail to avoid folder conflict
 Route::get('/product-detail', [ProductController::class, 'detail'])->name('product.detail');
 
-// Keep old route for backward compatibility, redirect to new route
-Route::get('/public/detail', function (Request $request) {
-    return redirect()->route('product.detail', $request->all());
-});
+// Keep both routes to ensure backward compatibility
+Route::get('/public/detail', [ProductController::class, 'detail'])->name('product.detail.old');
 
 // About Us page
 Route::get('/tentang-kami', function () {
