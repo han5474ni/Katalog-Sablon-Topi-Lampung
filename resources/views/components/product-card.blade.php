@@ -5,7 +5,7 @@
      data-product-slug="{{ $product->slug }}"
      data-product-name="{{ $product->name }}"
      data-product-price="{{ $product->formatted_price }}"
-     data-product-image="{{ $product->image ? (str_starts_with($product->image, 'http://') || str_starts_with($product->image, 'https://') ? $product->image : asset('storage/' . $product->image)) : '' }}"
+     data-product-image="{{ $product->image }}"
      data-variant-images="{{ json_encode($product->variant_images ?? []) }}">
     
     <!-- Product Image Container -->
@@ -18,12 +18,7 @@
             if (!empty($product->variant_images) && is_array($product->variant_images) && count($product->variant_images) > 0) {
                 $displayImage = $product->variant_images[0];
             } elseif ($product->image) {
-                // Check if image is already a full URL (http/https)
-                if (str_starts_with($product->image, 'http://') || str_starts_with($product->image, 'https://')) {
-                    $displayImage = $product->image;
-                } else {
-                    $displayImage = asset('storage/' . $product->image);
-                }
+                $displayImage = $product->image;
             }
         @endphp
         
@@ -72,7 +67,7 @@
                     if (!empty($product->variant_images) && is_array($product->variant_images) && count($product->variant_images) > 0) {
                         $productImage = $product->variant_images[0];
                     } elseif ($product->image) {
-                        $productImage = str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image);
+                        $productImage = $product->image;
                     }
                 @endphp
                 <button class="action-btn action-chat" 
