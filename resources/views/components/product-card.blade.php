@@ -5,7 +5,7 @@
      data-product-slug="{{ $product->slug }}"
      data-product-name="{{ $product->name }}"
      data-product-price="{{ $product->formatted_price }}"
-     data-product-image="{{ $product->image }}"
+     data-product-image="{{ image_url($product->image) }}"
      data-variant-images="{{ json_encode($product->variant_images ?? []) }}">
     
     <!-- Product Image Container -->

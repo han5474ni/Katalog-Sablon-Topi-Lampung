@@ -107,7 +107,7 @@ class CatalogController extends Controller
                 $variantImages = $product->variants
                     ->filter(function($v) { return !empty($v->image); })
                     ->map(function($v) {
-                        return asset('storage/' . $v->image);
+                        return image_url($v->image);
                     })
                     ->values()
                     ->toArray();
@@ -127,7 +127,7 @@ class CatalogController extends Controller
                 $product->price_max = $product->price;
                 $product->price_range = "Rp " . number_format($product->price, 0, ',', '.');
                 $product->total_stock = $product->stock;
-                $product->variant_images = $product->image ? [asset('storage/' . $product->image)] : [];
+                $product->variant_images = $product->image ? [image_url($product->image)] : [];
                 $product->variant_count = 0;
             }
             

@@ -394,7 +394,17 @@
                     if (product.variant_images && product.variant_images.length > 0) {
                         imageUrl = product.variant_images[0];
                     } else if (product.image) {
-                        imageUrl = `/storage/${product.image}`;
+                        // Detect if it's already a full URL or needs to be converted to storage path
+                        if (product.image.startsWith('http://') || product.image.startsWith('https://')) {
+                            imageUrl = product.image;
+                        } else {
+                            // Use proper path for Hostinger production
+                            if (window.location.hostname.includes('sablontopilampung.com') || window.location.hostname.includes('production')) {
+                                imageUrl = `/public/storage/${product.image}`;
+                            } else {
+                                imageUrl = `/storage/${product.image}`;
+                            }
+                        }
                     }
                     
                     const variantImagesJson = JSON.stringify(product.variant_images || []).replace(/'/g, '&#39;');
