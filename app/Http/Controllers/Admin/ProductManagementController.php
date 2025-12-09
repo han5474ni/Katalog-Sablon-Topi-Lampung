@@ -802,6 +802,13 @@ class ProductManagementController extends Controller
         $convertToWebp = true;    // Set false jika tidak mau convert ke WebP
         
         try {
+            // === STEP 0: Ensure directory exists ===
+            $fullPath = storage_path('app/public/' . $directory);
+            if (!is_dir($fullPath)) {
+                @mkdir($fullPath, 0755, true);
+                \Log::info("Created storage directory: {$fullPath}");
+            }
+            
             // === STEP 1: Initialize ImageManager dengan GD driver ===
             $manager = new ImageManager(new Driver());
             
@@ -887,20 +894,36 @@ class ProductManagementController extends Controller
             
             // === STEP 7: Simpan ke storage ===
             $path = $directory . '/' . $filename;
+            $fullFilePath = storage_path('app/public/' . $path);
+            file_put_contents($fullFilePath, (string) $encodedImage);
+            
+            // Verify file was saved
+            if (!file_exists($fullFilePath)) {
+                throw new \Exception("Failed to write image file to: {$fullFilePath}");
+            }
+            
+            // Also save via Storage facade for consistency
             Storage::disk('public')->put($path, (string) $encodedImage);
             
             // Log info untuk monitoring
             $finalSizeKB = round(strlen($encodedImage) / 1024, 2);
             \Log::info("Image compressed: {$file->getClientOriginalName()} | Original: " . 
-                      round($file->getSize() / 1024, 2) . "KB | Compressed: {$finalSizeKB}KB | Quality: {$quality}");
+                      round($file->getSize() / 1024, 2) . "KB | Compressed: {$finalSizeKB}KB | Quality: {$quality} | Saved to: {$path}");
             
             // === STEP 8: Return path untuk disimpan ke database ===
             return $path;
             
         } catch (\Exception $e) {
             // Jika kompresi gagal, fallback ke upload biasa
-            \Log::error('Image compression failed: ' . $e->getMessage());
-            return $file->store($directory, 'public');
+            \Log::error('Image compression failed: ' . $e->getMessage() . ' | Stack: ' . $e->getTraceAsString());
+            try {
+                $storedPath = $file->store($directory, 'public');
+                \Log::info("Fallback: Image stored at {$storedPath}");
+                return $storedPath;
+            } catch (\Exception $fallbackError) {
+                \Log::error('Image storage fallback failed: ' . $fallbackError->getMessage());
+                throw new \Exception('Unable to store image: ' . $e->getMessage());
+            }
         }
     }
 

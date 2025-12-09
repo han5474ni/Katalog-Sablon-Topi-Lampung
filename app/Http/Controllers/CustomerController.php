@@ -1075,13 +1075,33 @@ class CustomerController extends Controller
             
             \Log::info('Order created: ' . $order->id);
 
+            // Ensure custom-designs directory exists
+            $designsDir = storage_path('app/public/custom-designs/' . $order->id);
+            if (!is_dir($designsDir)) {
+                @mkdir($designsDir, 0755, true);
+                \Log::info("Created custom designs directory: {$designsDir}");
+            }
+
             $uploadRecords = [];
             foreach ($request->uploads as $upload) {
                 $file = $upload['file'];
                 $section = $upload['section_name'];
                 $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                
                 // Store file using public disk
                 $path = $file->storeAs('custom-designs/' . $order->id, $filename, 'public');
+                
+                // Verify file was stored
+                if (!$path) {
+                    throw new \Exception("Failed to store file: {$filename}");
+                }
+                
+                // Additional verification
+                $fullPath = storage_path('app/public/' . $path);
+                if (!file_exists($fullPath)) {
+                    \Log::warning("File not found after storage: {$fullPath}");
+                }
+                
                 $uploadRecords[] = [
                     'custom_design_order_id' => $order->id,
                     'section_name' => $section,
@@ -1091,10 +1111,17 @@ class CustomerController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+                
+                \Log::info("Uploaded file: {$path} | Size: " . $file->getSize() . " bytes");
             }
-            \App\Models\CustomDesignUpload::insert($uploadRecords);
             
-            \Log::info('Uploads saved: ' . count($uploadRecords));
+            // Insert all upload records
+            if (!empty($uploadRecords)) {
+                $inserted = \App\Models\CustomDesignUpload::insert($uploadRecords);
+                \Log::info("Uploads inserted into database: " . ($inserted ? 'YES' : 'FAILED') . " | Count: " . count($uploadRecords));
+            } else {
+                throw new \Exception("No files to upload");
+            }
 
             \DB::commit();
             \Log::info('✅ Order completed successfully');
