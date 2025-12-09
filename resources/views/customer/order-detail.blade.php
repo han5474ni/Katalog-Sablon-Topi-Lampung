@@ -333,7 +333,7 @@
         <script>
             // Get WA config from environment
             const waConfig = {
-                adminNumber: '{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}',
+                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '+62895085858888') }}',
                 appName: '{{ config('app.name', 'Topi Store') }}'
             };
 
@@ -359,9 +359,16 @@
                 waText += `%0A*Catatan:* Mohon konfirmasi pembayaran dan lanjutkan proses pesanan.%0A`;
                 waText += `Terima kasih.`;
 
-                // Open WhatsApp
-                const waNumber = waConfig.adminNumber.replace(/\D/g, ''); // Remove all non-digits
+                // Clean WA number: remove all non-digits and + symbol
+                const waNumber = waConfig.adminNumber.replace(/\D/g, '');
+                
+                // Debug logging
+                console.log('WhatsApp Admin Number (cleaned):', waNumber);
+                console.log('Expected Number: 62895085858888');
+                console.log('Original from env:', waConfig.adminNumber);
+                
                 const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
+                console.log('WhatsApp URL:', waUrl);
                 window.open(waUrl, '_blank');
             }
         </script>
