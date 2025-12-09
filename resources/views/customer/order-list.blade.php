@@ -1,5 +1,5 @@
 <x-customer-layout title="Daftar Pesanan" active="order-list">
-    @vite(['resources/css/customer/shared.css', 'resources/js/customer/notifications.js'])
+    @vite(['resources/css/customer/shared.css'])
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('profile-updated', event => {

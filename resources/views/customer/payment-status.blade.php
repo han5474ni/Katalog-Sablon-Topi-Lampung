@@ -1,5 +1,5 @@
 <x-customer-layout title="Status Pembayaran" active="payment-status">
-    @vite(['resources/css/customer/shared.css', 'resources/js/customer/notifications.js'])
+    @vite(['resources/css/customer/shared.css'])
     <style>
         * {
             margin: 0;
