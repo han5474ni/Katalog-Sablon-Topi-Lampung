@@ -613,10 +613,39 @@ body {
     pointer-events: auto;
 }
 
-
 .notification-bell__btn i {
     font-size: 18px;
     color: var(--text-secondary);
+}
+
+/* Notification Wrapper and Link */
+.notification-wrapper {
+    position: relative;
+    z-index: 1002;
+    pointer-events: auto;
+}
+
+.notification-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    z-index: 1002;
+    pointer-events: auto !important;
+}
+
+.notification-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.notification-link i {
+    font-size: 18px;
+    color: #fff;
 }
 
 

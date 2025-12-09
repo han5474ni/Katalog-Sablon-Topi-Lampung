@@ -333,7 +333,7 @@
         <script>
             // Get WA config from environment
             const waConfig = {
-                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '6281234567890') }}',
+                adminNumber: '{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}',
                 appName: '{{ config('app.name', 'Topi Store') }}'
             };
 
