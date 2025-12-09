@@ -105,19 +105,31 @@
                     return;
                 }
                 // Ambil data pesanan dari halaman atau session (sesuaikan dengan kebutuhan)
-                // Contoh data pesanan
                 const orderId = '{{ request()->get('order_id') }}';
                 const orderType = '{{ request()->get('order_type') }}';
                 const userName = '{{ $user->name ?? '' }}';
                 const addressId = selectedAddress.value;
-                let waText = `Halo Admin, saya ingin melakukan pembayaran untuk pesanan dengan detail berikut:%0A`;
-                waText += `Nama: ${userName}%0A`;
-                waText += `Order ID: ${orderId}%0A`;
-                waText += `Order Type: ${orderType}%0A`;
-                waText += `Alamat ID: ${addressId}%0A`;
-                waText += `Mohon konfirmasi pembayaran dan proses pesanan saya. Terima kasih.`;
+                
+                // Build the formatted WhatsApp message
+                let waText = `Halo Admin,%0A`;
+                waText += `Saya ingin membayar pesanan berikut:%0A`;
+                waText += `%0A`;
+                waText += `🧾 Pesanan #${orderId}%0A`;
+                waText += `Jenis: ${orderType}%0A`;
+                waText += `%0A`;
+                waText += `Daftar Produk:%0A`;
+                waText += `[Daftar produk akan ditampilkan sesuai pesanan]%0A`;
+                waText += `%0A`;
+                waText += `Subtotal: [Subtotal]%0A`;
+                waText += `Total Pembayaran: [Total]%0A`;
+                waText += `%0A`;
+                waText += `Alamat Pengiriman:%0A`;
+                waText += `ID Alamat: ${addressId}%0A`;
+                waText += `%0A`;
+                waText += `Mohon info langkah pembayaran. Terima kasih.`;
+                
                 // Ganti nomor WA admin di bawah ini
-                const waNumber = '6281234567890'; // ganti dengan nomor admin
+                const waNumber = '6289508585888'; 
                 const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
                 window.open(waUrl, '_blank');
             }
