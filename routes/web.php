@@ -436,7 +436,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/api/dashboard/top-products', [App\Http\Controllers\Admin\DashboardController::class, 'getTopProducts'])->name('api.dashboard.products');
         
         // Analytics & Reports
-        Route::get('/analytic', [AnalyticsController::class, 'index'])->name('admin.analytic');
+        Route::get('/analytic', [AnalyticsController::class, 'index'])->name('admin.analytics');
         Route::get('/api/analytics/sales-overview', [AnalyticsController::class, 'getSalesOverview'])->name('admin.api.analytics.sales-overview');
         Route::get('/api/analytics/sales-trend', [AnalyticsController::class, 'getSalesTrendData'])->name('admin.api.analytics.sales-trend');
         Route::get('/api/analytics/order-status', [AnalyticsController::class, 'getOrderStatusDistribution'])->name('admin.api.analytics.order-status');

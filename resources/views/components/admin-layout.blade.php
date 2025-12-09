@@ -263,7 +263,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.analytic') }}" class="sidebar__link {{ request()->routeIs('admin.analytic*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.analytics') }}" class="sidebar__link {{ request()->routeIs('admin.analytics*') ? 'active' : '' }}">
                         <i class="fas fa-chart-line"></i>
                         <span>Analytics Reports</span>
                     </a>
