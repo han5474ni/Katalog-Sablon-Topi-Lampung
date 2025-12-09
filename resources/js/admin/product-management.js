@@ -153,7 +153,7 @@ function renderProducts(products) {
                 html += `<div class="image-count-badge">+${product.variant_images.length - 1}</div>`;
             }
         } else if (product.image) {
-            html += `<img src="/storage/${product.image}" alt="${product.name}">`;
+            html += `<img src="${product.image}" alt="${product.name}">`;
         } else {
             html += '<div class="no-image"><i class="fas fa-image"></i></div>';
         }
@@ -223,7 +223,7 @@ function renderProducts(products) {
                             <div class="product-image-cell">`;
                     
                     if (v.image) {
-                        html += `<img src="/storage/${v.image}" alt="Variant">`;
+                        html += `<img src="${v.image}" alt="Variant">`;
                     } else {
                         html += '<div class="no-image"><i class="fas fa-image"></i></div>';
                     }
