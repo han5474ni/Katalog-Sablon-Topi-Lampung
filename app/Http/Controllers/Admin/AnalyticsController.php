@@ -548,6 +548,7 @@ class AnalyticsController extends Controller
         return $labels[$status] ?? ucfirst($status);
     }
     
+    
     private function getRFMSegment($recency, $frequency, $monetary)
     {
         // Simplified RFM segmentation
@@ -563,4 +564,44 @@ class AnalyticsController extends Controller
         
         return 'Regular';
     }
+
+    /**
+     * Check if analytics data has changed since last check
+     * Used for real-time updates
+     */
+    public function checkAnalyticsChanges()
+    {
+        try {
+            $clientHash = request()->get('last_hash', '');
+            
+            // Get latest order timestamp
+            $latestOrder = Order::latest('updated_at')->first();
+            $latestCustomOrder = CustomDesignOrder::latest('updated_at')->first();
+            
+            $latestTimestamp = max(
+                $latestOrder?->updated_at?->timestamp ?? 0,
+                $latestCustomOrder?->updated_at?->timestamp ?? 0
+            );
+            
+            // Create a simple hash based on latest changes
+            $currentHash = md5(json_encode([
+                'latest_order_timestamp' => $latestTimestamp,
+                'order_count' => Order::count(),
+                'custom_order_count' => CustomDesignOrder::count(),
+            ]));
+            
+            // Compare with client's last hash
+            $hasChanges = $clientHash !== $currentHash;
+            
+            return response()->json([
+                'hasChanges' => $hasChanges,
+                'currentHash' => $currentHash,
+                'latestTimestamp' => $latestTimestamp,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Check Analytics Changes Error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }
+

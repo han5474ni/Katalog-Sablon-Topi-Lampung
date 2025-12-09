@@ -442,6 +442,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/api/analytics/order-status', [AnalyticsController::class, 'getOrderStatusDistribution'])->name('admin.api.analytics.order-status');
         Route::get('/api/analytics/customer', [AnalyticsController::class, 'getCustomerAnalytics'])->name('admin.api.analytics.customer');
         Route::get('/api/analytics/conversion-funnel', [AnalyticsController::class, 'getConversionFunnel'])->name('admin.api.analytics.conversion-funnel');
+        Route::get('/api/analytics/check-changes', [AnalyticsController::class, 'checkAnalyticsChanges'])->name('admin.api.analytics.check-changes');
         
         Route::get('/order-list', [OrderManagementController::class, 'index'])->name('admin.order-list');
         Route::get('/order-history', [OrderManagementController::class, 'history'])->name('admin.order-history');

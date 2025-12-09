@@ -21,19 +21,20 @@ class SendPaymentReceivedNotification
      */
     public function handle(PaymentReceivedEvent $event): void
     {
-        $transaction = $event->paymentTransaction;
+        $order = $event->order;
+        $orderType = $event->orderType;
         
-        $orderNumber = $this->getOrderNumber($transaction);
-        $actionUrl = $this->getOrderUrl($transaction);
+        $orderNumber = $this->getOrderNumber($order, $orderType);
+        $actionUrl = $this->getOrderUrl($order, $orderType);
 
         $this->notificationService->send(
             'payment_received',
-            $transaction->user,
+            $order->user,
             [
                 'order_number' => $orderNumber,
-                'customer_name' => $transaction->user->name,
-                'transaction_number' => $transaction->transaction_id,
-                'amount' => 'Rp ' . number_format($transaction->amount, 0, ',', '.'),
+                'customer_name' => $order->user->name,
+                'transaction_number' => $order->id,
+                'amount' => 'Rp ' . number_format($order->total, 0, ',', '.'),
                 'action_url' => $actionUrl,
             ],
             'medium',
@@ -41,28 +42,27 @@ class SendPaymentReceivedNotification
         );
     }
     
-    private function getOrderNumber($transaction): string
+    private function getOrderNumber($order, string $orderType): string
     {
-        if ($transaction->order_type === 'order' && $transaction->order_id) {
-            $order = Order::find($transaction->order_id);
-            return $order?->order_number ?? 'N/A';
+        if ($orderType === 'regular' && $order->order_number) {
+            return $order->order_number;
         }
         
-        if ($transaction->order_type === 'custom_design' && $transaction->order_id) {
-            return "CUSTOM-{$transaction->order_id}";
+        if ($orderType === 'custom') {
+            return "CUSTOM-{$order->id}";
         }
         
-        return $transaction->transaction_id ?? 'N/A';
+        return $order->order_number ?? 'N/A';
     }
     
-    private function getOrderUrl($transaction): string
+    private function getOrderUrl($order, string $orderType): string
     {
-        if ($transaction->order_type === 'order' && $transaction->order_id) {
-            return route('order-detail', ['type' => 'regular', 'id' => $transaction->order_id]);
+        if ($orderType === 'regular') {
+            return route('order-detail', ['type' => 'regular', 'id' => $order->id]);
         }
         
-        if ($transaction->order_type === 'custom_design' && $transaction->order_id) {
-            return route('order-detail', ['type' => 'custom', 'id' => $transaction->order_id]);
+        if ($orderType === 'custom') {
+            return route('order-detail', ['type' => 'custom', 'id' => $order->id]);
         }
         
         return route('order-history');

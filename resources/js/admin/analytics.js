@@ -9,6 +9,12 @@ let dateRange = {
     end: null
 };
 
+let analyticsState = {
+    currentHash: '',
+    pollingInterval: null,
+    isPolling: false
+};
+
 // Simple test: set one element directly when page loads
 window.addEventListener('load', function() {
     console.log('Window LOAD event fired');
@@ -72,6 +78,79 @@ window.addEventListener('load', function() {
     }
     
     loadAnalyticsData();
+    
+    // Start polling for analytics changes
+    startAnalyticsPolling();
+});
+
+/**
+ * Start polling for analytics changes
+ * Checks every 10 seconds if data has changed
+ */
+function startAnalyticsPolling() {
+    if (analyticsState.isPolling) {
+        console.log('Polling already active');
+        return;
+    }
+    
+    analyticsState.isPolling = true;
+    console.log('✓ Starting analytics polling (every 10 seconds)');
+    
+    analyticsState.pollingInterval = setInterval(function() {
+        checkAnalyticsChanges();
+    }, 10000); // Check every 10 seconds
+}
+
+/**
+ * Check if analytics data has changed
+ */
+function checkAnalyticsChanges() {
+    const params = new URLSearchParams();
+    params.append('last_hash', analyticsState.currentHash);
+    
+    fetch(`/admin/api/analytics/check-changes?${params.toString()}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.hasChanges) {
+                console.log('✓ Analytics data has changed, refreshing...', data);
+                analyticsState.currentHash = data.currentHash;
+                loadAnalyticsData();
+            } else {
+                console.log('No changes detected. Hash:', data.currentHash);
+                analyticsState.currentHash = data.currentHash;
+            }
+        })
+        .catch(err => {
+            console.warn('Error checking analytics changes:', err);
+        });
+}
+
+/**
+ * Stop polling
+ */
+function stopAnalyticsPolling() {
+    if (analyticsState.pollingInterval) {
+        clearInterval(analyticsState.pollingInterval);
+        analyticsState.pollingInterval = null;
+        analyticsState.isPolling = false;
+        console.log('Polling stopped');
+    }
+}
+
+// Stop polling when page is hidden
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        stopAnalyticsPolling();
+        console.log('Page hidden, analytics polling paused');
+    } else {
+        startAnalyticsPolling();
+        console.log('Page visible, analytics polling resumed');
+    }
+});
+
+// Stop polling when leaving page
+window.addEventListener('beforeunload', function() {
+    stopAnalyticsPolling();
 });
 
 function formatDateForAPI(date) {
@@ -94,6 +173,7 @@ function loadAnalyticsData() {
         console.error('Error loading analytics:', error);
     });
 }
+
 
 function loadSalesOverview() {
     const params = new URLSearchParams();
