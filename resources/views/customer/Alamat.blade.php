@@ -130,7 +130,13 @@
                 
                 // Ganti nomor WA admin di bawah ini
                 const waNumber = '{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}';
+                
+                // Debug: Log nomor yang digunakan
+                console.log('WhatsApp Admin Number:', waNumber);
+                console.log('Expected Number: 62895085858888');
+                
                 const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
+                console.log('WhatsApp URL:', waUrl);
                 window.open(waUrl, '_blank');
             }
 
