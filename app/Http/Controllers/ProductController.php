@@ -139,9 +139,10 @@ class ProductController extends Controller
     {
         // Try to get product from database first
         if ($request->has('id')) {
-            try {
-                $product = Product::with('variants')->active()->findOrFail($request->id);
-                
+            // Use find() instead of findOrFail() to avoid automatic 404
+            $product = Product::with('variants')->where('is_active', true)->find($request->id);
+            
+            if ($product) {
                 // Increment views
                 $product->incrementViews();
                 
@@ -250,9 +251,8 @@ class ProductController extends Controller
                     });
 
                 return view('pages.product-detail', ['product' => $productData, 'recommendations' => $recommendations]);
-            } catch (\Exception $e) {
-                // Fall back to query parameters if product not found
             }
+            // If product not found but has id, fall through to fallback
         }
         
         // Fallback: use query parameters (backward compatibility)
