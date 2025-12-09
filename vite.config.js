@@ -10,6 +10,9 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/bootstrap.js',
                 
+                // Livewire
+                'resources/css/livewire/chatbot-customer.css',
+
                 // Components
                 'resources/css/components/navbar.css',
                 'resources/css/components/footer.css',
@@ -17,6 +20,7 @@ export default defineConfig({
                 'resources/js/components/navbar.js',
                 'resources/css/components/notification-dropdown.css',
                 'resources/js/components/notification-dropdown.js',
+                
                 
                 // Admin
                 'resources/css/admin/login.css',
@@ -42,7 +46,7 @@ export default defineConfig({
                 'resources/js/admin/analytics.js',
                 'resources/css/admin/chatbot-management.css',
                 'resources/js/admin/chatbot-management.js',
-                
+                'resources/css/admin/admin-notifications.css',
                 
                 // Auth
                 'resources/css/auth/forgot-password.css',
@@ -58,10 +62,12 @@ export default defineConfig({
                 'resources/css/guest/catalog-inline.css',
                 'resources/css/guest/custom-design.css',
                 'resources/css/guest/alamat.css',
+                'resources/css/guest/chatpage.css',
                     // 'resources/js/guest/about.js', // removed: file not found
                     // 'resources/js/guest/alamat.js', // removed: file not found
                     // 'resources/js/guest/other-info.js', // removed: file not found
                     // 'resources/js/guest/guest.css', // removed: file not found
+                'resources/js/guest/auth-layout.js',
                 'resources/js/guest/login.js',
                 'resources/js/guest/product-slider.js',
                 'resources/js/guest/product-detail.js',
@@ -76,7 +82,9 @@ export default defineConfig({
                 'resources/css/customer/profile-form.css',
                 'resources/css/customer/all-product.css',
                 'resources/css/customer/Pembayaran.css',
+                'resources/css/customer/Notifikasi.css',
                 // 'resources/js/customer/chatbot.js', // removed: file not found
+                'resources/js/customer/notifications.js',
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
                 // 'resources/js/guest/guest.css', // removed: file not found

@@ -240,61 +240,130 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+
+                    <!-- Action Buttons Section -->
+                    @if($order->status === 'approved')
+                    <div style="margin-top: 24px; padding: 16px 24px; background-color: #f0fdf4; border-top: 1px solid #d1fae5; border-bottom: 1px solid #d1fae5;">
+                        <div class="flex flex-col gap-4">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-check-circle text-green-600 mt-1" style="font-size: 20px;"></i>
+                                    <div>
+                                        <h4 class="font-semibold text-green-900 mb-1">Pesanan Disetujui</h4>
+                                        <p class="text-sm text-green-800">
+                                            @if($type === 'custom')
+                                                Admin sudah menyetujui desain custom Anda. Silakan lakukan pembayaran untuk melanjutkan proses.
+                                            @else
+                                                Pesanan Anda sudah disetujui. Silakan lakukan pembayaran untuk melanjutkan proses.
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Status Indicator -->
+                            @if(!isset($order->payment_status) || $order->payment_status === 'unpaid' || $order->payment_status === 'va_active')
+                            <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 mb-1">Pembayaran Pesanan</h4>
+                                    <p class="text-sm text-gray-600">
+                                        Total Pembayaran: <strong class="text-lg text-gray-900">
+                                            Rp {{ $type === 'custom' ? number_format($order->total_price, 0, ',', '.') : number_format($order->total, 0, ',', '.') }}
+                                        </strong>
+                                    </p>
+                                </div>
+                                <button type="button" onclick="payViaWhatsApp()" 
+                                    class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg flex items-center gap-2 transition"
+                                    style="transition: all 0.2s;">
+                                    <i class="fab fa-whatsapp" style="font-size: 18px;"></i>
+                                    <span>Bayar via WhatsApp</span>
+                                </button>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <strong>Catatan:</strong> Klik tombol di atas untuk menghubungi admin melalui WhatsApp dengan detail pesanan Anda.
+                            </div>
+                            @elseif($order->payment_status === 'paid')
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                                <i class="fas fa-check-circle text-green-600 mb-2" style="font-size: 24px;"></i>
+                                <p class="font-semibold text-green-900">Pembayaran Sudah Dikonfirmasi</p>
+                                <p class="text-sm text-green-800 mt-1">Pesanan Anda sedang diproses</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @elseif($order->status === 'pending')
+                    <div style="margin-top: 24px; padding: 16px 24px; background-color: #fffbeb; border-top: 1px solid #fde68a; border-bottom: 1px solid #fde68a;">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-clock text-yellow-600 mt-1" style="font-size: 20px;"></i>
+                                <div>
+                                    <h4 class="font-semibold text-yellow-900 mb-1">Menunggu Persetujuan</h4>
+                                    <p class="text-sm text-yellow-800">
+                                        @if($type === 'custom')
+                                            Admin sedang meninjau desain custom Anda. Mohon tunggu persetujuan dari admin.
+                                        @else
+                                            Admin sedang meninjau pesanan Anda. Mohon tunggu persetujuan dari admin.
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($order->status === 'rejected')
+                    <div style="margin-top: 24px; padding: 16px 24px; background-color: #fef2f2; border-top: 1px solid #fecaca; border-bottom: 1px solid #fecaca;">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-times-circle text-red-600 mt-1" style="font-size: 20px;"></i>
+                                <div>
+                                    <h4 class="font-semibold text-red-900 mb-1">Pesanan Ditolak</h4>
+                                    <p class="text-sm text-red-800">
+                                        Pesanan Anda telah ditolak. Silakan hubungi admin untuk informasi lebih lanjut.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
-        </div>
-    </div>
 
-    <script>
-        function showTab(tabName) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            
-            // Reset all tab buttons
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('border-blue-600', 'text-blue-600');
-                button.classList.add('border-transparent', 'text-gray-600');
-            });
-            
-            // Show selected tab content
-            document.getElementById('content-' + tabName).classList.remove('hidden');
-            
-            // Highlight selected tab button
-            const activeTab = document.getElementById('tab-' + tabName);
-            activeTab.classList.remove('border-transparent', 'text-gray-600');
-            activeTab.classList.add('border-blue-600', 'text-blue-600');
-        }
-        
-        async function cancelThisOrder() {
-            if (!confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/order/{{ $type }}/{{ $order->id }}/cancel`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('Pesanan berhasil dibatalkan');
-                    window.location.href = '{{ route("order-list") }}';
-                } else {
-                    alert(data.message || 'Gagal membatalkan pesanan');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat membatalkan pesanan');
-            }
-        }
-    </script>
+        <script>
+            // Get WA config from environment
+            const waConfig = {
+                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '6281234567890') }}',
+                appName: '{{ config('app.name', 'Topi Store') }}'
+            };
 
-    @stack('scripts')
-</x-customer-layout>
+            function payViaWhatsApp() {
+                const orderId = '{{ $order->id }}';
+                const orderType = '{{ $type }}';
+                const total = '{{ $type === 'custom' ? $order->total_price : $order->total }}';
+                const totalFormatted = 'Rp {{ $type === 'custom' ? number_format($order->total_price, 0, ',', '.') : number_format($order->total, 0, ',', '.') }}';
+                const customerName = '{{ auth()->user()->name ?? 'Customer' }}';
+                const appName = waConfig.appName;
+
+                // Build WhatsApp message with order details
+                let waText = `Halo Admin ${appName},%0A%0A`;
+                waText += `Saya ingin melakukan pembayaran untuk pesanan berikut:%0A`;
+                waText += `%0A*Detail Pesanan:*%0A`;
+                waText += `Nomor Pesanan: #${orderId}%0A`;
+                waText += `Tipe Pesanan: {{ $type === 'custom' ? 'Custom Design' : 'Regular' }}%0A`;
+                waText += `Nama Customer: ${customerName}%0A`;
+                waText += `Jumlah Pembayaran: ${totalFormatted}%0A`;
+                @if($type === 'custom')
+                waText += `Jenis Cutting: {{ $order->cutting_type }}%0A`;
+                @endif
+                waText += `%0A*Catatan:* Mohon konfirmasi pembayaran dan lanjutkan proses pesanan.%0A`;
+                waText += `Terima kasih.`;
+
+                // Open WhatsApp
+                const waNumber = waConfig.adminNumber.replace(/\D/g, ''); // Remove all non-digits
+                const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
+                window.open(waUrl, '_blank');
+            }
+        </script>
+
+    </x-customer-layout>

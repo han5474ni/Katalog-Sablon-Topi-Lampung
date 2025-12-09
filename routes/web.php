@@ -450,6 +450,7 @@ Route::prefix('admin')->group(function () {
         Route::post('/order-list/{id}/approve', [OrderManagementController::class, 'approve'])->name('admin.order.approve');
         Route::post('/order-list/{id}/reject', [OrderManagementController::class, 'reject'])->name('admin.order.reject');
         Route::patch('/order-list/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('admin.order.update-status');
+        Route::post('/order-list/{id}/mark-payment-received', [OrderManagementController::class, 'markPaymentReceived'])->name('admin.order.mark-payment-received');
         Route::get('/management-users', [UserManagementController::class, 'index'])->name('admin.management-users');
         Route::get('/management-users/customer/{id}', [UserManagementController::class, 'showCustomerDetail'])->name('admin.customer-detail');
         Route::get('/management-users/customer/{id}/export-pdf', [UserManagementController::class, 'exportCustomerPDF'])->name('admin.customer-export-pdf');

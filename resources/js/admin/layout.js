@@ -3,6 +3,11 @@ window.toggleAdminDropdown = function() {
     const menu = document.getElementById('adminDropdownMenu');
     if (menu) {
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        menu.classList.toggle('show');
+        // Ensure pointer-events is enabled
+        if (menu.style.display === 'block') {
+            menu.style.pointerEvents = 'auto';
+        }
     }
 
     // Close notification dropdown if open
@@ -17,6 +22,10 @@ window.toggleNotificationDropdown = function() {
     const dropdown = document.getElementById('notification-dropdown');
     if (dropdown) {
         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        // Ensure pointer-events is enabled
+        if (dropdown.style.display === 'block') {
+            dropdown.style.pointerEvents = 'auto';
+        }
     }
 
     // Close admin dropdown if open

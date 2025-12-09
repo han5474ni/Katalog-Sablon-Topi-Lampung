@@ -91,45 +91,37 @@
         </div>
 
         <!-- Action Buttons -->
+
         <div class="action-buttons">
             <button class="btn btn-orange" onclick="window.location.href='/keranjang'">Kembali</button>
-            <button class="btn btn-primary" id="next-btn" onclick="proceedToShipping()">Lanjut</button>
+            <button class="btn btn-success" id="wa-pay-btn" onclick="payViaWhatsApp()">Bayar ke WA</button>
         </div>
 
         <script>
-            function proceedToShipping() {
+            function payViaWhatsApp() {
                 const selectedAddress = document.querySelector('input[name="address"]:checked');
-                
                 if (!selectedAddress) {
                     alert('Silakan pilih alamat terlebih dahulu');
                     return;
                 }
-                
-                // Save to session via AJAX
-                fetch('{{ route('alamat.select') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        address_id: selectedAddress.value
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '/pemesanan';
-                    } else {
-                        alert('Gagal menyimpan alamat. Silakan coba lagi.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan. Silakan coba lagi.');
-                });
+                // Ambil data pesanan dari halaman atau session (sesuaikan dengan kebutuhan)
+                // Contoh data pesanan
+                const orderId = '{{ request()->get('order_id') }}';
+                const orderType = '{{ request()->get('order_type') }}';
+                const userName = '{{ $user->name ?? '' }}';
+                const addressId = selectedAddress.value;
+                let waText = `Halo Admin, saya ingin melakukan pembayaran untuk pesanan dengan detail berikut:%0A`;
+                waText += `Nama: ${userName}%0A`;
+                waText += `Order ID: ${orderId}%0A`;
+                waText += `Order Type: ${orderType}%0A`;
+                waText += `Alamat ID: ${addressId}%0A`;
+                waText += `Mohon konfirmasi pembayaran dan proses pesanan saya. Terima kasih.`;
+                // Ganti nomor WA admin di bawah ini
+                const waNumber = '6281234567890'; // ganti dengan nomor admin
+                const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
+                window.open(waUrl, '_blank');
             }
-            
+
             // Handle address card clicks
             document.querySelectorAll('.address-card').forEach(card => {
                 card.addEventListener('click', function() {
@@ -137,7 +129,7 @@
                     this.classList.add('selected');
                 });
             });
-    </script>
+        </script>
 
     @stack('scripts')
 </x-customer-layout>

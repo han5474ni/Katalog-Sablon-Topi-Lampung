@@ -924,6 +924,20 @@
             </form>
             @endif
         </div>
+        @elseif($order->status === 'approved' && (!isset($order->payment_status) || in_array($order->payment_status, ['unpaid', 'va_active'])))
+        {{-- Option for admin to mark payment as received (for WA payment) --}}
+        <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 12px;">
+            <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #92400e; margin-right: auto;">
+                <i class="fas fa-info-circle"></i> <strong>Pesanan sudah disetujui, menunggu pembayaran.</strong><br>
+                Customer dapat melakukan pembayaran melalui WhatsApp. Klik tombol di bawah untuk mengkonfirmasi pembayaran telah diterima.
+            </div>
+            <form method="POST" action="{{ route('admin.order.mark-payment-received', ['id' => $order->id, 'type' => $orderType]) }}" style="display: inline; margin: 0;">
+                @csrf
+                <button type="submit" onclick="return confirm('Konfirmasi pembayaran sudah diterima? Pesanan akan siap diproses.')" style="padding: 12px 36px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                    <i class="fas fa-money-bill-wave"></i> Konfirmasi Pembayaran
+                </button>
+            </form>
+        </div>
         @elseif($order->status === 'pending')
         <div style="margin-top: 16px; display: flex; gap: 12px;">
             <form method="POST" action="{{ route('admin.order.approve', ['id' => $order->id, 'type' => $orderType]) }}" style="display: inline; margin: 0;">

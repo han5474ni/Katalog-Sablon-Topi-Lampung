@@ -649,6 +649,74 @@ class OrderManagementController extends Controller
     }
     
     /**
+     * Mark order payment as received (for manual WA payment verification)
+     */
+    public function markPaymentReceived(Request $request, $id)
+    {
+        $orderType = $request->get('type', 'regular');
+        
+        if ($orderType === 'custom') {
+            $order = CustomDesignOrder::findOrFail($id);
+        } else {
+            $order = Order::findOrFail($id);
+        }
+
+        // Check if order is already paid
+        if ($order->payment_status === 'paid') {
+            return redirect()
+                ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                ->with('error', 'Pesanan sudah ditandai sebagai dibayar.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $order->update([
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            // Dispatch event for payment received
+            PaymentReceivedEvent::dispatch($order, $orderType);
+
+            DB::commit();
+
+            // Send payment confirmation notification
+            try {
+                app(\App\Services\NotificationService::class)->notifyPaymentReceived($order, $orderType);
+            } catch (\Exception $e) {
+                Log::warning('Failed to send payment confirmation notification', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            Log::info('Payment marked as received', [
+                'order_id' => $order->id,
+                'order_type' => $orderType,
+                'marked_by' => auth()->user()->name ?? 'System',
+                'timestamp' => now()
+            ]);
+
+            return redirect()
+                ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                ->with('success', 'Pembayaran telah dikonfirmasi. Pesanan dapat diproses.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to mark payment as received', [
+                'order_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->route('admin.order.detail', ['id' => $id, 'type' => $orderType])
+                ->with('error', 'Gagal mengkonfirmasi pembayaran: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Export orders to Excel
      */
     public function export(Request $request)

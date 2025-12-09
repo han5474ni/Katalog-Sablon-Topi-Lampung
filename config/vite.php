@@ -17,10 +17,13 @@ return [
 
     'build_path' => public_path('build'),
 
-    'hot_file' => public_path('hot'),
+    // Force production to always use built assets even if a stale Vite "hot" file exists.
+    // This prevents the app from trying to load the local dev server URL (e.g., http://[::1]:5173).
+    'hot_file' => strcasecmp(env('APP_ENV', 'production'), 'production') === 0
+        ? storage_path('framework/vite.hot')
+        : public_path('hot'),
 
-    'dev_server' => [
-        'url' => env('VITE_DEV_SERVER_URL', 'http://localhost:5173'),
+    'dev_server' => [        'url' => env('VITE_DEV_SERVER_URL', 'http://localhost:5173'),
         'enabled' => env('VITE_DEV_SERVER', false),
     ],
 ];

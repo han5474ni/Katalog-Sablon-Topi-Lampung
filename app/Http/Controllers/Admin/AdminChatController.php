@@ -185,8 +185,16 @@ class AdminChatController extends Controller
         $conversation = ChatConversation::findOrFail($conversationId);
         $adminId = Auth::guard('admin')->id();
 
-        // Ensure admin has taken over or is the handler
-        if ($conversation->admin_id !== $adminId && !$conversation->taken_over_by_admin) {
+        // Ensure admin has access: auto take over if not claimed
+        if (!$conversation->taken_over_by_admin || $conversation->admin_id === null) {
+            $conversation->update([
+                'taken_over_by_admin' => true,
+                'admin_id' => $adminId,
+                'is_admin_active' => true,
+                'taken_over_at' => now(),
+            ]);
+        } elseif ($conversation->admin_id !== $adminId) {
+            // Prevent replying to a conversation owned by another admin
             return response()->json([
                 'success' => false,
                 'message' => 'Anda tidak memiliki akses untuk menjawab konversasi ini'
