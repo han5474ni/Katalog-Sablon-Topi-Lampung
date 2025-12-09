@@ -84,7 +84,6 @@ export default defineConfig({
                 'resources/css/customer/Pembayaran.css',
                 'resources/css/customer/Notifikasi.css',
                 // 'resources/js/customer/chatbot.js', // removed: file not found
-                'resources/js/customer/notifications.js',
                 'resources/js/customer/profile-dropdown.js',
                 'resources/js/customer/cart.js',
                 // 'resources/js/guest/guest.css', // removed: file not found
