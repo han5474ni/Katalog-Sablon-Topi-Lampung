@@ -9,12 +9,16 @@ use Illuminate\Support\Facades\Storage;
 
 class AnalyzeImageIssues extends Command
 {
-    protected $signature = 'images:analyze {--fix : Automatically fix NULL images}';
+    protected $signature = 'images:analyze {--fix : Automatically fix issues} {--deep : Deep analysis including file checks}';
     protected $description = 'Analyze image storage issues and suggest fixes';
 
     public function handle()
     {
-        $this->line('🔍 ANALIZING IMAGE ISSUES...\n');
+        $this->line('🔍 ANALYZING IMAGE ISSUES...\n');
+        $this->line('Environment: ' . app()->environment());
+        $this->line('Storage Path: ' . storage_path('app/public'));
+        $this->line('Public Path: ' . public_path());
+        $this->line('');
 
         // 1. Check storage directories
         $this->checkStorageDirectories();
@@ -25,12 +29,71 @@ class AnalyzeImageIssues extends Command
         // 3. Check symlink
         $this->checkSymlink();
 
-        // 4. Suggest fixes
+        // 4. Deep analysis if requested
+        if ($this->option('deep')) {
+            $this->deepAnalysis();
+        }
+
+        // 5. Suggest fixes
         $this->suggestFixes();
 
         if ($this->option('fix')) {
             $this->performFixes();
         }
+    }
+
+    private function deepAnalysis()
+    {
+        $this->line('🔬 DEEP ANALYSIS:\n');
+
+        // Check file accessibility
+        $this->line('📊 Checking file accessibility:');
+        $directories = [
+            'products' => storage_path('app/public/products'),
+            'variants' => storage_path('app/public/variants'),
+        ];
+
+        foreach ($directories as $name => $path) {
+            if (is_dir($path)) {
+                $files = array_diff(scandir($path), ['.', '..']);
+                if (count($files) > 0) {
+                    $testFile = $path . '/' . reset($files);
+                    if (is_readable($testFile)) {
+                        $this->line("  ✅ {$name}/: files are readable");
+                    } else {
+                        $this->line("  ❌ {$name}/: permission denied");
+                    }
+                    
+                    // Check file via symlink
+                    $symlinkPath = public_path('storage/' . $name . '/' . basename($testFile));
+                    if (file_exists($symlinkPath)) {
+                        $this->line("  ✅ {$name}/: accessible via symlink");
+                    } else {
+                        $this->line("  ❌ {$name}/: NOT accessible via symlink");
+                    }
+                }
+            }
+        }
+
+        // Check database vs filesystem mismatch
+        $this->line('\n🔄 Checking database vs filesystem mismatch:');
+        $missingFiles = 0;
+        
+        ProductVariant::whereNotNull('image')->limit(10)->get()->each(function($variant) use (&$missingFiles) {
+            $filePath = storage_path('app/public/' . $variant->image);
+            if (!file_exists($filePath)) {
+                $this->line("  ❌ Missing: variants/{$variant->image}");
+                $missingFiles++;
+            }
+        });
+
+        if ($missingFiles === 0) {
+            $this->line("  ✅ All checked variant files exist in filesystem");
+        } else {
+            $this->line("  ⚠️  Found {$missingFiles} missing files");
+        }
+
+        $this->line('');
     }
 
     private function checkStorageDirectories()
@@ -116,29 +179,31 @@ class AnalyzeImageIssues extends Command
 
     private function suggestFixes()
     {
-        $this->line('💡 SUGGESTED FIXES:');
+        $this->line('💡 SUGGESTED FIXES:\n');
         
         $nullCount = Product::whereNull('image')->count();
+        $symlinkOk = is_link(public_path('storage'));
         
         if ($nullCount > 0) {
-            $this->line("  1. Products with NULL images ({$nullCount}):");
-            $this->line("     - Option A: Admin re-upload gambar untuk setiap produk");
-            $this->line("     - Option B: Auto-assign dari variant image");
-            $this->line("     - Option C: Gunakan placeholder image");
-            $this->line("     Run with --fix untuk auto-fix");
+            $this->line("1️⃣  Products with NULL images ({$nullCount}):");
+            $this->line("    Run: php artisan images:analyze --fix\n");
         }
 
-        $linkPath = public_path('storage');
-        if (!is_link($linkPath)) {
-            $this->line("\n  2. Symlink issue:");
-            $this->line("     Run: php artisan storage:link");
+        if (!$symlinkOk) {
+            $this->line("2️⃣  Symlink issue:");
+            $this->line("    SSH: ssh u157843933@sablontopilampung.com");
+            $this->line("    Then run:");
+            $this->line("      rm -rf public/storage");
+            $this->line("      php artisan storage:link\n");
         }
 
-        $this->line("\n  3. Validasi form:");
-        $this->line("     Buat image REQUIRED saat upload produk");
-        $this->line("     Cegah produk dibuat tanpa gambar");
-        
-        $this->line('');
+        $this->line("3️⃣  After fixes, clear cache:");
+        $this->line("    php artisan optimize:clear");
+        $this->line("    php artisan config:cache\n");
+
+        $this->line("4️⃣  Browser:");
+        $this->line("    Press Ctrl+Shift+Delete to clear browser cache");
+        $this->line("    Refresh halaman\n");
     }
 
     private function performFixes()
