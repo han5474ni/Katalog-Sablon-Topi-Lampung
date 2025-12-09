@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 price: productPrice,
                 image: productImage,
             });
-            window.location.href = `/public/detail?${query.toString()}`;
+            window.location.href = `/product-detail?${query.toString()}`;
         });
 
         card.addEventListener('keydown', event => {

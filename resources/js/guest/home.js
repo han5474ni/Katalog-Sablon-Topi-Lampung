@@ -100,7 +100,7 @@ document.addEventListener('click', function(e) {
         const productImage = productCard.getAttribute('data-product-image');
 
         if (productId && productName && productPrice && productImage) {
-            window.location.href = `/public/detail?id=${productId}&name=${encodeURIComponent(productName)}&price=${productPrice}&image=${encodeURIComponent(productImage)}`;
+            window.location.href = `/product-detail?id=${productId}&name=${encodeURIComponent(productName)}&price=${productPrice}&image=${encodeURIComponent(productImage)}`;
         }
     }
 });

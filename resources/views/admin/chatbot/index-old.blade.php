@@ -889,7 +889,7 @@
                         
                         if (product && product.name) {
                             const price = product.price ? new Intl.NumberFormat('id-ID').format(product.price) : '-';
-                            const productUrl = product.id ? `/public/detail?id=${product.id}` : '#';
+                            const productUrl = product.id ? `/product-detail?id=${product.id}` : '#';
                             productPreview = `
                                 <a href="${productUrl}" target="_blank" class="product-context-preview" title="Klik untuk lihat detail produk" onclick="event.stopPropagation(); window.open('${productUrl}', '_blank'); return false;">
                                     <div class="product-context-header">
@@ -988,7 +988,7 @@
                                     
                                     if (product && product.name) {
                                         const price = product.price ? new Intl.NumberFormat('id-ID').format(product.price) : '-';
-                                        const productUrl = product.id ? `/public/detail?id=${product.id}` : '#';
+                                        const productUrl = product.id ? `/product-detail?id=${product.id}` : '#';
                                         productPreview = `
                                             <a href="${productUrl}" target="_blank" class="product-context-preview" title="Klik untuk lihat detail produk" onclick="event.stopPropagation(); window.open('${productUrl}', '_blank'); return false;">
                                                 <div class="product-context-header">
