@@ -170,7 +170,7 @@
                             <i class="fab fa-whatsapp"></i>
                             <div>
                                 <span class="contact-label">WhatsApp</span>
-                                <a href="https://wa.me/6289508585888">0895-0858-5888</a>
+                                <a href="https://wa.me/{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}">{{ env('ADMIN_WHATSAPP_NUMBER_DISPLAY', '0895-0858-5888') }}</a>
                             </div>
                         </div>
                         <div class="contact-item">
@@ -213,7 +213,7 @@
                 <h2>Siap Mewujudkan Desain Impian Anda?</h2>
                 <p>Konsultasikan kebutuhan sablon dan apparel Anda sekarang!</p>
                 <div class="cta-buttons">
-                    <a href="https://wa.me/6289508585888" class="cta-btn primary" target="_blank">
+                    <a href="https://wa.me/{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}" class="cta-btn primary" target="_blank">
                         <i class="fab fa-whatsapp"></i> Chat WhatsApp
                     </a>
                     <a href="{{ route('home') }}" class="cta-btn secondary">

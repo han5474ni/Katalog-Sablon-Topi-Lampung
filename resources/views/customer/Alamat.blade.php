@@ -98,42 +98,43 @@
         </div>
 
         <script>
+            // Get WA config from environment
+            const waConfig = {
+                adminNumber: '{{ env('ADMIN_WHATSAPP_NUMBER', '62895085858888') }}',
+                appName: '{{ config('app.name', 'Topi Store') }}'
+            };
+
             function payViaWhatsApp() {
                 const selectedAddress = document.querySelector('input[name="address"]:checked');
                 if (!selectedAddress) {
                     alert('Silakan pilih alamat terlebih dahulu');
                     return;
                 }
-                // Ambil data pesanan dari halaman atau session (sesuaikan dengan kebutuhan)
+                
+                // Ambil data pesanan dari URL parameters
                 const orderId = '{{ request()->get('order_id') }}';
                 const orderType = '{{ request()->get('order_type') }}';
-                const userName = '{{ $user->name ?? '' }}';
                 const addressId = selectedAddress.value;
                 
                 // Build the formatted WhatsApp message
-                let waText = `Halo Admin,%0A`;
+                let waText = `Halo Admin ${waConfig.appName},%0A%0A`;
                 waText += `Saya ingin membayar pesanan berikut:%0A`;
-                waText += `%0A`;
-                waText += `🧾 Pesanan #${orderId}%0A`;
-                waText += `Jenis: ${orderType}%0A`;
-                waText += `%0A`;
-                waText += `Daftar Produk:%0A`;
-                waText += `[Daftar produk akan ditampilkan sesuai pesanan]%0A`;
-                waText += `%0A`;
-                waText += `Subtotal: [Subtotal]%0A`;
-                waText += `Total Pembayaran: [Total]%0A`;
-                waText += `%0A`;
-                waText += `Alamat Pengiriman:%0A`;
+                waText += `%0A*Detail Pesanan:*%0A`;
+                waText += `Nomor Pesanan: #${orderId}%0A`;
+                waText += `Tipe Pesanan: ${orderType === 'custom' ? 'Custom Design' : 'Regular'}%0A`;
+                waText += `Nama Customer: {{ $user->name ?? 'Customer' }}%0A`;
+                waText += `%0A*Alamat Pengiriman:*%0A`;
                 waText += `ID Alamat: ${addressId}%0A`;
-                waText += `%0A`;
-                waText += `Mohon info langkah pembayaran. Terima kasih.`;
+                waText += `%0A*Catatan:* Mohon konfirmasi pembayaran dan lanjutkan proses pesanan.%0A`;
+                waText += `Terima kasih.`;
                 
-                // Ganti nomor WA admin di bawah ini
-                const waNumber = '{{ str_replace('+', '', env('ADMIN_WHATSAPP_NUMBER', '62895085858888')) }}';
+                // Clean WA number: remove all non-digits and + symbol
+                const waNumber = waConfig.adminNumber.replace(/\D/g, '');
                 
                 // Debug: Log nomor yang digunakan
-                console.log('WhatsApp Admin Number:', waNumber);
+                console.log('WhatsApp Admin Number (cleaned):', waNumber);
                 console.log('Expected Number: 62895085858888');
+                console.log('Original from env:', waConfig.adminNumber);
                 
                 const waUrl = `https://wa.me/${waNumber}?text=${waText}`;
                 console.log('WhatsApp URL:', waUrl);
