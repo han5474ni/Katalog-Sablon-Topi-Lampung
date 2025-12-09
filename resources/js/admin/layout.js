@@ -1,13 +1,18 @@
 // Toggle admin dropdown menu
 window.toggleAdminDropdown = function() {
+    console.log('toggleAdminDropdown called');
+    
     const menu = document.getElementById('adminDropdownMenu');
-    if (menu) {
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        menu.classList.toggle('show');
-        // Ensure pointer-events is enabled
-        if (menu.style.display === 'block') {
-            menu.style.pointerEvents = 'auto';
-        }
+    if (!menu) {
+        console.error('adminDropdownMenu element not found!');
+        return;
+    }
+    
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    menu.classList.toggle('show');
+    // Ensure pointer-events is enabled
+    if (menu.style.display === 'block') {
+        menu.style.pointerEvents = 'auto';
     }
 
     // Close notification dropdown if open
@@ -19,23 +24,30 @@ window.toggleAdminDropdown = function() {
 
 // Toggle notification dropdown
 window.toggleNotificationDropdown = function() {
+    console.log('toggleNotificationDropdown called, notificationDropdown exists:', !!window.notificationDropdown);
+    
     const dropdown = document.getElementById('notification-dropdown');
-    if (dropdown) {
-        // If NotificationDropdown class exists, use its method
-        if (window.notificationDropdown && typeof window.notificationDropdown.toggleDropdown === 'function') {
-            window.notificationDropdown.toggleDropdown();
-        } else {
-            // Fallback to direct DOM manipulation
-            const isVisible = dropdown.style.display === 'block';
-            dropdown.style.display = isVisible ? 'none' : 'block';
-            dropdown.classList.toggle('show');
-            
-            if (dropdown.style.display === 'block') {
-                dropdown.style.pointerEvents = 'auto';
-                // Load notifications if class exists
-                if (window.notificationDropdown && typeof window.notificationDropdown.loadNotifications === 'function') {
-                    window.notificationDropdown.loadNotifications();
-                }
+    if (!dropdown) {
+        console.error('notification-dropdown element not found!');
+        return;
+    }
+    
+    // If NotificationDropdown class exists, use its method
+    if (window.notificationDropdown && typeof window.notificationDropdown.toggleDropdown === 'function') {
+        console.log('Using NotificationDropdown.toggleDropdown()');
+        window.notificationDropdown.toggleDropdown();
+    } else {
+        // Fallback to direct DOM manipulation
+        console.log('Using fallback DOM manipulation');
+        const isVisible = dropdown.style.display === 'block';
+        dropdown.style.display = isVisible ? 'none' : 'block';
+        dropdown.classList.toggle('show');
+        
+        if (dropdown.style.display === 'block') {
+            dropdown.style.pointerEvents = 'auto';
+            // Try to load notifications if class exists
+            if (window.notificationDropdown && typeof window.notificationDropdown.loadNotifications === 'function') {
+                window.notificationDropdown.loadNotifications();
             }
         }
     }

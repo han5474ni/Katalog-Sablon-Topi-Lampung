@@ -170,7 +170,7 @@
         </div>
         <div class="top-navbar__right">
             <!-- Notification Bell for Admin -->
-            <div class="notification-wrapper" style="margin-right: 20px; display: inline-flex; align-items: center; position: relative; z-index: 1002; pointer-events: auto;">
+            <div class="notification-wrapper" data-user-type="admin" style="margin-right: 20px; display: inline-flex; align-items: center; position: relative; z-index: 1002; pointer-events: auto;">
                 <a href="#" aria-label="Notifikasi" class="action-button notification-link" id="notification-bell" onclick="event.preventDefault(); event.stopPropagation(); toggleNotificationDropdown();" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 12px; border-radius: 8px; position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none; transition: all 0.3s ease; pointer-events: auto; z-index: 1002;">
                     <i class="fas fa-bell" style="font-size: 18px; color: #fff;"></i>
                     <span class="notification-badge" id="notification-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; font-weight: bold; min-width: 18px; text-align: center;">0</span>

@@ -325,7 +325,22 @@ class NotificationDropdown {
     }
 }
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.notificationDropdown = new NotificationDropdown();
-});
+// Initialize on DOM ready and also try immediately in case DOM is already ready
+function initializeNotificationDropdown() {
+    const bellIcon = document.getElementById('notification-bell');
+    if (bellIcon && !window.notificationDropdown) {
+        console.log('Initializing NotificationDropdown...');
+        window.notificationDropdown = new NotificationDropdown();
+    }
+}
+
+// Try to initialize immediately
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeNotificationDropdown);
+} else {
+    // DOM is already ready
+    initializeNotificationDropdown();
+}
+
+// Also initialize on page load as fallback
+window.addEventListener('load', initializeNotificationDropdown);
