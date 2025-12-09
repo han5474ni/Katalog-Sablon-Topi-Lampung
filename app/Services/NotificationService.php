@@ -269,6 +269,33 @@ class NotificationService
     }
 
     /**
+     * Notify when payment is received (to User)
+     */
+    public function notifyPaymentReceived($order, $orderType = 'Regular')
+    {
+        // Determine order type if not provided
+        if ($orderType === 'Regular' || $orderType === 'regular') {
+            $orderType = 'Regular';
+        } elseif ($orderType === 'CustomDesign' || $orderType === 'custom_design') {
+            $orderType = 'Custom Design';
+        }
+        
+        return $this->create([
+            'type' => 'payment_received',
+            'notifiable_type' => 'App\\Models\\User',
+            'notifiable_id' => $order->customer_id,
+            'title' => 'Pembayaran Diterima',
+            'message' => "Pembayaran untuk pesanan {$orderType} #{$order->id} telah diterima. Pesanan akan segera diproses.",
+            'data' => [
+                'order_id' => $order->id,
+                'order_type' => $orderType,
+                'order_number' => $order->order_number ?? "ORD-{$order->id}",
+                'payment_status' => 'paid',
+            ],
+        ]);
+    }
+
+    /**
      * Notify admin when new order is created (to Admins)
      */
     public function notifyAdminNewOrder($order, $customer)
