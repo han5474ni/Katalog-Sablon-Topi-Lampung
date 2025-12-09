@@ -8,6 +8,37 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-teal)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
+---
+## 📚 Dokumentasi Terpadu
+
+- 📖 **[Panduan Instalasi](installation.md)** — Langkah-langkah setup project dari awal hingga siap digunakan.
+- 👤 **[User Guide (Admin)](user_guide.md)** — Panduan penggunaan sistem untuk admin/customer admin.
+
+> Semua dokumentasi dan troubleshooting terpusat di README.md. Untuk detail langkah, klik link di atas atau lihat ringkasan di bawah ini.
+
+---
+
+### Ringkasan Panduan Instalasi
+
+1. **Clone repository & install dependencies**
+2. **Setup file .env & generate key**
+3. **Konfigurasi database & migrate**
+4. **Link storage & build assets**
+5. **Jalankan aplikasi**
+6. **Testing & deployment**
+
+Lihat detail: [installation.md](installation.md)
+
+### Ringkasan User Guide (Admin)
+
+- Login admin & navigasi dashboard
+- Manajemen pesanan, produk, custom design
+- User management & analytics
+- Pengaturan sistem & notifikasi
+- Troubleshooting umum
+
+Lihat detail: [user_guide.md](user_guide.md)
+
 ## 📋 Fitur Utama
 
 - 🛒 **Manajemen Pesanan**
