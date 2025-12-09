@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use Resend\Laravel\Facades\Resend;
+use Resend\Client as ResendClient;
 
 class SendEmailViaResendJob implements ShouldQueue
 {
@@ -54,8 +54,9 @@ class SendEmailViaResendJob implements ShouldQueue
             // Build email content
             $rendered = $mailable->render();
             
-            // Send via Resend API
-            $response = Resend::emails()->send([
+            // Send via Resend API using PHP SDK
+            $resend = new ResendClient(config('services.resend.key'));
+            $response = $resend->emails->send([
                 'from' => config('mail.from.address'),
                 'to' => [$log->recipient_email],
                 'subject' => $log->subject ?: $log->notification->title,
@@ -68,11 +69,11 @@ class SendEmailViaResendJob implements ShouldQueue
                 'status' => 'sent',
                 'sent_at' => now(),
                 'metadata' => [
-                    'resend_response' => $response->toArray() ?? [],
+                    'resend_response' => $response instanceof \stdClass ? (array)$response : $response,
                 ],
             ]);
 
-            Log::info("Email sent via Laravel Mail", [
+            Log::info("Email sent via Resend", [
                 'log_id' => $log->id,
                 'recipient' => $log->recipient_email,
             ]);
