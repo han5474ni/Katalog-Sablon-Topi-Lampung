@@ -40,27 +40,62 @@ lrwxrwxrwx ... storage -> ../storage/app/public
 
 ## 🚀 SOLUSI CEPAT (15 MENIT)
 
-### Step 1: SSH ke Hostinger
+### ⚠️ PENTING: exec() Function Disabled di Hostinger
+
+Jika melihat error saat jalankan `php artisan storage:link`:
+```
+Error: Call to undefined function Illuminate\Filesystem\exec()
+```
+
+**Jangan pakai command itu. Gunakan solusi di bawah:**
+
+---
+
+### **OPSI A: Via cPanel File Manager (EASIEST)**
+
+1. Login: https://hostinger.com
+2. Buka: File Manager
+3. Navigate: `/public_html/public`
+4. Klik kanan → "Create Symbolic Link"
+   - Name: `storage`
+   - Target: `/home/u157843933/domains/sablontopilampung.com/public_html/storage/app/public`
+5. Create
+
+**Verify**:
+```bash
+ssh u157843933@sablontopilampung.com
+cd /home/u157843933/domains/sablontopilampung.com/public_html
+ls -la public/storage
+# Expected: lrwxrwxrwx ... storage -> ../storage/app/public ✅
+```
+
+---
+
+### **OPSI B: Via SSH (Alternative)**
+
+#### Step 1: SSH ke Hostinger
 ```bash
 ssh u157843933@sablontopilampung.com
 ```
 
-### Step 2: Ke folder project
+#### Step 2: Ke folder project
 ```bash
 cd /home/u157843933/domains/sablontopilampung.com/public_html
 ```
 
-### Step 3: Bersihkan symlink lama
+#### Step 3: Bersihkan symlink lama
 ```bash
 rm -rf public/storage
 ```
 
-### Step 4: Buat symlink baru
+#### Step 4: Buat symlink baru (dengan ln -s, tidak exec)
 ```bash
-php artisan storage:link
+cd public
+ln -s ../storage/app/public storage
+cd ..
 ```
 
-### Step 5: Verifikasi
+#### Step 5: Verifikasi
 ```bash
 # Harus keluar: lrwxrwxrwx ... storage -> ../storage/app/public
 ls -la public/storage
@@ -69,19 +104,19 @@ ls -la public/storage
 curl -I https://sablontopilampung.com/storage/variants/[FILENAME].webp
 ```
 
-### Step 6: Clear cache
+#### Step 6: Clear cache
 ```bash
 php artisan optimize:clear
 php artisan config:cache
 ```
 
-### Step 7: Clear browser cache
+#### Step 7: Clear browser cache
 - **Ctrl+Shift+Delete** (Windows)
 - Pilih "All time" 
 - Klik "Clear all"
 - Refresh halaman
 
-### Step 8: Cek di browser
+#### Step 8: Cek di browser
 - Buka: https://sablontopilampung.com/admin/management-product
 - Edit produk → gambar harus muncul ✅
 
