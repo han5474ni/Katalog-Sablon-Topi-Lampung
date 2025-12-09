@@ -156,7 +156,7 @@ function initializeProductCardClicks() {
             }
             
             // Redirect to product detail page with ID parameter
-            window.location.href = `/public/detail?id=${productId}`;
+            window.location.href = `/product-detail?id=${productId}`;
         });
         
         // Add hover effect

@@ -268,7 +268,39 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 Route::get('/all-products', [ProductController::class, 'allProducts'])->name('all-products');
 
-Route::get('/public/detail', [ProductController::class, 'detail'])->name('product.detail');
+// Debug route untuk cek product
+Route::get('/debug/product/{id}', function ($id) {
+    $product = \App\Models\Product::find($id);
+    if (!$product) {
+        return response()->json(['error' => 'Product not found', 'id' => $id], 404);
+    }
+    return response()->json([
+        'id' => $product->id,
+        'name' => $product->name,
+        'is_active' => $product->is_active,
+        'price' => $product->price,
+        'stock' => $product->stock,
+        'variants_count' => $product->variants()->count(),
+    ]);
+});
+
+// Debug route untuk check semua products
+Route::get('/debug/all-products', function () {
+    $products = \App\Models\Product::select('id', 'name', 'is_active', 'price', 'stock')->orderBy('id')->get();
+    return response()->json([
+        'total' => $products->count(),
+        'active_count' => $products->where('is_active', true)->count(),
+        'products' => $products
+    ]);
+});
+
+// Product detail route - changed from /public/detail to /product-detail to avoid folder conflict
+Route::get('/product-detail', [ProductController::class, 'detail'])->name('product.detail');
+
+// Keep old route for backward compatibility, redirect to new route
+Route::get('/public/detail', function (Request $request) {
+    return redirect()->route('product.detail', $request->all());
+});
 
 // About Us page
 Route::get('/tentang-kami', function () {
