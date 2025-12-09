@@ -3,6 +3,7 @@
 if (!function_exists('image_url')) {
     /**
      * Generate proper image URL from storage path or full URL
+     * Handles Hostinger LiteSpeed server that requires /public/storage/ instead of /storage/
      * 
      * @param string|null $path - Storage path or full URL
      * @param string $placeholder - Placeholder URL if path is empty
@@ -20,8 +21,15 @@ if (!function_exists('image_url')) {
             return $path;
         }
         
-        // Otherwise, assume it's a local path and add /storage/ prefix
-        return asset('storage/' . ltrim($path, '/'));
+        // For Hostinger production: use /public/storage instead of /storage
+        $cleanPath = ltrim($path, '/');
+        if (app()->environment('production') && config('app.url') && strpos(config('app.url'), 'sablontopilampung.com') !== false) {
+            // Hostinger LiteSpeed requires /public/storage path
+            return asset('public/storage/' . $cleanPath);
+        }
+        
+        // For local/other environments: use standard /storage prefix
+        return asset('storage/' . $cleanPath);
     }
 }
 
@@ -50,6 +58,7 @@ if (!function_exists('image_exists')) {
 if (!function_exists('image_safe')) {
     /**
      * Get safe image URL with fallback to placeholder
+     * Handles Hostinger LiteSpeed server that requires /public/storage/ instead of /storage/
      * 
      * @param string|null $path - Storage path or full URL
      * @param string $placeholder - Fallback placeholder
@@ -69,7 +78,12 @@ if (!function_exists('image_safe')) {
         
         // Check if file exists
         if (image_exists($path)) {
-            return asset('storage/' . $path);
+            // For Hostinger production: use /public/storage instead of /storage
+            $cleanPath = ltrim($path, '/');
+            if (app()->environment('production') && config('app.url') && strpos(config('app.url'), 'sablontopilampung.com') !== false) {
+                return asset('public/storage/' . $cleanPath);
+            }
+            return asset('storage/' . $cleanPath);
         }
         
         // Return placeholder if file doesn't exist

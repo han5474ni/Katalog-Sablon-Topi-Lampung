@@ -170,7 +170,7 @@ class ProductController extends Controller
                             'price' => $variant->price,
                             'original_price' => $variant->original_price,
                             'stock' => $variant->stock,
-                            'image' => $variant->image ? asset('storage/' . $variant->image) : null,
+                            'image' => $variant->image ? image_url($variant->image) : null,
                         ];
                     }
                 }
@@ -185,7 +185,7 @@ class ProductController extends Controller
                     foreach ($product->variants as $variant) {
                         if ($variant->image) {
                             $gallery[] = [
-                                'url' => asset('storage/' . $variant->image),
+                                'url' => image_url($variant->image),
                                 'color' => $variant->color,
                                 'size' => $variant->size,
                             ];
@@ -196,11 +196,11 @@ class ProductController extends Controller
                 // If no variant images, use product images
                 if (empty($gallery)) {
                     if ($product->image) {
-                        $gallery[] = ['url' => asset('storage/' . $product->image), 'color' => null, 'size' => null];
+                        $gallery[] = ['url' => image_url($product->image), 'color' => null, 'size' => null];
                     }
                     if ($product->images && is_array($product->images)) {
                         foreach ($product->images as $img) {
-                            $gallery[] = ['url' => asset('storage/' . $img), 'color' => null, 'size' => null];
+                            $gallery[] = ['url' => image_url($img), 'color' => null, 'size' => null];
                         }
                     }
                 }
@@ -221,7 +221,7 @@ class ProductController extends Controller
                     'price' => $product->price, // Base price
                     'price_min' => $priceMin,
                     'price_max' => $priceMax,
-                    'image' => $product->image ? asset('storage/' . $product->image) : '',
+                    'image' => $product->image ? image_url($product->image) : '',
                     'gallery' => $gallery,
                     'variants' => $variantsData,
                     'description' => $product->description ?: 'This product is crafted with superior quality and attention to detail.',

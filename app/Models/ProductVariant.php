@@ -23,6 +23,7 @@ class ProductVariant extends Model
 
     /**
      * Accessor untuk memastikan image URL selalu valid
+     * Supports Hostinger LiteSpeed /public/storage/ path
      */
     public function getImageAttribute($value)
     {
@@ -30,13 +31,7 @@ class ProductVariant extends Model
             return null;
         }
         
-        // Jika sudah full URL, return langsung
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return $value;
-        }
-        
-        // Jika path lokal, tambahkan /storage/ prefix
-        return asset('storage/' . $value);
+        return image_url($value);
     }
 
     // Relationship to Product

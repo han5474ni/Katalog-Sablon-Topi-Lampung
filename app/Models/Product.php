@@ -44,6 +44,7 @@ class Product extends Model
     /**
      * Accessor untuk memastikan image URL selalu valid
      * Menangani baik local path maupun external URLs
+     * Supports Hostinger LiteSpeed /public/storage/ path
      */
     public function getImageAttribute($value)
     {
@@ -51,18 +52,13 @@ class Product extends Model
             return null;
         }
         
-        // Jika sudah full URL (http/https), return langsung
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return $value;
-        }
-        
-        // Jika path lokal, tambahkan /storage/ prefix
-        return asset('storage/' . $value);
+        return image_url($value);
     }
 
     /**
      * Accessor untuk images array
      * Memastikan setiap image di array memiliki URL yang valid
+     * Supports Hostinger LiteSpeed /public/storage/ path
      */
     public function getImagesAttribute($value)
     {
@@ -75,13 +71,7 @@ class Product extends Model
                 return null;
             }
             
-            // Jika sudah full URL, return langsung
-            if (filter_var($image, FILTER_VALIDATE_URL)) {
-                return $image;
-            }
-            
-            // Jika path lokal, tambahkan /storage/ prefix
-            return asset('storage/' . $image);
+            return image_url($image);
         }, $value);
     }
 
