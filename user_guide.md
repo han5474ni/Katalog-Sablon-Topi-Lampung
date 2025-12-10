@@ -145,14 +145,6 @@ Setelah login, Anda akan melihat:
 5. Customer menerima notifikasi
 ```
 
-#### 4. Export Data
-```
-1. Filter pesanan sesuai kebutuhan (date range, status)
-2. Klik tombol "Export to Excel"
-3. File Excel akan terdownload otomatis
-4. Format: Order ID, Customer, Product, Status, Total, Date
-```
-
 ### Virtual Account Management
 
 **Menu**: Orders → Virtual Accounts
@@ -208,13 +200,6 @@ Setelah login, Anda akan melihat:
 3. Ubah gambar (optional)
 4. Klik "Update Product"
 ```
-
-**Yang bisa diubah:**
-- ✅ Name, description, price
-- ✅ Stock quantity
-- ✅ Colors, category
-- ✅ Product images
-- ❌ Order history (read-only)
 
 ### Manajemen Stok
 
@@ -349,24 +334,6 @@ Setelah login, Anda akan melihat:
 3. Export customer data to PDF
 ```
 
-#### 2. Suspend/Activate User
-```
-1. Buka user detail
-2. Klik "Suspend Account" atau "Activate"
-3. Masukkan reason (optional)
-4. Confirm action
-5. User menerima email notification
-```
-
-#### 3. Reset Password (Admin Only)
-```
-1. Buka user detail
-2. Klik "Reset Password"
-3. System generate temporary password
-4. Send ke email user
-5. User diminta ubah password saat login
-```
-
 #### 4. Export User Data
 ```
 1. Filter users sesuai kebutuhan
@@ -431,14 +398,6 @@ Setelah login, Anda akan melihat:
 └── Order Status
 ```
 
-**Export Options:**
-- Export charts as PNG/PDF
-- Export data as Excel
-- Generate monthly report PDF
-- Schedule automated reports (coming soon)
-
----
-
 ## 💬 Chatbot & Chat
 
 ### Customer Chat Management
@@ -446,21 +405,13 @@ Setelah login, Anda akan melihat:
 **Menu**: Chat → Conversations
 
 **Fitur:**
-```
-├── View All Conversations
-│   ├── Active chats
-│   ├── Archived chats
-│   └── Unread messages count
+
 ├── Chat Interface
 │   ├── Real-time messaging
 │   ├── Product context (jika chat dari product page)
 │   ├── Customer info sidebar
 │   └── Quick replies
-└── Chat History
-    ├── Search conversations
-    ├── Export chat logs
-    └── Analytics: response time, satisfaction
-```
+
 
 ### Chatbot Settings
 
@@ -571,8 +522,6 @@ Setelah login, Anda akan melihat:
 ```
 ✓ Email notifications
 ✓ In-app notifications
-✓ Notification sound
-✓ Desktop notifications (requires permission)
 ```
 
 **Manage Notifications:**
@@ -625,136 +574,11 @@ Setelah login, Anda akan melihat:
 - Include numbers
 - Include special characters (recommended)
 
-### Two-Factor Authentication (2FA)
-
-**Setup 2FA:**
-```
-1. Menu: Profile → Security → 2FA
-2. Scan QR code dengan Google Authenticator
-3. Enter verification code
-4. Save backup codes
-5. 2FA activated
-```
-
-**Recovery:**
-- Simpan backup codes di tempat aman
-- Jika hilang akses, contact super admin
-- Reset 2FA requires identity verification
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues & Solutions
-
-#### 1. **Tidak bisa login**
-
-**Possible causes:**
-- Wrong credentials
-- Account suspended
-- Email not verified
-
-**Solutions:**
-```bash
-✓ Reset password via "Forgot Password"
-✓ Check email for verification link
-✓ Contact admin jika account suspended
-```
-
-#### 2. **Upload gambar gagal**
-
-**Possible causes:**
-- File size too large (max 5MB for products, 2MB for avatar)
-- Wrong file format
-- Storage full
-
-**Solutions:**
-```bash
-✓ Compress image (use TinyPNG, etc)
-✓ Convert to JPG/PNG
-✓ Contact admin if storage issue persists
-```
-
-#### 3. **Order tidak muncul**
-
-**Possible causes:**
-- Database sync issue
-- Cache not cleared
-- Browser cache
-
-**Solutions:**
-```bash
-✓ Refresh page (Ctrl + F5)
-✓ Clear browser cache
-✓ Check activity logs
-✓ Contact developer if persists
-```
-
-#### 4. **Email notifikasi tidak terkirim**
-
-**Possible causes:**
-- SMTP configuration error
-- Email quota exceeded
-- Recipient email invalid
-
-**Solutions:**
-```bash
-✓ Check email logs di storage/logs
-✓ Verify SMTP settings di .env
-✓ Test email connection: php artisan mail:test
-✓ Check spam folder di recipient
-```
-
-#### 5. **Stock tidak berkurang setelah approve**
-
-**Possible causes:**
-- Stock reduction failed
-- Database transaction rollback
-- Product deleted
-
-**Solutions:**
-```bash
-✓ Check activity logs
-✓ Manual update stock if needed
-✓ Verify product exists
-✓ Report to developer dengan log error
-```
-
-#### 6. **Analytics tidak update**
-
-**Possible causes:**
-- Cache tidak clear
-- Background job not running
-
-**Solutions:**
-```bash
-# Clear all caches
-php artisan optimize:clear
-
-# Restart queue worker
-php artisan queue:restart
-
-# Check queue status
-php artisan queue:work --once
-```
-
-### Emergency Contacts
-
-**Technical Issues:**
-- 📧 Email: dev@katalog-sablon-topi.com
-- 💬 GitHub Issues: [Report Bug](https://github.com/han5474ni/Katalog-Sablon-Topi-Lampung/issues)
-
-**Account Issues:**
-- 📧 Email: admin@katalog-sablon-topi.com
-
----
-
 ## 📚 Additional Resources
 
 - 📖 **Installation Guide**: [installation.md](installation.md)
 - 🔒 **Security Best Practices**: [README.md](README.md#-keamanan)
-- 🚀 **Deployment Guide**: [README.md](README.md#-deployment)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/han5474ni/Katalog-Sablon-Topi-Lampung/issues)
+- 🚀 **Deployment Guide**: [README.md](README.md#-deployment) 
 
 ---
 
@@ -768,25 +592,6 @@ php artisan queue:work --once
 
 ✅ **Stock Management**: Update stock secara berkala, set minimum stock alerts
 
-✅ **Product Photos**: Upload gambar berkualitas tinggi (min 800x800px)
-
-✅ **Activity Monitoring**: Review activity logs secara rutin untuk security
-
-✅ **Backup**: Ensure regular database backup (automated)
-
-### Untuk Super Admin
-
-✅ **Security**: Enable 2FA untuk semua admin accounts
-
-✅ **User Management**: Regular audit user activities
-
-✅ **System Maintenance**: Schedule downtime untuk updates di jam low traffic
-
-✅ **Performance**: Monitor server resources dan optimize jika diperlukan
-
-✅ **Analytics**: Review weekly/monthly reports untuk business insights
-
----
 
 **Selamat menggunakan Katalog Sablon Topi Lampung! 🎉**
 
