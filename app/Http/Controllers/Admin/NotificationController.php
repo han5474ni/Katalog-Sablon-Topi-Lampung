@@ -22,20 +22,21 @@ class NotificationController extends Controller
         // Get filter from request
         $filter = $request->get('filter', 'all'); // all, unread, read
         
-        // Get notifications based on filter
-        $query = \App\Models\Notification::where('user_id', $adminId)
+        // Get notifications based on filter using polymorphic relation
+        $query = \App\Models\Notification::where('notifiable_type', 'App\\Models\\Admin')
+            ->where('notifiable_id', $adminId)
             ->orderBy('created_at', 'desc');
             
         if ($filter === 'unread') {
-            $query->where('is_read', false);
+            $query->whereNull('read_at');
         } elseif ($filter === 'read') {
-            $query->where('is_read', true);
+            $query->whereNotNull('read_at');
         }
         
         $notifications = $query->paginate(20);
         
         // Get unread count
-        $unreadCount = $this->notificationService->getUnreadCount($adminId);
+        $unreadCount = $this->notificationService->getUnreadCount($adminId, 'admin');
         
         return view('admin.notifikasi', compact('notifications', 'unreadCount', 'filter'));
     }
@@ -51,9 +52,9 @@ class NotificationController extends Controller
         $adminId = auth('admin')->id();
         
         \App\Models\Notification::whereIn('id', $notificationIds)
-            ->where('user_id', $adminId)
+            ->where('notifiable_type', 'App\\Models\\Admin')
+            ->where('notifiable_id', $adminId)
             ->update([
-                'is_read' => true,
                 'read_at' => now()
             ]);
         
@@ -64,10 +65,10 @@ class NotificationController extends Controller
     {
         $adminId = auth('admin')->id();
         
-        \App\Models\Notification::where('user_id', $adminId)
-            ->where('is_read', false)
+        \App\Models\Notification::where('notifiable_type', 'App\\Models\\Admin')
+            ->where('notifiable_id', $adminId)
+            ->whereNull('read_at')
             ->update([
-                'is_read' => true,
                 'read_at' => now()
             ]);
         

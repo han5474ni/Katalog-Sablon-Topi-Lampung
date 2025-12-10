@@ -12,15 +12,15 @@
                 
                 <div class="notification-filters-actions">
                     <div class="notification-filters">
-                        <a href="{{ route('admin.notifikasi', ['filter' => 'all']) }}" 
+                        <a href="{{ route('admin.notifications.index', ['filter' => 'all']) }}" 
                            class="filter-btn {{ $filter === 'all' ? 'active' : '' }}">
                             Semua
                         </a>
-                        <a href="{{ route('admin.notifikasi', ['filter' => 'unread']) }}" 
+                        <a href="{{ route('admin.notifications.index', ['filter' => 'unread']) }}" 
                            class="filter-btn {{ $filter === 'unread' ? 'active' : '' }}">
                             Belum Dibaca ({{ $unreadCount }})
                         </a>
-                        <a href="{{ route('admin.notifikasi', ['filter' => 'read']) }}" 
+                        <a href="{{ route('admin.notifications.index', ['filter' => 'read']) }}" 
                            class="filter-btn {{ $filter === 'read' ? 'active' : '' }}">
                             Sudah Dibaca
                         </a>
@@ -37,7 +37,7 @@
         <!-- Notification List -->
         <div class="admin-notification-list" id="notificationList">
             @forelse($notifications as $notification)
-            <div class="admin-notification-card {{ $notification->is_read ? 'read' : 'unread' }}" 
+            <div class="admin-notification-card {{ $notification->read_at ? 'read' : 'unread' }}" 
                  data-id="{{ $notification->id }}">
                 <div class="notification-card-content">
                     <div class="notification-checkbox-wrapper">
@@ -46,8 +46,8 @@
                                value="{{ $notification->id }}">
                     </div>
                     
-                    <div class="notification-icon-wrapper {{ $notification->type === 'new_order' ? 'type-order' : ($notification->type === 'va_activated' ? 'type-payment' : 'type-chat') }}">
-                        <i class="fas fa-{{ $notification->type === 'new_order' ? 'shopping-cart' : ($notification->type === 'va_activated' ? 'credit-card' : 'comment') }}"></i>
+                    <div class="notification-icon-wrapper {{ $notification->type === 'new_order' || $notification->type === 'new_order_admin' ? 'type-order' : ($notification->type === 'va_activated' || $notification->type === 'payment_received' ? 'type-payment' : 'type-chat') }}">
+                        <i class="fas fa-{{ $notification->type === 'new_order' || $notification->type === 'new_order_admin' ? 'shopping-cart' : ($notification->type === 'va_activated' || $notification->type === 'payment_received' ? 'credit-card' : 'comment') }}"></i>
                     </div>
                     
                     <div class="notification-content">
@@ -58,10 +58,10 @@
                         </span>
                     </div>
                     
-                    @if($notification->notifiable_type && $notification->notifiable_id)
-                    <a href="{{ $notification->notifiable_type === 'App\\Models\\Order' ? route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'regular']) : route('admin.order.detail', ['id' => $notification->notifiable_id, 'type' => 'custom']) }}" 
+                    @if($notification->action_url)
+                    <a href="{{ $notification->action_url }}" 
                        class="notification-action-btn">
-                        <i class="fas fa-arrow-right"></i> Lihat Detail
+                        <i class="fas fa-arrow-right"></i> {{ $notification->action_text ?? 'Lihat Detail' }}
                     </a>
                     @endif
                 </div>
@@ -122,28 +122,24 @@
                 }
 
                 try {
-                    const response = await fetch('/api/notifications/mark-as-read', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ notification_ids: selectedNotifications })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        showToast('Notifikasi berhasil ditandai sudah dibaca', 'success');
-                        
-                        // Reload after 1 second
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        showToast(data.message || 'Terjadi kesalahan', 'error');
+                    // Mark each notification as read
+                    for (const notificationId of selectedNotifications) {
+                        await fetch(`/admin/notifications/${notificationId}/read`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        });
                     }
+
+                    showToast('Notifikasi berhasil ditandai sudah dibaca', 'success');
+                    
+                    // Reload after 1 second
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                 } catch (error) {
                     console.error('Error marking notifications as read:', error);
                     showToast('Terjadi kesalahan saat menandai notifikasi', 'error');

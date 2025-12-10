@@ -18,7 +18,7 @@
         <!-- Notification List -->
         <div class="space-y-3" id="notificationList">
             @forelse($notifications as $notification)
-            <div class="notification-card bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow {{ $notification->is_read ? 'opacity-60' : '' }}" 
+            <div class="notification-card bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow {{ $notification->read_at ? 'opacity-60' : '' }}" 
                  data-id="{{ $notification->id }}">
                 <div class="flex items-start gap-4">
                     <input type="checkbox" class="notification-checkbox mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 flex-shrink-0" 

@@ -131,6 +131,20 @@ class NotificationTemplateSeeder extends Seeder
                 'action_text' => 'Lihat Desain',
                 'is_active' => true,
             ],
+            [
+                'type' => 'custom_design_rejected',
+                'name' => 'Custom Design Rejected',
+                'description' => 'Sent when custom design is rejected by admin',
+                'channel' => 'email',
+                'subject' => 'Desain Anda Ditolak - #{order_number}',
+                'template' => 'emails.notifications.custom_design_rejected',
+                'title_template' => 'Desain Ditolak',
+                'message_template' => 'Maaf, desain custom #{order_number} Anda ditolak. Alasan: {rejection_reason}',
+                'available_variables' => json_encode(['order_id', 'order_number', 'customer_name', 'rejection_reason']),
+                'action_url_template' => '/orders/{order_id}',
+                'action_text' => 'Lihat Detail',
+                'is_active' => true,
+            ],
             
             // Admin Notifications
             [
@@ -145,6 +159,20 @@ class NotificationTemplateSeeder extends Seeder
                 'available_variables' => json_encode(['order_id', 'order_number', 'customer_name', 'total_amount', 'items_count']),
                 'action_url_template' => '/admin/orders/{order_id}',
                 'action_text' => 'Proses Order',
+                'is_active' => true,
+            ],
+            [
+                'type' => 'new_custom_design_admin',
+                'name' => 'New Custom Design (Admin)',
+                'description' => 'Notify admin when new custom design order is placed',
+                'channel' => 'email',
+                'subject' => '[ADMIN] Desain Custom Baru - #{order_number}',
+                'template' => 'emails.notifications.new_custom_design_admin',
+                'title_template' => 'Desain Custom Baru',
+                'message_template' => 'Desain custom baru #{order_number} dari {customer_name} dengan total {total_amount}',
+                'available_variables' => json_encode(['order_id', 'order_number', 'customer_name', 'total_amount', 'design_name']),
+                'action_url_template' => '/admin/orders/{order_id}',
+                'action_text' => 'Review Desain',
                 'is_active' => true,
             ],
             [

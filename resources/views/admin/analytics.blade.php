@@ -124,35 +124,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Top Customers Table -->
-        <div class="chart-container">
-            <h3 class="chart-title">Top 10 Customers (Monetary Value)</h3>
-            <div style="overflow-x: auto; display: block; width: 100%;">
-                <table class="customer-table">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Customer Name</th>
-                            <th>Recency (Days)</th>
-                            <th>Frequency</th>
-                            <th>Monetary Value</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rfm-table">
-                        <tr><td colspan="5" class="loading">Loading customer data...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="chart-container">
-            <h3 class="chart-title">Conversion Funnel</h3>
-            <p style="color: #6b7280; font-size: 12px; margin: 0 0 20px 0;">Visitor journey through purchase process</p>
-            <div id="funnel-stages">
-                <div class="loading">Loading funnel data...</div>
-            </div>
-        </div>
     </div>
 
     @push('scripts')

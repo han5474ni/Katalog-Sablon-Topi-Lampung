@@ -63,8 +63,36 @@
                                                 <div class="grid grid-cols-1 gap-2">
                                                     @foreach($order->uploads as $upload)
                                                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                                        <div class="flex items-center gap-2">
-                                                            <i class="fas fa-file-image text-blue-500"></i>
+                                                        <div class="flex items-center gap-3">
+                                                            {{-- Upload Thumbnail --}}
+                                                            @php
+                                                                $uploadPath = $upload->file_path;
+                                                                $uploadImgSrc = null;
+                                                                
+                                                                if ($uploadPath) {
+                                                                    if (str_starts_with($uploadPath, 'http://') || str_starts_with($uploadPath, 'https://')) {
+                                                                        $uploadImgSrc = $uploadPath;
+                                                                    } elseif (str_starts_with($uploadPath, 'storage/')) {
+                                                                        $uploadImgSrc = asset($uploadPath);
+                                                                    } else {
+                                                                        $uploadImgSrc = asset('storage/' . ltrim($uploadPath, '/'));
+                                                                    }
+                                                                }
+                                                            @endphp
+                                                            
+                                                            @if($uploadImgSrc)
+                                                                <img src="{{ $uploadImgSrc }}" 
+                                                                     alt="{{ $upload->section_name }}" 
+                                                                     class="w-16 h-16 object-cover rounded bg-gray-100"
+                                                                     onerror="this.onerror=null; this.outerHTML='<div class=\'w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-400\'><svg class=\'w-6 h-6\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z\' clip-rule=\'evenodd\'/></svg></div>';">
+                                                            @else
+                                                                <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                                                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                                                    </svg>
+                                                                </div>
+                                                            @endif
+                                                            
                                                             <div>
                                                                 <p class="text-sm font-medium text-gray-900">{{ $upload->section_name }}</p>
                                                                 <p class="text-xs text-gray-500">{{ number_format($upload->file_size / 1024, 1) }} KB</p>
@@ -85,14 +113,48 @@
                                         {{-- Regular Order --}}
                                         <div class="space-y-4">
                                             @foreach($order->items as $item)
-                                            <div class="pb-4 border-b">
-                                                <h4 class="font-bold text-gray-900 text-lg mb-2">{{ $item['name'] }}</h4>
-                                                @if($item['color'])
-                                                <p class="text-sm text-gray-600"><span class="font-medium">Warna:</span> {{ $item['color'] }}</p>
-                                                @endif
-                                                <p class="text-sm text-gray-600"><span class="font-medium">Ukuran:</span> {{ $item['size'] ?? '-' }}</p>
-                                                <p class="text-sm text-gray-600"><span class="font-medium">Qty:</span> {{ $item['quantity'] }}</p>
-                                                <p class="text-gray-900 font-semibold mt-2">Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+                                            <div class="pb-4 border-b flex gap-4">
+                                                {{-- Item Thumbnail --}}
+                                                <div class="flex-shrink-0">
+                                                    @php
+                                                        $itemImage = $item['image'] ?? null;
+                                                        $itemImageSrc = null;
+                                                        
+                                                        if ($itemImage) {
+                                                            if (str_starts_with($itemImage, 'http://') || str_starts_with($itemImage, 'https://')) {
+                                                                $itemImageSrc = $itemImage;
+                                                            } elseif (str_starts_with($itemImage, 'storage/')) {
+                                                                $itemImageSrc = asset($itemImage);
+                                                            } else {
+                                                                $itemImageSrc = asset('storage/' . ltrim($itemImage, '/'));
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    
+                                                    @if($itemImageSrc)
+                                                        <img src="{{ $itemImageSrc }}" 
+                                                             alt="{{ $item['name'] }}" 
+                                                             class="w-24 h-24 object-cover rounded bg-gray-100"
+                                                             onerror="this.onerror=null; this.outerHTML='<div class=\'w-24 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400\'><svg class=\'w-8 h-8\' fill=\'currentColor\' viewBox=\'0 0 20 20\'><path fill-rule=\'evenodd\' d=\'M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z\' clip-rule=\'evenodd\'/></svg></div>';">
+                                                    @else
+                                                        <div class="w-24 h-24 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                                                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                
+                                                {{-- Item Details --}}
+                                                <div class="flex-1">
+                                                    <h4 class="font-bold text-gray-900 text-lg mb-2">{{ $item['name'] }}</h4>
+                                                    @if($item['color'])
+                                                    <p class="text-sm text-gray-600"><span class="font-medium">Warna:</span> {{ $item['color'] }}</p>
+                                                    @endif
+                                                    <p class="text-sm text-gray-600"><span class="font-medium">Ukuran:</span> {{ $item['size'] ?? '-' }}</p>
+                                                    <p class="text-sm text-gray-600"><span class="font-medium">Qty:</span> {{ $item['quantity'] }}</p>
+                                                    <p class="text-gray-900 font-semibold mt-2">Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+                                                </div>
                                             </div>
                                             @endforeach
                                         </div>
@@ -112,15 +174,34 @@
                                                     // Priority: first uploaded design > product image > placeholder
                                                     if ($order->uploads && $order->uploads->count() > 0) {
                                                         $firstUpload = $order->uploads->first();
-                                                        $customOrderImage = asset('storage/' . $firstUpload->file_path);
+                                                        $filePath = $firstUpload->file_path;
+                                                        
+                                                        // Handle different path formats
+                                                        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
+                                                            $customOrderImage = $filePath;
+                                                        } elseif (str_starts_with($filePath, 'storage/')) {
+                                                            $customOrderImage = asset($filePath);
+                                                        } else {
+                                                            $customOrderImage = asset('storage/' . ltrim($filePath, '/'));
+                                                        }
                                                     } elseif ($order->product && !empty($order->product->image)) {
-                                                        $customOrderImage = str_starts_with($order->product->image, 'http') 
-                                                            ? $order->product->image 
-                                                            : asset('storage/' . $order->product->image);
+                                                        $productImage = $order->product->image;
+                                                        if (str_starts_with($productImage, 'http://') || str_starts_with($productImage, 'https://')) {
+                                                            $customOrderImage = $productImage;
+                                                        } elseif (str_starts_with($productImage, 'storage/')) {
+                                                            $customOrderImage = asset($productImage);
+                                                        } else {
+                                                            $customOrderImage = asset('storage/' . ltrim($productImage, '/'));
+                                                        }
                                                     } elseif ($order->variant && !empty($order->variant->image)) {
-                                                        $customOrderImage = str_starts_with($order->variant->image, 'http') 
-                                                            ? $order->variant->image 
-                                                            : asset('storage/' . $order->variant->image);
+                                                        $variantImage = $order->variant->image;
+                                                        if (str_starts_with($variantImage, 'http://') || str_starts_with($variantImage, 'https://')) {
+                                                            $customOrderImage = $variantImage;
+                                                        } elseif (str_starts_with($variantImage, 'storage/')) {
+                                                            $customOrderImage = asset($variantImage);
+                                                        } else {
+                                                            $customOrderImage = asset('storage/' . ltrim($variantImage, '/'));
+                                                        }
                                                     }
                                                 @endphp
                                                 
@@ -128,7 +209,7 @@
                                                     <img src="{{ $customOrderImage }}" 
                                                          alt="{{ $order->product_name }}" 
                                                          class="max-w-full max-h-[300px] object-contain rounded-lg"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                         onerror="console.error('Image failed to load:', this.src); this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <div class="text-center" style="display:none;">
                                                         <i class="fas fa-image text-gray-400 text-5xl mb-3"></i>
                                                         <p class="text-gray-500">Desain tidak dapat ditampilkan</p>
@@ -151,10 +232,17 @@
                                                     // Handle different image path formats
                                                     $imageSrc = null;
                                                     if ($imageUrl) {
+                                                        // Check if already full URL
                                                         if (str_starts_with($imageUrl, 'http://') || str_starts_with($imageUrl, 'https://')) {
                                                             $imageSrc = $imageUrl;
-                                                        } else {
-                                                            $imageSrc = asset('storage/' . $imageUrl);
+                                                        } 
+                                                        // Check if already has storage/ prefix
+                                                        elseif (str_starts_with($imageUrl, 'storage/')) {
+                                                            $imageSrc = asset($imageUrl);
+                                                        }
+                                                        // Add storage/ prefix
+                                                        else {
+                                                            $imageSrc = asset('storage/' . ltrim($imageUrl, '/'));
                                                         }
                                                     }
                                                 @endphp
@@ -163,15 +251,16 @@
                                                     <img src="{{ $imageSrc }}" 
                                                          alt="{{ $firstItem['name'] ?? 'Product' }}" 
                                                          class="max-w-full max-h-[300px] object-contain rounded-lg"
-                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                         onerror="console.error('Image failed to load:', this.src); this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <div class="text-center" style="display:none;">
                                                         <i class="fas fa-image text-gray-400 text-5xl mb-3"></i>
-                                                        <p class="text-gray-500">No Image Available</p>
+                                                        <p class="text-gray-500">Gambar tidak dapat ditampilkan</p>
+                                                        <p class="text-xs text-gray-400 mt-1">Path: {{ $imageUrl }}</p>
                                                     </div>
                                                 @else
                                                     <div class="text-center">
                                                         <i class="fas fa-image text-gray-400 text-5xl mb-3"></i>
-                                                        <p class="text-gray-500">No Image Available</p>
+                                                        <p class="text-gray-500">Tidak ada gambar</p>
                                                     </div>
                                                 @endif
                                             @endif

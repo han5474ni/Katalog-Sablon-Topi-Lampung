@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserManagementController extends Controller
 {
@@ -330,7 +331,7 @@ class UserManagementController extends Controller
         $currentAdmin = auth('admin')->user();
         
         // Generate PDF using view
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.customer-detail-pdf', compact('customer', 'currentAdmin'));
+        $pdf = Pdf::loadView('admin.customer-detail-pdf', compact('customer', 'currentAdmin'));
         
         $filename = 'customer-' . str_replace(' ', '-', strtolower($customer->name)) . '-' . date('Y-m-d') . '.pdf';
         

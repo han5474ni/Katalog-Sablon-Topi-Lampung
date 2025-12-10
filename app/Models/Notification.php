@@ -88,4 +88,30 @@ class Notification extends Model
     {
         return $this->read_at !== null;
     }
+
+    /**
+     * Archive the notification
+     */
+    public function archive(): void
+    {
+        $this->update([
+            'archived_at' => now(),
+        ]);
+    }
+
+    /**
+     * Scope for non-archived notifications
+     */
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    /**
+     * Scope for archived notifications
+     */
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
 }

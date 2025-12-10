@@ -39,7 +39,7 @@ trait ImageResolutionTrait
     }
 
     /**
-     * Get variant image safely
+     * Get variant image safely with fallback to same color variant
      *
      * @param int|string $variantId
      * @return string|null
@@ -52,7 +52,39 @@ trait ImageResolutionTrait
 
         $variant = ProductVariant::find($variantId);
         
-        return ($variant && !empty($variant->image)) ? $variant->image : null;
+        if (!$variant) {
+            return null;
+        }
+        
+        // Return image if variant has one
+        if (!empty($variant->image)) {
+            return $variant->image;
+        }
+        
+        // Fallback: Try to find another variant with same color that has image
+        if (!empty($variant->color) && !empty($variant->product_id)) {
+            $sameColorVariant = ProductVariant::where('product_id', $variant->product_id)
+                ->where('color', $variant->color)
+                ->whereNotNull('image')
+                ->first();
+            
+            if ($sameColorVariant) {
+                return $sameColorVariant->image;
+            }
+        }
+        
+        // Fallback: Try to find any variant from same product that has image
+        if (!empty($variant->product_id)) {
+            $anyVariant = ProductVariant::where('product_id', $variant->product_id)
+                ->whereNotNull('image')
+                ->first();
+            
+            if ($anyVariant) {
+                return $anyVariant->image;
+            }
+        }
+        
+        return null;
     }
 
     /**

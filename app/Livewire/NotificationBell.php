@@ -42,11 +42,13 @@ class NotificationBell extends Component
         // Get latest 10 notifications
         $this->notifications = $this->notificationService
             ->getNotifications($user, 10)
+            ->get()
             ->toArray();
 
-        // Get unread count
+        // Get unread count - pass userId and type
+        $type = $this->guardType === 'admin' ? 'admin' : 'user';
         $this->unreadCount = $this->notificationService
-            ->getUnreadCount($user);
+            ->getUnreadCount($user->id, $type);
     }
 
     /**
@@ -69,11 +71,19 @@ class NotificationBell extends Component
         $user = $this->getAuthenticatedUser();
         
         if ($user) {
-            $this->notificationService->markAsRead($user, $notificationId);
-            $this->loadNotifications();
-            
-            // Dispatch browser event for UI feedback
-            $this->dispatch('notification-read', notificationId: $notificationId);
+            // Verify notification belongs to this user before marking as read
+            $notification = \App\Models\Notification::where('id', $notificationId)
+                ->where('notifiable_type', get_class($user))
+                ->where('notifiable_id', $user->id)
+                ->first();
+                
+            if ($notification) {
+                $this->notificationService->markAsRead($notificationId);
+                $this->loadNotifications();
+                
+                // Dispatch browser event for UI feedback
+                $this->dispatch('notification-read', notificationId: $notificationId);
+            }
         }
     }
 
@@ -85,7 +95,8 @@ class NotificationBell extends Component
         $user = $this->getAuthenticatedUser();
         
         if ($user) {
-            $this->notificationService->markAllAsRead($user);
+            $type = $this->guardType === 'admin' ? 'admin' : 'user';
+            $this->notificationService->markAllAsRead($user->id, $type);
             $this->loadNotifications();
             
             // Dispatch browser event

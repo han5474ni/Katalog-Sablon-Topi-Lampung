@@ -141,6 +141,16 @@ class NotificationService
     protected function queueEmailSimple(Notification $notification, $recipient, array $data): void
     {
         try {
+            // Skip sending email to invalid/dummy email addresses in testing mode
+            $invalidEmails = ['admin@example.com', 'test@example.com', 'noreply@example.com'];
+            if (in_array(strtolower($recipient->email), $invalidEmails)) {
+                Log::info('Skipping email to dummy address', [
+                    'notification_id' => $notification->id,
+                    'recipient_email' => $recipient->email,
+                ]);
+                return;
+            }
+            
             // Create notification log
             $log = NotificationLog::create([
                 'notification_id' => $notification->id,

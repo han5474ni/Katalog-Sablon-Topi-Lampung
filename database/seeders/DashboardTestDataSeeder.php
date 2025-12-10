@@ -15,6 +15,14 @@ class DashboardTestDataSeeder extends Seeder
      */
     public function run(): void
     {
+        // Check if test data already exists
+        $existingTestUser = User::where('email', 'LIKE', 'dashboard_test_%@test.com')->first();
+        if ($existingTestUser) {
+            $this->command->warn('⚠ Dashboard test data already exists. Skipping...');
+            $this->command->info('To reseed, delete test users first or run: php artisan migrate:refresh --seed');
+            return;
+        }
+
         // Create test users with verified emails
         $users = [];
         for ($i = 1; $i <= 10; $i++) {
