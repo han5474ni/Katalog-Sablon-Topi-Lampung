@@ -177,7 +177,7 @@ MAIL_FROM_ADDRESS=your-email@gmail.com
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-### Midtrans Payment Gateway (Optional)
+### Midtrans Payment Gateway 
 
 Untuk testing payment gateway:
 
@@ -190,22 +190,6 @@ MIDTRANS_IS_3DS=true
 ```
 
 Dapatkan credentials di [Midtrans Dashboard](https://dashboard.midtrans.com/)
-
-### Queue Configuration (Optional)
-
-Untuk production, gunakan database atau Redis sebagai queue driver:
-
-```env
-QUEUE_CONNECTION=database
-```
-
-Jalankan queue worker:
-```bash
-php artisan queue:work
-
-# Atau gunakan supervisor (production)
-# Lihat file: supervisor-queue-worker.conf
-```
 
 ---
 
